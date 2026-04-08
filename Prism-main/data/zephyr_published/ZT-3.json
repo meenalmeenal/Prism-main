@@ -1,0 +1,142 @@
+{
+  "issue_key": "ZT-3",
+  "dry_run": false,
+  "test_case_count": 3,
+  "results_count": 3,
+  "test_cases": [
+    {
+      "id": "ZT-3-RB-001",
+      "title": "Successful behaviour: system accepts valid scenario for The system supports the following behaviour: Login Functionality",
+      "type": "positive",
+      "priority": "P1",
+      "preconditions": [
+        "Implementation for Jira issue ZT-3 is deployed to the test environment.",
+        "Tester has access to the application area related to: Login Functionality."
+      ],
+      "steps": [
+        {
+          "step_number": 1,
+          "action": "Navigate to the feature described by: Login Functionality.",
+          "expected_result": "Relevant UI or API endpoint is available."
+        },
+        {
+          "step_number": 2,
+          "action": "Perform the primary user action that should satisfy: The system supports the following behaviour: Login Functionality.",
+          "test_data": "Use a typical, valid data set representative of normal usage.",
+          "expected_result": "The system behaves exactly as described in the acceptance criterion: The system supports the following behaviour: Login Functionality"
+        },
+        {
+          "step_number": 3,
+          "action": "Verify persisted state, UI feedback, and any side effects.",
+          "expected_result": "All observable outcomes align with the business expectation and no errors are shown."
+        }
+      ],
+      "tags": [
+        "rule_based",
+        "fallback",
+        "positive",
+        "ai_unavailable"
+      ],
+      "confidence_score": 0.7,
+      "generated_by": "RuleBasedFallback",
+      "version": "1.0",
+      "quality_score": 80,
+      "needs_review": false
+    },
+    {
+      "id": "ZT-3-RB-002",
+      "title": "Failure handling: system rejects invalid or unauthorised scenario for The system supports the following behaviour: Login Functionality",
+      "type": "negative",
+      "priority": "P2",
+      "preconditions": [
+        "Implementation for Jira issue ZT-3 is deployed to the test environment.",
+        "Tester has access to the application area related to: Login Functionality."
+      ],
+      "steps": [
+        {
+          "step_number": 1,
+          "action": "Navigate to the feature related to: Login Functionality.",
+          "expected_result": "Feature can be accessed by an authorised tester."
+        },
+        {
+          "step_number": 2,
+          "action": "Attempt to violate the acceptance criterion by providing invalid or missing data for: The system supports the following behaviour: Login Functionality.",
+          "test_data": "Use clearly invalid, out-of-contract, or unauthorised values.",
+          "expected_result": "The system rejects the input gracefully, provides helpful feedback, and does not corrupt state."
+        },
+        {
+          "step_number": 3,
+          "action": "Observe logs or error messages if available.",
+          "expected_result": "Errors are logged appropriately without exposing sensitive details to the end user."
+        }
+      ],
+      "tags": [
+        "rule_based",
+        "fallback",
+        "negative",
+        "ai_unavailable"
+      ],
+      "confidence_score": 0.7,
+      "generated_by": "RuleBasedFallback",
+      "version": "1.0",
+      "quality_score": 80,
+      "needs_review": false
+    },
+    {
+      "id": "ZT-3-RB-003",
+      "title": "Boundary conditions: limits and edge cases covered for The system supports the following behaviour: Login Functionality",
+      "type": "boundary",
+      "priority": "P2",
+      "preconditions": [
+        "Implementation for Jira issue ZT-3 is deployed to the test environment.",
+        "Tester has access to the application area related to: Login Functionality."
+      ],
+      "steps": [
+        {
+          "step_number": 1,
+          "action": "Identify boundary values for inputs involved in: The system supports the following behaviour: Login Functionality.",
+          "test_data": "Min, max, just-below, and just-above boundary values.",
+          "expected_result": "Boundary values are clearly identified for all relevant fields or parameters."
+        },
+        {
+          "step_number": 2,
+          "action": "Execute the operation using each boundary value in isolation.",
+          "expected_result": "The system handles all boundary values without crashes or data loss."
+        },
+        {
+          "step_number": 3,
+          "action": "Execute a combined scenario using multiple boundary values together.",
+          "expected_result": "Combined boundary conditions still meet the intent of the acceptance criterion or fail safely with clear messaging."
+        }
+      ],
+      "tags": [
+        "rule_based",
+        "fallback",
+        "boundary",
+        "ai_unavailable"
+      ],
+      "confidence_score": 0.7,
+      "generated_by": "RuleBasedFallback",
+      "version": "1.0",
+      "quality_score": 85,
+      "needs_review": false
+    }
+  ],
+  "results": [
+    {
+      "local_id": "ZT-3-RB-001",
+      "zephyr_key": "ZEPHYR-ZT-3-001",
+      "status": "mock_published_fallback"
+    },
+    {
+      "local_id": "ZT-3-RB-002",
+      "zephyr_key": "ZEPHYR-ZT-3-002",
+      "status": "mock_published_fallback"
+    },
+    {
+      "local_id": "ZT-3-RB-003",
+      "zephyr_key": "ZEPHYR-ZT-3-003",
+      "status": "mock_published_fallback"
+    }
+  ]
+}

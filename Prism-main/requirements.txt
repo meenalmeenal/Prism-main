@@ -1,0 +1,25 @@
+requests
+python-dotenv
+pyyaml
+pytest
+json-repair>=0.25.0
+
+# AI
+# google-generativeai
+groq
+
+# GitHub / Jira
+PyGithub>=2.0.0
+requests-toolbelt
+
+# Async + HTTP (Zephyr integration)
+aiohttp>=3.9.0
+async-timeout
+httpx
+websockets
+yarl
+
+# Reliability / retries
+backoff
+retry
+tenacity

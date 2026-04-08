@@ -1,0 +1,513 @@
+[
+  {
+    "id": "ZT-4-TC-001-POSITIVE",
+    "title": "Successful user registration with valid credentials and confirmation email receipt",
+    "type": "positive",
+    "priority": "P1",
+    "preconditions": [
+      "User is on the registration page",
+      "Network connection is stable",
+      "Email service is operational"
+    ],
+    "steps": [
+      {
+        "step_number": 1,
+        "action": "Navigate to the user registration page",
+        "test_data": "https://your-app.com/register",
+        "expected_result": "Registration form is displayed with fields for email and password"
+      },
+      {
+        "step_number": 2,
+        "action": "Enter a valid, unique email address into the 'Email' field",
+        "test_data": "valid.user.1@example.com",
+        "expected_result": "Email field is populated with 'valid.user.1@example.com'"
+      },
+      {
+        "step_number": 3,
+        "action": "Enter a valid password (at least 8 characters) into the 'Password' field",
+        "test_data": "SecurePass_123",
+        "expected_result": "Password field is populated with masked characters. Registration button is enabled."
+      },
+      {
+        "step_number": 4,
+        "action": "Click the 'Register' button",
+        "test_data": null,
+        "expected_result": "User is redirected to a 'Registration Successful' or 'Check your email' page/message. No error messages displayed."
+      },
+      {
+        "step_number": 5,
+        "action": "Check the inbox for 'valid.user.1@example.com' for a confirmation email",
+        "test_data": "Email client/service for valid.user.1@example.com",
+        "expected_result": "A confirmation email with subject 'Confirm your account' (or similar) is received from the application. The email contains a confirmation link."
+      },
+      {
+        "step_number": 6,
+        "action": "Click the confirmation link in the received email",
+        "test_data": null,
+        "expected_result": "User is redirected to the application and a 'Email Confirmed' message is displayed. User account status is updated to 'confirmed'."
+      }
+    ],
+    "tags": [
+      "positive",
+      "registration",
+      "email-confirmation",
+      "P1"
+    ],
+    "confidence_score": 0.95,
+    "generated_by": "Gemini-AI (gemini-2.5-flash)",
+    "version": "1.0",
+    "quality_score": 90,
+    "needs_review": false
+  },
+  {
+    "id": "ZT-4-TC-002-POSITIVE",
+    "title": "Successful user registration with a complex, valid password",
+    "type": "positive",
+    "priority": "P2",
+    "preconditions": [
+      "User is on the registration page",
+      "Network connection is stable",
+      "Email service is operational"
+    ],
+    "steps": [
+      {
+        "step_number": 1,
+        "action": "Navigate to the user registration page",
+        "test_data": "https://your-app.com/register",
+        "expected_result": "Registration form is displayed with fields for email and password"
+      },
+      {
+        "step_number": 2,
+        "action": "Enter a valid, unique email address into the 'Email' field",
+        "test_data": "complex.pass.user@example.net",
+        "expected_result": "Email field is populated with 'complex.pass.user@example.net'"
+      },
+      {
+        "step_number": 3,
+        "action": "Enter a complex password (more than 8 characters, special chars, numbers, mixed case) into the 'Password' field",
+        "test_data": "P@ssw0rd!2024",
+        "expected_result": "Password field is populated with masked characters. Registration button is enabled."
+      },
+      {
+        "step_number": 4,
+        "action": "Click the 'Register' button",
+        "test_data": null,
+        "expected_result": "User is redirected to a 'Registration Successful' or 'Check your email' page/message. No error messages displayed."
+      },
+      {
+        "step_number": 5,
+        "action": "Verify a confirmation email is sent to 'complex.pass.user@example.net'",
+        "test_data": "Email client/service for complex.pass.user@example.net",
+        "expected_result": "A confirmation email is received from the application containing a confirmation link."
+      }
+    ],
+    "tags": [
+      "positive",
+      "registration",
+      "password",
+      "email-confirmation"
+    ],
+    "confidence_score": 0.95,
+    "generated_by": "Gemini-AI (gemini-2.5-flash)",
+    "version": "1.0",
+    "quality_score": 90,
+    "needs_review": false
+  },
+  {
+    "id": "ZT-4-TC-003-NEGATIVE",
+    "title": "Attempt to register with an already existing email address",
+    "type": "negative",
+    "priority": "P1",
+    "preconditions": [
+      "User 'valid.user.1@example.com' is already registered (from ZT-4-TC-001-POSITIVE)",
+      "User is on the registration page"
+    ],
+    "steps": [
+      {
+        "step_number": 1,
+        "action": "Navigate to the user registration page",
+        "test_data": "https://your-app.com/register",
+        "expected_result": "Registration form is displayed"
+      },
+      {
+        "step_number": 2,
+        "action": "Enter the email address of an already registered user into the 'Email' field",
+        "test_data": "valid.user.1@example.com",
+        "expected_result": "Email field is populated with 'valid.user.1@example.com'"
+      },
+      {
+        "step_number": 3,
+        "action": "Enter a valid password into the 'Password' field",
+        "test_data": "NewPass_456",
+        "expected_result": "Password field is populated with masked characters. Registration button is enabled."
+      },
+      {
+        "step_number": 4,
+        "action": "Click the 'Register' button",
+        "test_data": null,
+        "expected_result": "An error message indicating 'Email already registered' or 'This email is already in use' is displayed on the page. User is not registered and remains on the registration page."
+      }
+    ],
+    "tags": [
+      "negative",
+      "registration",
+      "email-uniqueness",
+      "error-handling"
+    ],
+    "confidence_score": 0.95,
+    "generated_by": "Gemini-AI (gemini-2.5-flash)",
+    "version": "1.0",
+    "quality_score": 80,
+    "needs_review": false
+  },
+  {
+    "id": "ZT-4-TC-004-NEGATIVE",
+    "title": "Attempt to register with a password less than 8 characters",
+    "type": "negative",
+    "priority": "P1",
+    "preconditions": [
+      "User is on the registration page"
+    ],
+    "steps": [
+      {
+        "step_number": 1,
+        "action": "Navigate to the user registration page",
+        "test_data": "https://your-app.com/register",
+        "expected_result": "Registration form is displayed"
+      },
+      {
+        "step_number": 2,
+        "action": "Enter a unique valid email address into the 'Email' field",
+        "test_data": "shortpass@example.com",
+        "expected_result": "Email field is populated with 'shortpass@example.com'"
+      },
+      {
+        "step_number": 3,
+        "action": "Enter a password that is less than 8 characters long (e.g., 7 characters)",
+        "test_data": "short_P",
+        "expected_result": "Password field is populated with masked characters. Registration button may be disabled or an immediate validation error message appears."
+      },
+      {
+        "step_number": 4,
+        "action": "Click the 'Register' button (if enabled)",
+        "test_data": null,
+        "expected_result": "An error message indicating 'Password must be at least 8 characters' is displayed. User is not registered and remains on the registration page."
+      }
+    ],
+    "tags": [
+      "negative",
+      "registration",
+      "password-policy",
+      "error-handling"
+    ],
+    "confidence_score": 0.95,
+    "generated_by": "Gemini-AI (gemini-2.5-flash)",
+    "version": "1.0",
+    "quality_score": 75,
+    "needs_review": false
+  },
+  {
+    "id": "ZT-4-TC-005-BOUNDARY",
+    "title": "Successful registration with password exactly 8 characters long",
+    "type": "boundary",
+    "priority": "P2",
+    "preconditions": [
+      "User is on the registration page",
+      "Network connection is stable",
+      "Email service is operational"
+    ],
+    "steps": [
+      {
+        "step_number": 1,
+        "action": "Navigate to the user registration page",
+        "test_data": "https://your-app.com/register",
+        "expected_result": "Registration form is displayed"
+      },
+      {
+        "step_number": 2,
+        "action": "Enter a valid, unique email address into the 'Email' field",
+        "test_data": "eightcharpass@example.net",
+        "expected_result": "Email field is populated with 'eightcharpass@example.net'"
+      },
+      {
+        "step_number": 3,
+        "action": "Enter a password that is exactly 8 characters long",
+        "test_data": "P@ssword",
+        "expected_result": "Password field is populated with masked characters. Registration button is enabled."
+      },
+      {
+        "step_number": 4,
+        "action": "Click the 'Register' button",
+        "test_data": null,
+        "expected_result": "User is redirected to a 'Registration Successful' or 'Check your email' page/message. No error messages displayed."
+      },
+      {
+        "step_number": 5,
+        "action": "Verify a confirmation email is sent to 'eightcharpass@example.net'",
+        "test_data": "Email client/service for eightcharpass@example.net",
+        "expected_result": "A confirmation email is received from the application containing a confirmation link."
+      }
+    ],
+    "tags": [
+      "boundary",
+      "registration",
+      "password-length"
+    ],
+    "confidence_score": 0.95,
+    "generated_by": "Gemini-AI (gemini-2.5-flash)",
+    "version": "1.0",
+    "quality_score": 90,
+    "needs_review": false
+  },
+  {
+    "id": "ZT-4-TC-006-BOUNDARY",
+    "title": "Successful registration with maximum allowed password length (assuming 64 characters)",
+    "type": "boundary",
+    "priority": "P3",
+    "preconditions": [
+      "User is on the registration page",
+      "Network connection is stable",
+      "Email service is operational",
+      "Maximum password length is 64 characters"
+    ],
+    "steps": [
+      {
+        "step_number": 1,
+        "action": "Navigate to the user registration page",
+        "test_data": "https://your-app.com/register",
+        "expected_result": "Registration form is displayed"
+      },
+      {
+        "step_number": 2,
+        "action": "Enter a valid, unique email address into the 'Email' field",
+        "test_data": "longpassuser@example.org",
+        "expected_result": "Email field is populated with 'longpassuser@example.org'"
+      },
+      {
+        "step_number": 3,
+        "action": "Enter a password that is exactly 64 characters long",
+        "test_data": "SuperStrongPasswordWithMaximumAllowedLength64CharactersLongABCDEFGH12345",
+        "expected_result": "Password field is populated with masked characters. The password field should accept the full 64 characters without truncation. Registration button is enabled."
+      },
+      {
+        "step_number": 4,
+        "action": "Click the 'Register' button",
+        "test_data": null,
+        "expected_result": "User is redirected to a 'Registration Successful' or 'Check your email' page/message. No error messages displayed."
+      },
+      {
+        "step_number": 5,
+        "action": "Verify a confirmation email is sent to 'longpassuser@example.org'",
+        "test_data": "Email client/service for longpassuser@example.org",
+        "expected_result": "A confirmation email is received from the application containing a confirmation link."
+      }
+    ],
+    "tags": [
+      "boundary",
+      "registration",
+      "password-length"
+    ],
+    "confidence_score": 0.95,
+    "generated_by": "Gemini-AI (gemini-2.5-flash)",
+    "version": "1.0",
+    "quality_score": 85,
+    "needs_review": false
+  },
+  {
+    "id": "ZT-4-TC-007-UI_VALIDATION",
+    "title": "Verify real-time UI validation feedback for email format and password length",
+    "type": "ui_validation",
+    "priority": "P2",
+    "preconditions": [
+      "User is on the registration page"
+    ],
+    "steps": [
+      {
+        "step_number": 1,
+        "action": "Navigate to the user registration page",
+        "test_data": "https://your-app.com/register",
+        "expected_result": "Registration form is displayed"
+      },
+      {
+        "step_number": 2,
+        "action": "Enter an invalid email format into the 'Email' field",
+        "test_data": "invalid-email",
+        "expected_result": "A real-time error message like 'Please enter a valid email address' appears below the email field. Registration button remains disabled."
+      },
+      {
+        "step_number": 3,
+        "action": "Correct the email format to a valid one (but not necessarily unique yet)",
+        "test_data": "ui.test@example.com",
+        "expected_result": "The email format error message disappears. Registration button may still be disabled if password is not valid."
+      },
+      {
+        "step_number": 4,
+        "action": "Enter a password less than 8 characters into the 'Password' field",
+        "test_data": "short",
+        "expected_result": "A real-time error message like 'Password must be at least 8 characters' appears below the password field. Registration button remains disabled."
+      },
+      {
+        "step_number": 5,
+        "action": "Increase the password length to exactly 8 characters",
+        "test_data": "password",
+        "expected_result": "The password length error message disappears. The registration button becomes enabled, assuming all other fields are valid."
+      }
+    ],
+    "tags": [
+      "ui-validation",
+      "form-validation",
+      "real-time",
+      "usability"
+    ],
+    "confidence_score": 0.95,
+    "generated_by": "Gemini-AI (gemini-2.5-flash)",
+    "version": "1.0",
+    "quality_score": 80,
+    "needs_review": false
+  },
+  {
+    "id": "ZT-4-TC-008-RISK_BASED",
+    "title": "Attempt SQL Injection in Email field during registration",
+    "type": "risk_based",
+    "priority": "P1",
+    "preconditions": [
+      "User is on the registration page"
+    ],
+    "steps": [
+      {
+        "step_number": 1,
+        "action": "Navigate to the user registration page",
+        "test_data": "https://your-app.com/register",
+        "expected_result": "Registration form is displayed"
+      },
+      {
+        "step_number": 2,
+        "action": "Enter a SQL Injection payload into the 'Email' field",
+        "test_data": "test@example.com' OR '1'='1; --",
+        "expected_result": "The application should either reject the input due to invalid email format, sanitize the input, or escape special characters. No SQL error messages should be displayed to the user. Registration button might be disabled due to invalid email format."
+      },
+      {
+        "step_number": 3,
+        "action": "Enter a valid password into the 'Password' field",
+        "test_data": "SecurePass_123",
+        "expected_result": "Password field is populated with masked characters."
+      },
+      {
+        "step_number": 4,
+        "action": "Click the 'Register' button (if enabled)",
+        "test_data": null,
+        "expected_result": "The application should prevent registration with the injected email. An error message related to invalid email format should be displayed. There should be no signs of database errors or successful injection (e.g., unintended registration, data exposure)."
+      }
+    ],
+    "tags": [
+      "risk-based",
+      "security",
+      "sql-injection",
+      "data-integrity"
+    ],
+    "confidence_score": 0.95,
+    "generated_by": "Gemini-AI (gemini-2.5-flash)",
+    "version": "1.0",
+    "quality_score": 85,
+    "needs_review": false
+  },
+  {
+    "id": "ZT-4-TC-009-RISK_BASED",
+    "title": "Attempt XSS (Cross-Site Scripting) in Email field during registration",
+    "type": "risk_based",
+    "priority": "P2",
+    "preconditions": [
+      "User is on the registration page",
+      "Ability to view system logs or received emails (if email is reflected in subject/body)"
+    ],
+    "steps": [
+      {
+        "step_number": 1,
+        "action": "Navigate to the user registration page",
+        "test_data": "https://your-app.com/register",
+        "expected_result": "Registration form is displayed"
+      },
+      {
+        "step_number": 2,
+        "action": "Enter an XSS payload into the 'Email' field",
+        "test_data": "<script>alert('XSS')</script>@example.com",
+        "expected_result": "The application should ideally reject the input due to invalid email format or sanitize the input. The browser should NOT execute the script. The registration button may be disabled."
+      },
+      {
+        "step_number": 3,
+        "action": "Enter a valid password into the 'Password' field",
+        "test_data": "SecurePass_123",
+        "expected_result": "Password field is populated with masked characters."
+      },
+      {
+        "step_number": 4,
+        "action": "Click the 'Register' button (if enabled)",
+        "test_data": null,
+        "expected_result": "The application should prevent registration with the XSS payload. No pop-up alert should appear. If a confirmation email is sent, the email address (if reflected) should be properly escaped in the email body/subject."
+      },
+      {
+        "step_number": 5,
+        "action": "If registration was allowed, attempt to log in and navigate to a profile page where the email might be displayed.",
+        "test_data": null,
+        "expected_result": "No XSS alert should fire, and the email should be displayed as plain text (escaped) on any profile or user management pages."
+      }
+    ],
+    "tags": [
+      "risk-based",
+      "security",
+      "xss",
+      "input-validation"
+    ],
+    "confidence_score": 0.95,
+    "generated_by": "Gemini-AI (gemini-2.5-flash)",
+    "version": "1.0",
+    "quality_score": 95,
+    "needs_review": false
+  },
+  {
+    "id": "ZT-4-TC-010-NEGATIVE",
+    "title": "Attempt to register with an invalid email format",
+    "type": "negative",
+    "priority": "P2",
+    "preconditions": [
+      "User is on the registration page"
+    ],
+    "steps": [
+      {
+        "step_number": 1,
+        "action": "Navigate to the user registration page",
+        "test_data": "https://your-app.com/register",
+        "expected_result": "Registration form is displayed"
+      },
+      {
+        "step_number": 2,
+        "action": "Enter an email address with an incorrect format (missing '@' and domain)",
+        "test_data": "invalidemailaddress",
+        "expected_result": "Email field is populated. A real-time validation error message 'Please enter a valid email address' (or similar) should appear. Registration button should be disabled."
+      },
+      {
+        "step_number": 3,
+        "action": "Enter a valid password into the 'Password' field",
+        "test_data": "ValidPass123",
+        "expected_result": "Password field is populated with masked characters."
+      },
+      {
+        "step_number": 4,
+        "action": "Click the 'Register' button (if enabled)",
+        "test_data": null,
+        "expected_result": "The application displays an error message 'Please enter a valid email address'. User is not registered and remains on the registration page. No new user account is created."
+      }
+    ],
+    "tags": [
+      "negative",
+      "registration",
+      "email-format",
+      "error-handling"
+    ],
+    "confidence_score": 0.95,
+    "generated_by": "Gemini-AI (gemini-2.5-flash)",
+    "version": "1.0",
+    "quality_score": 75,
+    "needs_review": false
+  }
+]

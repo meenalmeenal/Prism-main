@@ -1,0 +1,48 @@
+{
+  "issue_key": "ZT-125",
+  "framework": "playwright",
+  "start_time": "2026-02-19T17:14:10.971052",
+  "total_tests": 5,
+  "passed": 5,
+  "failed": 0,
+  "skipped": 0,
+  "test_results": [
+    {
+      "status": "passed",
+      "note": "Mock execution (Playwright not installed)",
+      "duration_seconds": 0.007802009582519531,
+      "test_file": "generated_tests\\ZT-125_ZT-125-TC-001-POSITIVE.spec.js",
+      "test_name": "ZT-125_ZT-125-TC-001-POSITIVE.spec"
+    },
+    {
+      "status": "passed",
+      "note": "Mock execution (Playwright not installed)",
+      "duration_seconds": 0.007048606872558594,
+      "test_file": "generated_tests\\ZT-125_ZT-125-TC-002-POSITIVE.spec.js",
+      "test_name": "ZT-125_ZT-125-TC-002-POSITIVE.spec"
+    },
+    {
+      "status": "passed",
+      "note": "Mock execution (Playwright not installed)",
+      "duration_seconds": 0.005322456359863281,
+      "test_file": "generated_tests\\ZT-125_ZT-125-TC-003-NEGATIVE.spec.js",
+      "test_name": "ZT-125_ZT-125-TC-003-NEGATIVE.spec"
+    },
+    {
+      "status": "passed",
+      "note": "Mock execution (Playwright not installed)",
+      "duration_seconds": 0.0086822509765625,
+      "test_file": "generated_tests\\ZT-125_ZT-125-TC-004-NEGATIVE.spec.js",
+      "test_name": "ZT-125_ZT-125-TC-004-NEGATIVE.spec"
+    },
+    {
+      "status": "passed",
+      "note": "Mock execution (Playwright not installed)",
+      "duration_seconds": 0.0065577030181884766,
+      "test_file": "generated_tests\\ZT-125_ZT-125-TC-005-BOUNDARY.spec.js",
+      "test_name": "ZT-125_ZT-125-TC-005-BOUNDARY.spec"
+    }
+  ],
+  "end_time": "2026-02-19T17:14:11.009936",
+  "duration_seconds": 0.038884
+}

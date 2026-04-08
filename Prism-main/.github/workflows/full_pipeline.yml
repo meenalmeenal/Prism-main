@@ -1,0 +1,98 @@
+name: Full Prism Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+    inputs:
+      issue_key:
+        description: 'Jira Issue Key (e.g., ZT-3)'
+        required: true
+        type: string
+
+jobs:
+  run-pipeline:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      
+      - name: Install Python dependencies
+        run: |
+          pip install -r requirements.txt
+      
+      - name: Set up Node.js (for automation frameworks)
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+      
+      - name: Install Playwright (if needed)
+        run: |
+          npx playwright install --with-deps || echo "Playwright installation skipped"
+        continue-on-error: true
+      
+      - name: Run Prism Pipeline
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY || '' }}  # Make optional
+          JIRA_BASE_URL: ${{ secrets.JIRA_BASE_URL || '' }}
+          JIRA_EMAIL: ${{ secrets.JIRA_EMAIL || '' }}
+          JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN || '' }}
+          ZEPHYR_API_TOKEN: ${{ secrets.ZEPHYR_API_TOKEN || '' }}
+          ZEPHYR_BASE_URL: ${{ secrets.ZEPHYR_BASE_URL || '' }}
+          APP_BASE_URL: ${{ secrets.APP_BASE_URL || 'http://localhost:3000' }}
+          GENERATE_AUTOMATION: ${{ secrets.GENERATE_AUTOMATION || 'false' }}  # Default to false
+          EXECUTE_TESTS: ${{ secrets.EXECUTE_TESTS || 'false' }}
+          SYNC_RESULTS: ${{ secrets.SYNC_RESULTS || 'false' }}
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            ISSUE_KEY="${{ github.event.inputs.issue_key }}"
+          else
+            # Default issue key for CI runs
+            ISSUE_KEY="${GITHUB_ISSUE_KEY:-ZT-3}"
+          fi
+          
+          # Only run the pipeline if we have the required API keys or AI generation is disabled
+          if [ -z "$GEMINI_API_KEY" ] && [ "$GENERATE_AUTOMATION" = "true" ]; then
+            echo "::warning::GEMINI_API_KEY is required for AI test generation. Set GENERATE_AUTOMATION=false to skip AI generation."
+            exit 1
+          fi
+          
+          # Run the pipeline with the issue key
+          python -m src.pipeline.enhanced_pipeline jira "$ISSUE_KEY" --framework playwright 
+      
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: |
+            test_results/
+            generated_tests/
+            data/zephyr_published/
+      
+      - name: Generate dashboard
+        if: always()
+        run: |
+          python -c "
+          from src.dashboard.metrics_tracker import MetricsTracker
+          import json
+          tracker = MetricsTracker()
+          dashboard = tracker.generate_dashboard_data()
+          print(json.dumps(dashboard, indent=2))
+          " > dashboard.json
+      
+      - name: Upload dashboard
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dashboard
+          path: dashboard.json
+

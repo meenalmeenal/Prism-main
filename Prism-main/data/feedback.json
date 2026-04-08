@@ -1,0 +1,98 @@
+[
+  {
+    "test_case_id": "ZT-123_ZT-123-TC-001-POSITIVE.spec",
+    "issue_key": "ZT-123",
+    "error_message": "[WinError 2] The system cannot find the file specified",
+    "test_steps": [],
+    "timestamp": "2026-03-07T22:00:44.575324",
+    "resolved": false
+  },
+  {
+    "test_case_id": "ZT-123_ZT-123-TC-002-POSITIVE.spec",
+    "issue_key": "ZT-123",
+    "error_message": "[WinError 2] The system cannot find the file specified",
+    "test_steps": [],
+    "timestamp": "2026-03-07T22:00:44.576473",
+    "resolved": false
+  },
+  {
+    "test_case_id": "ZT-123_ZT-123-TC-003-NEGATIVE.spec",
+    "issue_key": "ZT-123",
+    "error_message": "[WinError 2] The system cannot find the file specified",
+    "test_steps": [],
+    "timestamp": "2026-03-07T22:00:44.576473",
+    "resolved": false
+  },
+  {
+    "test_case_id": "ZT-123_ZT-123-TC-004-NEGATIVE.spec",
+    "issue_key": "ZT-123",
+    "error_message": "[WinError 2] The system cannot find the file specified",
+    "test_steps": [],
+    "timestamp": "2026-03-07T22:00:44.577506",
+    "resolved": false
+  },
+  {
+    "test_case_id": "ZT-123_ZT-123-TC-005-BOUNDARY.spec",
+    "issue_key": "ZT-123",
+    "error_message": "[WinError 2] The system cannot find the file specified",
+    "test_steps": [],
+    "timestamp": "2026-03-07T22:00:44.577506",
+    "resolved": false
+  },
+  {
+    "test_case_id": "ZT-123_ZT-123-TC-001-POSITIVE.spec",
+    "issue_key": "ZT-123",
+    "error_message": "[WinError 2] The system cannot find the file specified",
+    "test_steps": [],
+    "timestamp": "2026-03-07T22:04:57.834691",
+    "resolved": false
+  },
+  {
+    "test_case_id": "ZT-123_ZT-123-TC-002-POSITIVE.spec",
+    "issue_key": "ZT-123",
+    "error_message": "[WinError 2] The system cannot find the file specified",
+    "test_steps": [],
+    "timestamp": "2026-03-07T22:04:57.835850",
+    "resolved": false
+  },
+  {
+    "test_case_id": "ZT-123_ZT-123-TC-003-NEGATIVE.spec",
+    "issue_key": "ZT-123",
+    "error_message": "[WinError 2] The system cannot find the file specified",
+    "test_steps": [],
+    "timestamp": "2026-03-07T22:04:57.835850",
+    "resolved": false
+  },
+  {
+    "test_case_id": "ZT-123_ZT-123-TC-004-NEGATIVE.spec",
+    "issue_key": "ZT-123",
+    "error_message": "[WinError 2] The system cannot find the file specified",
+    "test_steps": [],
+    "timestamp": "2026-03-07T22:04:57.836849",
+    "resolved": false
+  },
+  {
+    "test_case_id": "ZT-123_ZT-123-TC-005-BOUNDARY.spec",
+    "issue_key": "ZT-123",
+    "error_message": "[WinError 2] The system cannot find the file specified",
+    "test_steps": [],
+    "timestamp": "2026-03-07T22:04:57.839866",
+    "resolved": false
+  },
+  {
+    "test_case_id": "ZT-123_ZT-123-TC-002-POSITIVE.spec",
+    "issue_key": "ZT-123",
+    "error_message": "Unknown error",
+    "test_steps": [],
+    "timestamp": "2026-03-07T23:38:29.465140",
+    "resolved": false
+  },
+  {
+    "test_case_id": "playwright_suite",
+    "issue_key": "ZT-123",
+    "error_message": "^C",
+    "test_steps": [],
+    "timestamp": "2026-04-08T12:25:57.099972",
+    "resolved": false
+  }
+]
