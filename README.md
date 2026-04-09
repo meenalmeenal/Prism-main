@@ -1,4 +1,4 @@
-# 🏗️ Prism – AI-Powered Test Automation Framework
+#  Prism – AI-Powered Test Automation Framework
 
 Prism is an **AI-driven test automation framework** that automatically generates, validates, and executes test cases from **Jira issues or GitHub pull requests**, and publishes them to **Zephyr test management** while generating **Playwright automation scripts**.
 
@@ -8,36 +8,36 @@ This project is developed as part of the **Samsung PRISM R&D Program**.
 
 ---
 
-# 🚀 Key Features
+#  Key Features
 
-### 🤖 AI-Powered Test Generation
+###  AI-Powered Test Generation
 
 Generate test cases automatically using **Groq LLaMA models**.
 
-### 🔗 Jira Integration
+###  Jira Integration
 
 Automatically fetch requirements and user stories from Jira issues.
 
-### 🧪 Zephyr Integration
+###  Zephyr Integration
 
 Publish generated test cases to **Zephyr Scale** via REST API (Bearer token). If the API is unavailable or you enable **Zephyr Demo Mode**, cases are exported to `data/zephyr_demo/` with demo logs (`TC-101`, …) — **no JWT / ZAPI keys required** for demos.
 
-### ⚙️ Automated Script Generation
+###  Automated Script Generation
 
 Convert AI-generated test cases into **Playwright automation scripts**.
 
-### 🧠 Hybrid Generation Engine
+###  Hybrid Generation Engine
 
 Supports both:
 
 * Rule-based test generation
 * AI-powered generation
 
-### 🔐 PII Protection
+###  PII Protection
 
 Automatically detects and masks sensitive information.
 
-### 📊 Execution Metrics
+###  Execution Metrics
 
 Tracks:
 
@@ -45,13 +45,13 @@ Tracks:
 * Test coverage
 * Generation statistics
 
-### 🔁 Continuous Feedback Loop
+###  Continuous Feedback Loop
 
 Stores failed test results for improving future AI test generation.
 
 ---
 
-# 🏗️ Architecture
+#  Architecture
 
 Prism implements a **complete AI-driven QA pipeline**.
 
@@ -89,7 +89,7 @@ Metrics & Feedback Loop
 
 ---
 
-# 🚀 Prerequisites
+#  Prerequisites
 
 Install the following before setup:
 
@@ -103,7 +103,7 @@ Install the following before setup:
 
 ---
 
-# ⚙️ Installation
+#  Installation
 
 ## 1️⃣ Clone Repository
 
@@ -150,7 +150,7 @@ npx playwright install
 
 ---
 
-# 🔐 Environment Configuration
+#  Environment Configuration
 
 Create a `.env` file in the project root.
 
@@ -194,7 +194,7 @@ AI_RETRY_DELAY_SECONDS=2
 
 ---
 
-# 🤖 Groq AI Setup
+#  Groq AI Setup
 
 Prism uses **Groq LLM infrastructure** for generating intelligent test cases.
 
@@ -224,7 +224,7 @@ src/ai_engine/ai_test_generator.py
 
 ---
 
-# 🚀 Quick Start
+#  Quick Start
 
 ## Generate Tests from Jira Issue
 
@@ -253,7 +253,7 @@ python -m src.pipeline.enhanced_pipeline github_pr https://github.com/org/repo/p
 
 ---
 
-# 🧪 Running Tests
+#  Running Tests
 
 Run all tests:
 
@@ -281,7 +281,7 @@ npx playwright test generated_tests/<test-file>.spec.js
 
 ---
 
-# 📊 Test Reports
+#  Test Reports
 
 View Playwright report:
 
@@ -291,7 +291,7 @@ npx playwright show-report
 
 ---
 
-# 📁 Project Structure
+#  Project Structure
 
 ```
 Prism
@@ -322,7 +322,7 @@ Prism
 
 ---
 
-# 📊 Metrics Output
+#  Metrics Output
 
 Pipeline metrics are stored in:
 
@@ -346,7 +346,7 @@ Example:
 
 ---
 
-# 🔁 Test Generation Pipeline
+#  Test Generation Pipeline
 
 Single Jira issue:
 
@@ -368,7 +368,7 @@ python -m src.pipeline.enhanced_pipeline github_pr <PR_URL>
 
 ---
 
-# 🧪 Mock Application
+#  Mock Application
 
 A local **mock login application** is provided for testing.
 
@@ -390,8 +390,7 @@ Endpoints:
 | GET /boundary-test | Boundary testing page |
 
 ---
-
-# 🐛 Troubleshooting
+#  Troubleshooting
 
 ## Groq API Error
 
@@ -446,7 +445,7 @@ taskkill /PID <PID> /F
 
 ---
 
-# 🔍 Debug Mode
+#  Debug Mode
 
 Enable debug logs:
 
@@ -462,6 +461,6 @@ python -m src.pipeline.enhanced_pipeline jira ZT-123
 
 ---
 
-# 📜 License
+#  License
 
 MIT License
