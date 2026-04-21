@@ -113,7 +113,7 @@ class ZephyrClient:
         ```
     """
 
-    BASE_URL = "https://api.zephyrscale.smartbear.com/v2"
+    BASE_URL = "https://prod-api.zephyr4jiracloud.com/v2"
     
     def __init__(
         self,
@@ -379,9 +379,8 @@ class ZephyrClient:
         data = {
             "projectKey": os.getenv("ZEPHYR_PROJECT_KEY", "ZT"),
             "testCaseKey": test_case_key,
-            "cycleKey": cycle_key or f"ZT-R{datetime.now().strftime('%Y%m%d')}",
-            "status": status,
-            "environment": os.getenv("ENVIRONMENT", "TEST")
+            "testCycleKey": cycle_key,
+            "statusName": "UNEXECUTED"
         }
         return await self._request("POST", endpoint, json=data)
 
@@ -401,10 +400,9 @@ class ZephyrClient:
         """
         endpoint = f"/testexecutions/{execution_id}/execute"
         data = {
-            "status": result.status,
+            "statusName": result.status,
             "comment": result.comment,
-            "executedOn": result.finished_on or datetime.utcnow().isoformat() + "Z",
-            "executedById": "auto"
+            "executedOn": result.finished_on or datetime.now(timezone.utc).isoformat()
         }
         return await self._request("POST", endpoint, json=data)
 

@@ -252,6 +252,9 @@ def run_pipeline(
                         issue_key=issue_key,
                     )
 
+                """execution_results = asyncio.run(_run_playwright())"""
+                import nest_asyncio
+                nest_asyncio.apply()
                 execution_results = asyncio.run(_run_playwright())
                 result["execution_results"] = execution_results
             else:
