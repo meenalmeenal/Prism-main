@@ -45,3 +45,21 @@ playwright/.cache/
 *.swp
 *.swo
 *.log
+
+
+# Generated test files
+generated_tests/
+
+# Data files
+data/dashboard_data.json
+data/metrics_db.json
+data/zephyr_demo/
+
+# Temp scripts
+check_statuses.py
+
+# Python
+.venv/
+__pycache__/
+*.pyc
+.env
