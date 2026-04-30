@@ -103,34 +103,9 @@ async def run_enhanced_pipeline_async(
         generated_cases: List[Dict[str, Any]] = core_result.get("generated_test_cases", [])
         validated_cases: List[Dict[str, Any]] = core_result.get("validated_test_cases", []) or generated_cases
 
-        # ------------------------------------------------------------------
-        # 2) Generate automation code from validated test cases
-        # ------------------------------------------------------------------
-        automation_results: List[Dict[str, Any]] = []
-        test_files: List[str] = []
-
-        if validated_cases:
-            auto_gen = AutomationGenerator(framework=framework)
-            automation_results = auto_gen.generate_from_test_cases(
-                test_cases=validated_cases,
-                issue_key=issue_key,
-            )
-            test_files = [
-                r["file_path"]
-                for r in automation_results
-                if r.get("status") == "generated"
-            ]
-
-        # ------------------------------------------------------------------
-        # 3) Execute generated tests (if any)
-        # ------------------------------------------------------------------
-        execution_results: Dict[str, Any] = {}
-        if test_files:
-            executor = TestExecutor(framework=framework)
-            execution_results = await executor.execute_tests(
-                test_files=test_files,
-                issue_key=issue_key,
-            )
+        # Steps 2 & 3 already handled by pipeline_runner (codegen + execution)
+        automation_results: List[Dict[str, Any]] = core_result.get("automation_results", [])
+        execution_results: Dict[str, Any] = core_result.get("execution_results", {})
 
         # ------------------------------------------------------------------
         # 4) Feedback collection (failed tests)
@@ -176,7 +151,7 @@ async def run_enhanced_pipeline_async(
             issue_key,
             len(generated_cases),
             len(validated_cases),
-            len(test_files),
+            len(automation_results),
         )
 
         all_results.append(enhanced_result)
