@@ -1,25 +1,25 @@
 {
   "coverage": {
     "period_days": 30,
-    "total_issues_processed": 8,
-    "total_tests_generated": 41,
-    "total_tests_executed": 8,
-    "total_passed": 7,
+    "total_issues_processed": 14,
+    "total_tests_generated": 71,
+    "total_tests_executed": 14,
+    "total_passed": 13,
     "total_failed": 1,
-    "overall_pass_rate": 87.5,
-    "coverage_percentage": 19.51219512195122
+    "overall_pass_rate": 92.86,
+    "coverage_percentage": 19.718309859154928
   },
   "flaky_tests": [],
   "test_type_distribution": {
-    "positive": 70,
-    "negative": 71,
-    "boundary": 45,
+    "positive": 82,
+    "negative": 83,
+    "boundary": 51,
     "ui_validation": 1
   },
   "priority_distribution": {
-    "P1": 59,
-    "P2": 94,
-    "P3": 34
+    "P1": 72,
+    "P2": 106,
+    "P3": 39
   },
-  "last_updated": "2026-04-09T02:51:46.536887"
+  "last_updated": "2026-05-01T00:55:45.994455"
 }

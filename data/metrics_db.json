@@ -537,6 +537,101 @@
         "P2": 2,
         "P3": 1
       }
+    },
+    {
+      "issue_key": "ZT-3",
+      "timestamp": "2026-04-29T12:02:46.050165",
+      "test_count": 5,
+      "generation_time_seconds": 0.0,
+      "test_types": {
+        "positive": 2,
+        "negative": 2,
+        "boundary": 1
+      },
+      "priorities": {
+        "P1": 2,
+        "P2": 2,
+        "P3": 1
+      }
+    },
+    {
+      "issue_key": "ZT-3",
+      "timestamp": "2026-04-30T12:07:31.798479",
+      "test_count": 5,
+      "generation_time_seconds": 0.0,
+      "test_types": {
+        "positive": 2,
+        "negative": 2,
+        "boundary": 1
+      },
+      "priorities": {
+        "P1": 2,
+        "P2": 2,
+        "P3": 1
+      }
+    },
+    {
+      "issue_key": "ZT-5",
+      "timestamp": "2026-04-30T12:20:55.344169",
+      "test_count": 5,
+      "generation_time_seconds": 0.0,
+      "test_types": {
+        "positive": 2,
+        "negative": 2,
+        "boundary": 1
+      },
+      "priorities": {
+        "P1": 2,
+        "P2": 2,
+        "P3": 1
+      }
+    },
+    {
+      "issue_key": "ZT-20",
+      "timestamp": "2026-04-30T16:26:56.102691",
+      "test_count": 5,
+      "generation_time_seconds": 0.0,
+      "test_types": {
+        "positive": 2,
+        "negative": 2,
+        "boundary": 1
+      },
+      "priorities": {
+        "P1": 2,
+        "P2": 2,
+        "P3": 1
+      }
+    },
+    {
+      "issue_key": "ZT-3",
+      "timestamp": "2026-05-01T00:44:44.240457",
+      "test_count": 5,
+      "generation_time_seconds": 0.0,
+      "test_types": {
+        "positive": 2,
+        "negative": 2,
+        "boundary": 1
+      },
+      "priorities": {
+        "P1": 2,
+        "P2": 2,
+        "P3": 1
+      }
+    },
+    {
+      "issue_key": "ZT-3",
+      "timestamp": "2026-05-01T00:55:45.987646",
+      "test_count": 5,
+      "generation_time_seconds": 0.0,
+      "test_types": {
+        "positive": 2,
+        "negative": 2,
+        "boundary": 1
+      },
+      "priorities": {
+        "P1": 3,
+        "P2": 2
+      }
     }
   ],
   "executions": [
@@ -833,6 +928,66 @@
     {
       "issue_key": "ZT-20",
       "timestamp": "2026-04-09T02:51:46.534269",
+      "total_tests": 1,
+      "passed": 1,
+      "failed": 0,
+      "skipped": 0,
+      "duration_seconds": 0,
+      "pass_rate": 100.0
+    },
+    {
+      "issue_key": "ZT-3",
+      "timestamp": "2026-04-29T12:02:46.053580",
+      "total_tests": 1,
+      "passed": 1,
+      "failed": 0,
+      "skipped": 0,
+      "duration_seconds": 0,
+      "pass_rate": 100.0
+    },
+    {
+      "issue_key": "ZT-3",
+      "timestamp": "2026-04-30T12:07:31.802888",
+      "total_tests": 1,
+      "passed": 1,
+      "failed": 0,
+      "skipped": 0,
+      "duration_seconds": 0,
+      "pass_rate": 100.0
+    },
+    {
+      "issue_key": "ZT-5",
+      "timestamp": "2026-04-30T12:20:55.346011",
+      "total_tests": 1,
+      "passed": 1,
+      "failed": 0,
+      "skipped": 0,
+      "duration_seconds": 0,
+      "pass_rate": 100.0
+    },
+    {
+      "issue_key": "ZT-20",
+      "timestamp": "2026-04-30T16:26:56.104940",
+      "total_tests": 1,
+      "passed": 1,
+      "failed": 0,
+      "skipped": 0,
+      "duration_seconds": 0,
+      "pass_rate": 100.0
+    },
+    {
+      "issue_key": "ZT-3",
+      "timestamp": "2026-05-01T00:44:44.243030",
+      "total_tests": 1,
+      "passed": 1,
+      "failed": 0,
+      "skipped": 0,
+      "duration_seconds": 0,
+      "pass_rate": 100.0
+    },
+    {
+      "issue_key": "ZT-3",
+      "timestamp": "2026-05-01T00:55:45.989674",
       "total_tests": 1,
       "passed": 1,
       "failed": 0,

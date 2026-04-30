@@ -17,6 +17,10 @@ import logging
 import os
 from typing import Any, Dict, List, Optional
 
+from dotenv import load_dotenv
+load_dotenv()
+
+
 from src.collector.pr_collector import PRCollector
 from src.dashboard.metrics_tracker import MetricsTracker
 from src.executor.test_executor import TestExecutor

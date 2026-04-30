@@ -1,16 +1,25 @@
+# ──────────────────────────────────────────────
+# Secrets & Environment
+# ──────────────────────────────────────────────
+.env
+.env.*
+!.env.example
+
+# ──────────────────────────────────────────────
 # Python
+# ──────────────────────────────────────────────
 __pycache__/
 *.py[cod]
 *$py.class
 *.so
-.Python
-env/
+*.egg
+*.egg-info/
+.eggs/
+dist/
 build/
 develop-eggs/
-dist/
 downloads/
 eggs/
-.eggs/
 lib/
 lib64/
 parts/
@@ -18,48 +27,57 @@ sdist/
 var/
 wheels/
 share/python-wheels/
-*.egg-info/
 .installed.cfg
-*.egg
-.env
-.venv
+.Python
+.venv/
 venv/
+env/
 ENV/
 
-# Node
+# ──────────────────────────────────────────────
+# Node / npm
+# ──────────────────────────────────────────────
 node_modules/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+package-lock.json
 
+# ──────────────────────────────────────────────
 # Playwright
+# ──────────────────────────────────────────────
 test-results/
 playwright-report/
 blob-report/
 playwright/.cache/
 
-# OS/IDE
+# ──────────────────────────────────────────────
+# Generated output (runtime artifacts)
+# ──────────────────────────────────────────────
+generated_tests/
+data/dashboard_data.json
+data/metrics_db.json
+data/zephyr_demo/
+logs/
+
+# ──────────────────────────────────────────────
+# Temp / scratch scripts
+# ──────────────────────────────────────────────
+check_statuses.py
+Tes_github.py
+
+# ──────────────────────────────────────────────
+# Project documents (internal / non-public)
+# ──────────────────────────────────────────────
+*.pdf
+
+# ──────────────────────────────────────────────
+# OS / IDE
+# ──────────────────────────────────────────────
 .DS_Store
+Thumbs.db
 .vscode/
 .idea/
 *.swp
 *.swo
 *.log
-
-
-# Generated test files
-generated_tests/
-
-# Data files
-data/dashboard_data.json
-data/metrics_db.json
-data/zephyr_demo/
-
-# Temp scripts
-check_statuses.py
-
-# Python
-.venv/
-__pycache__/
-*.pyc
-.env

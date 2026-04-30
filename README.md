@@ -11,54 +11,40 @@ This project is developed as part of the **Samsung PRISM R&D Program**.
 #  Key Features
 
 ###  AI-Powered Test Generation
-
 Generate test cases automatically using **Groq LLaMA models**.
 
-###  Jira Integration
+###  GitHub PR Integration
+Automatically extract Jira issue keys from GitHub Pull Requests and trigger the full test pipeline.
 
+###  Jira Integration
 Automatically fetch requirements and user stories from Jira issues.
 
 ###  Zephyr Integration
-
-Publish generated test cases to **Zephyr Scale** via REST API (Bearer token). If the API is unavailable or you enable **Zephyr Demo Mode**, cases are exported to `data/zephyr_demo/` with demo logs (`TC-101`, …) — **no JWT / ZAPI keys required** for demos.
+Publish generated test cases to **Zephyr Scale** via REST API (Bearer token). If the API is unavailable or you enable **Zephyr Demo Mode**, cases are exported to `data/zephyr_demo/` with demo logs — **no JWT / ZAPI keys required** for demos.
 
 ###  Automated Script Generation
-
 Convert AI-generated test cases into **Playwright automation scripts**.
 
 ###  Hybrid Generation Engine
-
-Supports both:
-
-* Rule-based test generation
-* AI-powered generation
+Supports both rule-based and AI-powered test generation with automatic fallback.
 
 ###  PII Protection
-
 Automatically detects and masks sensitive information.
 
 ###  Execution Metrics
-
-Tracks:
-
-* Pass / Fail results
-* Test coverage
-* Generation statistics
+Tracks pass/fail results, test coverage, and generation statistics.
 
 ###  Continuous Feedback Loop
-
 Stores failed test results for improving future AI test generation.
 
 ---
 
 #  Architecture
 
-Prism implements a **complete AI-driven QA pipeline**.
-
 ```
 Jira Issue / GitHub PR
         ↓
-Requirement Collector
+Requirement Collector (PR Collector / Jira Client)
         ↓
 AI Test Generator (Groq LLaMA)
         ↓
@@ -66,7 +52,7 @@ Test Case Validator
         ↓
 Zephyr Publisher
         ↓
-Automation Code Generator
+Automation Code Generator (Playwright .spec.js)
         ↓
 Playwright Test Execution
         ↓
@@ -84,8 +70,8 @@ Metrics & Feedback Loop
 | Automation      | Playwright                             |
 | Package Manager | npm / Node.js                          |
 | Issue Tracking  | Jira Cloud                             |
-| Test Management | Zephyr                                 |
-| CI Integration  | GitHub PRs                             |
+| Test Management | Zephyr Scale (SmartBear)               |
+| CI Integration  | GitHub PRs (`PyGithub`)                |
 
 ---
 
@@ -97,9 +83,10 @@ Install the following before setup:
 * Python **v3.9+**
 * npm **v9+**
 * Git
-* Groq API account
+* Groq API account → [console.groq.com](https://console.groq.com)
 * Jira Cloud account
-* Zephyr Test Management installed in Jira
+* Zephyr Scale installed in Jira
+* GitHub Personal Access Token (classic, `repo` scope)
 
 ---
 
@@ -108,8 +95,8 @@ Install the following before setup:
 ## 1️⃣ Clone Repository
 
 ```bash
-git clone https://github.com/your-org/Prism.git
-cd Prism/Prism
+git clone https://github.com/meenalmeenal/Prism.git
+cd Prism
 ```
 
 ---
@@ -120,12 +107,16 @@ cd Prism/Prism
 python -m venv .venv
 ```
 
-Activate environment:
-
-**Windows**
+Activate (Windows):
 
 ```bash
 .venv\Scripts\activate
+```
+
+Activate (macOS/Linux):
+
+```bash
+source .venv/bin/activate
 ```
 
 Install dependencies:
@@ -152,141 +143,95 @@ npx playwright install
 
 #  Environment Configuration
 
-Create a `.env` file in the project root.
+Copy the example file and fill in your credentials:
 
+```bash
+cp .env.example .env
 ```
-# -----------------------------
-# Jira Configuration
-# -----------------------------
+
+```env
+# ──────────────────────────────────────────────
+# Jira
+# ──────────────────────────────────────────────
 JIRA_BASE_URL=https://your-domain.atlassian.net
 JIRA_EMAIL=your-email@example.com
 JIRA_API_TOKEN=your-jira-api-token
 
-# -----------------------------
-# Zephyr Configuration
-# -----------------------------
-ZEPHYR_BASE_URL=https://api.zephyrscale.smartbear.com/v2
+# ──────────────────────────────────────────────
+# Zephyr Scale
+# ──────────────────────────────────────────────
+ZEPHYR_BASE_URL=https://prod-api.zephyr4jiracloud.com/v2/
 ZEPHYR_API_TOKEN=your-zephyr-api-token
 ZEPHYR_PROJECT_KEY=ZT
+ZEPHYR_TEST_CYCLE_KEY=ZT-R1
+ZEPHYR_PUBLISH_ENABLED=true
+ZEPHYR_DRY_RUN=false
 
-# -----------------------------
+# ──────────────────────────────────────────────
 # Groq AI
-# -----------------------------
+# ──────────────────────────────────────────────
+AI_PROVIDER=groq
 GROQ_API_KEY=your-groq-api-key
 
-# -----------------------------
+# ──────────────────────────────────────────────
 # GitHub Integration
-# -----------------------------
-GITHUB_TOKEN=your-github-token
+# ──────────────────────────────────────────────
+GITHUB_TOKEN=your-github-personal-access-token
 
-# -----------------------------
-# Application Under Test
-# -----------------------------
-APP_BASE_URL=http://localhost:3000
-
-# -----------------------------
+# ──────────────────────────────────────────────
 # Pipeline Settings
-# -----------------------------
-ZEPHYR_DRY_RUN=false
+# ──────────────────────────────────────────────
 MAX_AI_RETRIES=3
-AI_RETRY_DELAY_SECONDS=2
+AI_RETRY_DELAY_SECONDS=2.0
+AI_FALLBACK_ENABLED=true
 ```
 
----
-
-#  Groq AI Setup
-
-Prism uses **Groq LLM infrastructure** for generating intelligent test cases.
-
-Create API key:
-
-https://console.groq.com
-
-Model used by default:
-
-```
-llama-3.3-70b-versatile
-```
-
-Alternative models:
-
-| Model                   | Description     |
-| ----------------------- | --------------- |
-| llama-3.3-70b-versatile | Highest quality |
-| llama-3.1-8b-instant    | Faster response |
-| mixtral-8x7b-32768      | Large context   |
-
-Modify model in:
-
-```
-src/ai_engine/ai_test_generator.py
-```
+> **GitHub Token**: Generate at GitHub → Settings → Developer Settings → Personal Access Tokens → Tokens (classic). Select the **`repo`** scope.
 
 ---
 
 #  Quick Start
 
-## Generate Tests from Jira Issue
+## Generate Tests from a Jira Issue
 
-```
+```bash
 python -m src.pipeline.enhanced_pipeline jira ZT-123
 ```
 
----
+## Generate Tests from a GitHub Pull Request
 
-## Generate Tests from GitHub Pull Request
-
-```
-python -m src.pipeline.enhanced_pipeline github_pr https://github.com/org/repo/pull/123
+```bash
+python -m src.pipeline.enhanced_pipeline github_pr https://github.com/org/repo/pull/1
 ```
 
----
+## With Options
 
-## Pipeline Options
+```bash
+python -m src.pipeline.enhanced_pipeline github_pr <PR_URL> --framework playwright --dry-run --max-retries 3
+```
 
-```
---framework playwright
---dry-run
---max-retries 3
---retry-delay 2
-```
+| Flag | Default | Description |
+|------|---------|-------------|
+| `--framework` | `playwright` | Automation framework for script generation |
+| `--dry-run` | `false` | Skip publishing to Zephyr |
+| `--max-retries` | `3` | AI generation retry attempts |
+| `--retry-delay` | `2.0` | Seconds between retries |
 
 ---
 
 #  Running Tests
 
-Run all tests:
-
-```
-npm test
-```
-
-Run in UI mode:
-
-```
-npm run test:ui
-```
-
-Run with visible browser:
-
-```
-npm run test:headed
+```bash
+npm test                  # Run all Playwright tests
+npm run test:ui           # Open Playwright UI mode
+npm run test:headed       # Run with visible browser
+npx playwright show-report  # View HTML report
 ```
 
 Run a specific generated test:
 
-```
+```bash
 npx playwright test generated_tests/<test-file>.spec.js
-```
-
----
-
-#  Test Reports
-
-View Playwright report:
-
-```
-npx playwright show-report
 ```
 
 ---
@@ -294,43 +239,41 @@ npx playwright show-report
 #  Project Structure
 
 ```
-Prism
+Prism/
 │
-├── generated_tests
+├── src/
+│   ├── ai_engine/            # Groq LLM + rule-based test generator
+│   ├── codegen/              # Playwright .spec.js script generator
+│   ├── collector/            # PR & Jira requirement collectors
+│   ├── dashboard/            # Metrics tracker
+│   ├── executor/             # Playwright test executor
+│   ├── feedback/             # Feedback loop for failed tests
+│   ├── integrations/
+│   │   ├── github_client.py  # GitHub API (PyGithub + Auth.Token)
+│   │   ├── jira_client.py    # Jira REST API client
+│   │   └── zephyr_client.py  # Zephyr Scale REST API client
+│   ├── pipeline/
+│   │   ├── enhanced_pipeline.py  # Main CLI entry point
+│   │   └── pipeline_runner.py    # Core pipeline orchestration
+│   └── validator/            # Test case validator
 │
-├── src
-│   ├── ai_engine
-│   ├── codegen
-│   ├── collector
-│   ├── executor
-│   ├── feedback
-│   ├── integrations
-│   │   ├── jira_client.py
-│   │   └── zephyr_client.py
-│   │
-│   ├── pipeline
-│   └── validator
-│
-├── data
+├── data/                     # Runtime output (gitignored)
 │   └── dashboard_data.json
 │
-├── mock-server.js
-├── playwright.config.js
-├── requirements.txt
-└── package.json
+├── generated_tests/          # Generated Playwright specs (gitignored)
+├── mock-server.js            # Local mock app (port 3000)
+├── playwright.config.js      # Playwright configuration
+├── requirements.txt          # Python dependencies
+├── package.json              # Node dependencies
+├── .env.example              # Environment variable template
+└── README.md
 ```
 
 ---
 
 #  Metrics Output
 
-Pipeline metrics are stored in:
-
-```
-data/dashboard_data.json
-```
-
-Example:
+Pipeline metrics are written to `data/dashboard_data.json`:
 
 ```json
 {
@@ -346,117 +289,57 @@ Example:
 
 ---
 
-#  Test Generation Pipeline
-
-Single Jira issue:
-
-```
-python -m src.pipeline.enhanced_pipeline jira ZT-123
-```
-
-Batch issues:
-
-```
-python -m src.pipeline.enhanced_pipeline jira ZT-123,ZT-124
-```
-
-GitHub PR:
-
-```
-python -m src.pipeline.enhanced_pipeline github_pr <PR_URL>
-```
-
----
-
 #  Mock Application
 
-A local **mock login application** is provided for testing.
-
-Server runs automatically when executing tests.
-
-Port:
-
-```
-3000
-```
-
-Endpoints:
+A local **mock login application** is bundled for testing without a real app.
 
 | Endpoint           | Description           |
 | ------------------ | --------------------- |
-| GET /              | Login UI              |
-| POST /api/login    | Authentication        |
-| GET /api/protected | JWT protected route   |
-| GET /boundary-test | Boundary testing page |
+| `GET /`            | Login UI              |
+| `POST /api/login`  | Authentication        |
+| `GET /api/protected` | JWT protected route |
+| `GET /boundary-test` | Boundary testing    |
+
+Port: `3000` (started automatically during test runs)
 
 ---
+
+#  Zephyr Integration Details
+
+Prism integrates with **Zephyr Scale (SmartBear) Cloud** using a **Bearer API token** — no ZAPI JWT `accessKey`/`secretKey` required.
+
+| Condition | Behaviour |
+|-----------|-----------|
+| Token set, dry-run off | Calls live **Zephyr Scale REST API** (`/v2/testcases`, cycles, executions) |
+| No token, `ZEPHYR_DRY_RUN=true` | **Demo Mode**: JSON export to `data/zephyr_demo/`, no external calls |
+| Live API error | Auto-fallback to Demo Mode — pipeline never fails |
+
+---
+
 #  Troubleshooting
 
-## Groq API Error
+### GitHub 401 Bad Credentials
+- Generate a fresh **classic PAT** at [github.com/settings/tokens](https://github.com/settings/tokens) with the `repo` scope
+- Paste it into `.env` as `GITHUB_TOKEN=ghp_...` (no quotes)
+- The client uses `Auth.Token()` (PyGithub ≥ 2.x) — the old positional `Github(token)` API is deprecated
 
-Verify `GROQ_API_KEY`.
+### Groq API Error
+Verify `GROQ_API_KEY` at [console.groq.com](https://console.groq.com).
 
-## Playwright Browser Missing
-
-```
+### Playwright Browser Missing
+```bash
 npx playwright install
 ```
 
-## Zephyr integration
-
-Prism integrates with **Zephyr Scale (SmartBear) Cloud** using a **Bearer API token** (`ZEPHYR_API_TOKEN`).  
-You do **not** need Zephyr ZAPI JWT `accessKey` / `secretKey` for this client.
-
-### Behaviour
-
-| Condition | What happens |
-|-----------|----------------|
-| `ZEPHYR_API_TOKEN` set, `ZEPHYR_DRY_RUN` / `ZEPHYR_DEMO_MODE` off | Pipeline calls the real **Zephyr Scale REST API** (`/v2/testcases`, cycles, executions). |
-| No token, `ZEPHYR_DRY_RUN=true`, or `ZEPHYR_DEMO_MODE=true` | **Zephyr Demo Mode**: no external API calls; structured JSON export + demo logs (`TC-101`, `TC-102`, …). |
-| Live API error (401, 404, network, etc.) | Automatic fallback to **Zephyr Demo Mode** — the pipeline **does not fail**. |
-
-### Environment variables
-
-```env
-ZEPHYR_API_TOKEN=your-zephyr-scale-api-token
-ZEPHYR_PROJECT_KEY=ZT
-ZEPHYR_BASE_URL=https://api.zephyrscale.smartbear.com/v2   # optional override
-ZEPHYR_DRY_RUN=true          # force demo-style behaviour (no live calls)
-ZEPHYR_DEMO_MODE=true        # always use Demo Mode (for Samsung PRISM demos)
-JIRA_BASE_URL=https://your-domain.atlassian.net            # used in UI hints
-```
-
-### Demo Mode output
-
-- Console logs such as: `Publishing test case to Zephyr...`, `Test Case TC-101 created in Zephyr (Demo Mode)`.
-- Export file: `data/zephyr_demo/<ISSUE-KEY>_zephyr_published.json` (traceable list of cases linked to the Jira key).
-- Hint to open the issue in Jira and use **Zephyr / Zephyr Scale** in the UI to correlate tests.
-
-### Code entry point
-
-`ZephyrClient.publish_test_cases(issue_key, test_cases)` — synchronous, safe from any caller; used by `pipeline_runner` and the enhanced pipeline.
-
-## Port 3000 Already Used
-
-```
+### Port 3000 Already in Use
+```bash
 netstat -ano | findstr :3000
 taskkill /PID <PID> /F
 ```
 
----
-
-#  Debug Mode
-
-Enable debug logs:
-
-```
-LOG_LEVEL=DEBUG
-```
-
-Run pipeline:
-
-```
-python -m src.pipeline.enhanced_pipeline jira ZT-123
+### Debug Logging
+```bash
+LOG_LEVEL=DEBUG python -m src.pipeline.enhanced_pipeline jira ZT-123
 ```
 
 ---

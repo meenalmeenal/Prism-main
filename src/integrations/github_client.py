@@ -1,14 +1,15 @@
 # src/integrations/github_client.py
 import os
 from typing import Dict, Optional
-from github import Github, GithubException
+
+from github import Github, GithubException, Auth
 
 class GitHubClient:
     def __init__(self, token: Optional[str] = None):
         self.token = token or os.getenv("GITHUB_TOKEN")
         if not self.token:
             raise ValueError("GitHub token not provided and GITHUB_TOKEN not set")
-        self.client = Github(self.token)
+        self.client = Github(auth=Auth.Token(self.token.strip()))
 
     def get_pr_details(self, repo_name: str, pr_number: int) -> Dict:
         """Get PR details including title, body, and files changed."""
