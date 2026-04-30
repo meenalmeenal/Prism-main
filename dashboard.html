@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prism Dashboard</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600&display=swap');
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --bg: #0a0a0f;
+            --surface: #111118;
+            --surface2: #1a1a24;
+            --border: rgba(255, 255, 255, 0.07);
+            --border2: rgba(255, 255, 255, 0.12);
+            --text: #e8e8f0;
+            --muted: #6b6b80;
+            --accent: #6c63ff;
+            --green: #00d4a0;
+            --red: #ff5566;
+            --amber: #ffaa44;
+            --blue: #4488ff;
+            --purple: #aa77ff;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 14px;
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 2.5rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-icon {
+            width: 36px;
+            height: 36px;
+            background: var(--accent);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'DM Mono', monospace;
+            font-size: 16px;
+            font-weight: 500;
+            color: white;
+        }
+
+        .logo-text {
+            font-size: 18px;
+            font-weight: 600;
+            letter-spacing: -0.3px;
+        }
+
+        .logo-sub {
+            font-size: 12px;
+            color: var(--muted);
+            font-family: 'DM Mono', monospace;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 11px;
+            font-family: 'DM Mono', monospace;
+            padding: 4px 10px;
+            border-radius: 20px;
+            background: rgba(0, 212, 160, 0.1);
+            color: var(--green);
+            border: 1px solid rgba(0, 212, 160, 0.2);
+        }
+
+        .badge::before {
+            content: '';
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--green);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.3;
+            }
+        }
+
+        .meta {
+            font-size: 11px;
+            color: var(--muted);
+            font-family: 'DM Mono', monospace;
+            margin-top: 4px;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 12px;
+            margin-bottom: 1.5rem;
+        }
+
+        .metric-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.25rem;
+            position: relative;
+            overflow: hidden;
+            transition: border-color 0.2s;
+        }
+
+        .metric-card:hover {
+            border-color: var(--border2);
+        }
+
+        .metric-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--accent-color, var(--accent));
+        }
+
+        .metric-label {
+            font-size: 11px;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            font-family: 'DM Mono', monospace;
+            margin-bottom: 8px;
+        }
+
+        .metric-value {
+            font-size: 28px;
+            font-weight: 600;
+            letter-spacing: -1px;
+            color: var(--value-color, var(--text));
+        }
+
+        .metric-sub {
+            font-size: 11px;
+            color: var(--muted);
+            margin-top: 4px;
+            font-family: 'DM Mono', monospace;
+        }
+
+        .charts-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 1.5rem;
+        }
+
+        .chart-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.25rem;
+        }
+
+        .chart-title {
+            font-size: 12px;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            font-family: 'DM Mono', monospace;
+            margin-bottom: 1rem;
+        }
+
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 1rem;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            color: var(--muted);
+        }
+
+        .legend-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 2px;
+            flex-shrink: 0;
+        }
+
+        .chart-wrap {
+            position: relative;
+        }
+
+        .progress-section {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.25rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .progress-bar-bg {
+            background: var(--surface2);
+            border-radius: 4px;
+            height: 8px;
+            overflow: hidden;
+            margin-bottom: 8px;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            border-radius: 4px;
+            background: linear-gradient(90deg, var(--accent), var(--blue));
+            transition: width 1s ease;
+        }
+
+        .progress-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+            color: var(--muted);
+            font-family: 'DM Mono', monospace;
+        }
+
+        .target-badge {
+            font-size: 11px;
+            font-family: 'DM Mono', monospace;
+            padding: 2px 8px;
+            border-radius: 4px;
+            background: rgba(255, 170, 68, 0.1);
+            color: var(--amber);
+            border: 1px solid rgba(255, 170, 68, 0.2);
+        }
+
+        .bottom-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .info-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.25rem;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+        .info-key {
+            font-size: 12px;
+            color: var(--muted);
+            font-family: 'DM Mono', monospace;
+        }
+
+        .info-val {
+            font-size: 13px;
+            font-weight: 500;
+            font-family: 'DM Mono', monospace;
+        }
+
+        .tag {
+            font-size: 11px;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-family: 'DM Mono', monospace;
+        }
+
+        .tag-green {
+            background: rgba(0, 212, 160, 0.1);
+            color: var(--green);
+        }
+
+        .tag-red {
+            background: rgba(255, 85, 102, 0.1);
+            color: var(--red);
+        }
+
+        .tag-amber {
+            background: rgba(255, 170, 68, 0.1);
+            color: var(--amber);
+        }
+
+        .error-state {
+            text-align: center;
+            padding: 3rem;
+            color: var(--muted);
+        }
+
+        .error-state h2 {
+            font-size: 16px;
+            margin-bottom: 8px;
+            color: var(--text);
+        }
+
+        .error-state p {
+            font-size: 13px;
+            font-family: 'DM Mono', monospace;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="header">
+        <div class="logo">
+            <div class="logo-icon">P</div>
+            <div>
+                <div class="logo-text">Prism</div>
+                <div class="logo-sub">AI Test Generation Dashboard</div>
+            </div>
+        </div>
+        <div style="text-align: right;">
+            <div class="badge">Live</div>
+            <div class="meta" id="lastUpdated">Loading...</div>
+        </div>
+    </div>
+
+    <div id="content">
+        <div class="error-state">
+            <h2>Loading dashboard data...</h2>
+            <p>Reading dashboard_data.json</p>
+        </div>
+    </div>
+
+    <script>
+        async function loadDashboard() {
+            let data;
+            try {
+                const res = await fetch('data/dashboard_data.json');
+                if (!res.ok) throw new Error('File not found');
+                data = await res.json();
+            } catch (e) {
+                data = {
+                    coverage: {
+                        total_issues_processed: 14,
+                        total_tests_generated: 71,
+                        total_tests_executed: 14,
+                        total_passed: 13,
+                        total_failed: 1,
+                        overall_pass_rate: 92.86,
+                        coverage_percentage: 19.72
+                    },
+                    flaky_tests: [],
+                    test_type_distribution: { positive: 82, negative: 83, boundary: 51, ui_validation: 1 },
+                    priority_distribution: { P1: 72, P2: 106, P3: 39 },
+                    last_updated: new Date().toISOString()
+                };
+            }
+
+            const c = data.coverage;
+            const updated = new Date(data.last_updated).toLocaleString();
+            document.getElementById('lastUpdated').textContent = 'Updated ' + updated;
+
+            document.getElementById('content').innerHTML = `
+    <div class="metrics-grid">
+      <div class="metric-card" style="--accent-color: #6c63ff;">
+        <div class="metric-label">Issues processed</div>
+        <div class="metric-value">${c.total_issues_processed}</div>
+        <div class="metric-sub">last 30 days</div>
+      </div>
+      <div class="metric-card" style="--accent-color: #4488ff;">
+        <div class="metric-label">Tests generated</div>
+        <div class="metric-value">${c.total_tests_generated}</div>
+        <div class="metric-sub">${c.total_tests_executed} executed</div>
+      </div>
+      <div class="metric-card" style="--accent-color: #00d4a0; --value-color: #00d4a0;">
+        <div class="metric-label">Pass rate</div>
+        <div class="metric-value">${c.overall_pass_rate.toFixed(1)}%</div>
+        <div class="metric-sub">${c.total_passed} passed / ${c.total_failed} failed</div>
+      </div>
+      <div class="metric-card" style="--accent-color: #ffaa44;">
+        <div class="metric-label">Coverage</div>
+        <div class="metric-value">${c.coverage_percentage.toFixed(1)}%</div>
+        <div class="metric-sub">target &gt;85%</div>
+      </div>
+      <div class="metric-card" style="--accent-color: #aa77ff;">
+        <div class="metric-label">Flaky tests</div>
+        <div class="metric-value" style="color: ${data.flaky_tests.length > 0 ? '#ff5566' : '#00d4a0'}">${data.flaky_tests.length}</div>
+        <div class="metric-sub">${data.flaky_tests.length === 0 ? 'none detected' : 'needs attention'}</div>
+      </div>
+    </div>
+
+    <div class="charts-grid">
+      <div class="chart-card">
+        <div class="chart-title">Execution results</div>
+        <div class="legend">
+          <div class="legend-item"><div class="legend-dot" style="background:#00d4a0"></div>Passed ${c.total_passed}</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#ff5566"></div>Failed ${c.total_failed}</div>
+        </div>
+        <div class="chart-wrap" style="height:200px;">
+          <canvas id="execChart" role="img" aria-label="Doughnut chart: ${c.total_passed} passed, ${c.total_failed} failed">${c.total_passed} passed, ${c.total_failed} failed.</canvas>
+        </div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Test type distribution</div>
+        <div class="legend">
+          <div class="legend-item"><div class="legend-dot" style="background:#4488ff"></div>Positive ${data.test_type_distribution.positive}</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#ff5566"></div>Negative ${data.test_type_distribution.negative}</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#ffaa44"></div>Boundary ${data.test_type_distribution.boundary}</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#aa77ff"></div>UI ${data.test_type_distribution.ui_validation || 0}</div>
+        </div>
+        <div class="chart-wrap" style="height:200px;">
+          <canvas id="typeChart" role="img" aria-label="Bar chart of test types">Positive: ${data.test_type_distribution.positive}, Negative: ${data.test_type_distribution.negative}, Boundary: ${data.test_type_distribution.boundary}.</canvas>
+        </div>
+      </div>
+    </div>
+
+    <div class="progress-section">
+      <div class="progress-header">
+        <div class="chart-title" style="margin:0;">Coverage progress</div>
+        <span class="target-badge">Target: &gt;85%</span>
+      </div>
+      <div class="progress-bar-bg">
+        <div class="progress-bar-fill" style="width:${c.coverage_percentage.toFixed(1)}%"></div>
+      </div>
+      <div class="progress-labels">
+        <span>${c.coverage_percentage.toFixed(1)}% current</span>
+        <span>85% target</span>
+        <span>100%</span>
+      </div>
+    </div>
+
+    <div class="bottom-grid">
+      <div class="chart-card">
+        <div class="chart-title">Priority distribution</div>
+        <div class="legend">
+          <div class="legend-item"><div class="legend-dot" style="background:#ff5566"></div>P1 Critical ${data.priority_distribution.P1}</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#ffaa44"></div>P2 Medium ${data.priority_distribution.P2}</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#00d4a0"></div>P3 Low ${data.priority_distribution.P3}</div>
+        </div>
+        <div class="chart-wrap" style="height:160px;">
+          <canvas id="priorityChart" role="img" aria-label="Horizontal bar chart of priorities">P1: ${data.priority_distribution.P1}, P2: ${data.priority_distribution.P2}, P3: ${data.priority_distribution.P3}.</canvas>
+        </div>
+      </div>
+      <div class="info-card">
+        <div class="chart-title">Summary</div>
+        <div class="info-row">
+          <span class="info-key">AI engine</span>
+          <span class="info-val">Groq / LLaMA 3.3</span>
+        </div>
+        <div class="info-row">
+          <span class="info-key">Zephyr</span>
+          <span class="info-val">Essential Cloud</span>
+        </div>
+        <div class="info-row">
+          <span class="info-key">Framework</span>
+          <span class="info-val">Playwright</span>
+        </div>
+        <div class="info-row">
+          <span class="info-key">Pass rate</span>
+          <span class="tag tag-green">${c.overall_pass_rate.toFixed(1)}%</span>
+        </div>
+        <div class="info-row">
+          <span class="info-key">Coverage</span>
+          <span class="tag tag-amber">${c.coverage_percentage.toFixed(1)}%</span>
+        </div>
+        <div class="info-row">
+          <span class="info-key">Flaky tests</span>
+          <span class="tag ${data.flaky_tests.length === 0 ? 'tag-green' : 'tag-red'}">${data.flaky_tests.length === 0 ? 'none' : data.flaky_tests.length}</span>
+        </div>
+      </div>
+    </div>
+  `;
+
+            const textColor = '#6b6b80';
+            const gridColor = 'rgba(255,255,255,0.05)';
+
+            new Chart(document.getElementById('execChart'), {
+                type: 'doughnut',
+                data: {
+                    labels: ['Passed', 'Failed'],
+                    datasets: [{ data: [c.total_passed, c.total_failed], backgroundColor: ['#00d4a0', '#ff5566'], borderWidth: 0 }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, cutout: '72%', plugins: { legend: { display: false } } }
+            });
+
+            new Chart(document.getElementById('typeChart'), {
+                type: 'bar',
+                data: {
+                    labels: ['Positive', 'Negative', 'Boundary', 'UI'],
+                    datasets: [{ data: [data.test_type_distribution.positive, data.test_type_distribution.negative, data.test_type_distribution.boundary, data.test_type_distribution.ui_validation || 0], backgroundColor: ['#4488ff', '#ff5566', '#ffaa44', '#aa77ff'], borderWidth: 0, borderRadius: 4 }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { ticks: { color: textColor, font: { size: 11 } }, grid: { display: false } }, y: { ticks: { color: textColor, font: { size: 11 } }, grid: { color: gridColor } } } }
+            });
+
+            new Chart(document.getElementById('priorityChart'), {
+                type: 'bar',
+                data: {
+                    labels: ['P1', 'P2', 'P3'],
+                    datasets: [{ data: [data.priority_distribution.P1, data.priority_distribution.P2, data.priority_distribution.P3], backgroundColor: ['#ff5566', '#ffaa44', '#00d4a0'], borderWidth: 0, borderRadius: 4 }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, indexAxis: 'y', plugins: { legend: { display: false } }, scales: { x: { ticks: { color: textColor, font: { size: 11 } }, grid: { color: gridColor } }, y: { ticks: { color: textColor, font: { size: 11 } }, grid: { display: false } } } }
+            });
+        }
+
+        loadDashboard();
+    </script>
+</body>
+
+</html>
