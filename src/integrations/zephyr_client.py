@@ -346,4 +346,8 @@ class ZephyrClient:
         test_cases: List[Dict[str, Any]],
     ) -> List[Dict[str, Any]]:
         """Async version of publish_test_cases."""
+<<<<<<< HEAD
         return await self._async_publish_live(issue_key, test_cases)
+=======
+        return await self._async_publish_live(issue_key, test_cases)
+>>>>>>> ee396de976c5eb25d056c4a21bdf942acc020ec3
