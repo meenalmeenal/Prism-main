@@ -141,11 +141,13 @@ def run_pipeline(
 
     # 2. Generate test cases (rule-based only in this phase) ---------------------------
     try:
+        from src.utils.pii_masker import mask_pii
+
         logger.info("Calling Groq AI for issue %s", issue_key)
         generated_cases = ai_generator.generate_test_cases(
             issue_key=normalized_issue.issue_key,
-            summary=normalized_issue.summary,
-            acceptance_criteria=normalized_issue.acceptance_criteria,
+            summary=mask_pii(normalized_issue.summary),
+            acceptance_criteria=[mask_pii(ac) for ac in normalized_issue.acceptance_criteria],
         )
         if generated_cases:
             used_fallback = False

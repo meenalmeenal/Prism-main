@@ -1,14 +1,12 @@
-# src/collector/pr_collector.py
 from typing import Dict, Optional
-from urllib.parse import urlparse
 from ..integrations.github_client import GitHubClient
+from src.utils.pii_masker import mask_pii
 
 class PRCollector:
     def __init__(self, github_client: Optional[GitHubClient] = None):
         self.github = github_client or GitHubClient()
 
     def process_pr_url(self, pr_url: str) -> Dict:
-        """Process a GitHub PR URL and extract relevant information."""
         try:
             repo_name, pr_number = self._parse_pr_url(pr_url)
             if not repo_name or not pr_number:
@@ -23,8 +21,8 @@ class PRCollector:
             return {
                 "source": "github_pr",
                 "issue_key": issue_key,
-                "title": pr_details["title"],
-                "description": pr_details["body"],
+                "title": mask_pii(pr_details["title"]),
+                "description": mask_pii(pr_details["body"]),
                 "metadata": {
                     "pr_url": pr_url,
                     "author": pr_details["author"],
@@ -33,17 +31,15 @@ class PRCollector:
                     "head_branch": pr_details["head_branch"]
                 }
             }
-            
         except Exception as e:
             raise Exception(f"Failed to process PR: {str(e)}")
 
     @staticmethod
     def _parse_pr_url(url: str) -> tuple[Optional[str], Optional[int]]:
-        """Extract repository name and PR number from URL."""
         try:
             parts = url.rstrip('/').split('/')
             pr_number = int(parts[-1])
-            repo_name = '/'.join(parts[-4:-2])  # Format: owner/repo
+            repo_name = '/'.join(parts[-4:-2])
             return repo_name, pr_number
         except (IndexError, ValueError):
             return None, None
