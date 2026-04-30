@@ -55,9 +55,7 @@ playwright/.cache/
 # Generated output (runtime artifacts)
 # ──────────────────────────────────────────────
 generated_tests/
-data/dashboard_data.json
-data/metrics_db.json
-data/zephyr_demo/
+data/
 logs/
 
 # ──────────────────────────────────────────────
@@ -81,3 +79,4 @@ Thumbs.db
 *.swp
 *.swo
 *.log
+

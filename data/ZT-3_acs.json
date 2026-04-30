@@ -1,6 +1,0 @@
-[
-  "User can log in successfully with valid email and password.",
-  "User sees an error message when credentials are invalid.",
-  "Login fails if fields are empty.",
-  "Login button stays disabled unless both fields are filled."
-]
