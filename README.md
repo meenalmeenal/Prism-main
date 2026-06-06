@@ -95,8 +95,8 @@ Install the following before setup:
 ## 1️⃣ Clone Repository
 
 ```bash
-git clone https://github.com/meenalmeenal/Prism.git
-cd Prism
+git clone https://github.com/meenalmeenal/Prism_main.git
+cd Prism_main
 ```
 
 ---

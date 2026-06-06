@@ -1,3 +1,4 @@
+
 # src/collector/jira_collector.py
 import os
 import json
@@ -24,7 +25,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # Load environment variables
-load_dotenv()
+load_dotenv(override=True)
 
 class JiraCollector:
     """Fetches issues and acceptance criteria from Jira"""

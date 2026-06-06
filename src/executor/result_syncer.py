@@ -14,7 +14,7 @@ from datetime import datetime
 from dotenv import load_dotenv
 from pathlib import Path
 
-load_dotenv()
+load_dotenv(override=True)
 logger = logging.getLogger(__name__)
 
 
@@ -33,9 +33,14 @@ class ResultSyncer:
                 self._requests = requests
                 logger.info("ResultSyncer initialized with live API")
             except ImportError:
-                logger.warning("requests not available, ResultSyncer in mock mode")
+                raise RuntimeError(
+                    "The 'requests' package is not installed. Run: pip install requests"
+                )
         else:
-            logger.info("ResultSyncer initialized in mock mode (no API token)")
+            raise RuntimeError(
+                "ZEPHYR_API_TOKEN is not set. ResultSyncer requires a live API token. "
+                "Please set ZEPHYR_API_TOKEN in your .env file."
+            )
 
     def sync_execution_results(
         self,
@@ -59,7 +64,9 @@ class ResultSyncer:
         logger.info(f"Syncing {len(execution_results.get('test_results', []))} test results to Zephyr")
 
         if not self._requests or not self.api_token:
-            return self._mock_sync(execution_results, test_case_mapping)
+            raise RuntimeError(
+                "ResultSyncer has no API token. Set ZEPHYR_API_TOKEN in your .env file."
+            )
 
         sync_results = []
 
@@ -129,32 +136,4 @@ class ResultSyncer:
             "zephyr_status": zephyr_status,
         }
 
-    def _mock_sync(
-        self,
-        execution_results: Dict[str, Any],
-        test_case_mapping: Dict[str, str],
-    ) -> List[Dict[str, Any]]:
-        """Mock sync for offline/demo mode."""
-        logger.info("Mock syncing execution results (no API token)")
 
-        sync_results = []
-
-        for test_result in execution_results.get("test_results", []):
-            test_file = test_result.get("test_file", "")
-            test_name = Path(test_file).stem if test_file else "unknown"
-            zephyr_key = test_case_mapping.get(test_name) or f"MOCK-{test_name}"
-
-            status = test_result.get("status", "unknown")
-            zephyr_status = "PASS" if status == "passed" else "FAIL" if status == "failed" else "UNEXECUTED"
-
-            sync_results.append({
-                "zephyr_key": zephyr_key,
-                "execution_key": f"MOCK-EXEC-{test_name}",
-                "status": "mock_synced",
-                "zephyr_status": zephyr_status,
-            })
-
-        return sync_results
-
-
-# Import Path here to avoid circular import

@@ -32,7 +32,7 @@ except ImportError:
     except ImportError:
         from src.ai_engine.prompt_templates import PromptTemplates
 
-load_dotenv()
+load_dotenv(override=True)
 logger = logging.getLogger(__name__)
 
 # Create logs directory if needed

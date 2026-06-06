@@ -1,8 +1,9 @@
+
 """High-level pipeline orchestration for AI test generation.
 
 Flow
 ----
-Jira Issue -> AI Test Generator -> Test Validator -> Zephyr Publisher (mock)
+Jira Issue -> AI Test Generator -> Test Validator -> Zephyr Publisher
 
 This module wires together the existing components into a robust,
 production-style service layer with:
@@ -31,7 +32,7 @@ from src.ai_engine.ai_test_generator import AITestGenerator, RuleBasedTestGenera
 from src.executor.test_executor import TestExecutor
 from src.validator.test_validator import TestValidator
 
-load_dotenv()
+load_dotenv(override=True)
 
 logger = logging.getLogger(__name__)
 
@@ -209,7 +210,7 @@ def run_pipeline(
         logger.info("Skipping Zephyr publishing for %s (skip_zephyr=True)", issue_key)
     else:
         if validated_cases:
-            # Sync API: tries Zephyr Scale REST when token present; else Zephyr Demo Mode (never raises)
+            # Publishes to Zephyr via REST API
             publish_results = zephyr_client.publish_test_cases(issue_key, validated_cases)
         else:
             logger.warning("No validated test cases to publish for issue %s", issue_key)
@@ -219,7 +220,7 @@ def run_pipeline(
     num_published = sum(
         1
         for r in publish_results
-        if r.get("status") in {"mock_published", "dry_run", "demo_mode", "live"}
+        if r.get("status") in {"live"}
     )
 
     # 5. Playwright codegen + execution (always after Zephyr; uses validated test cases)
@@ -346,9 +347,9 @@ def main(argv: Optional[List[str]] = None) -> None:
     zephyr_ok = sum(
         1
         for r in zephyr_rows
-        if r.get("status") in {"mock_published", "dry_run", "demo_mode", "live"}
+        if r.get("status") in {"live"}
     )
-    print(f"Zephyr published (demo/live): {zephyr_ok}")
+    print(f"Zephyr published: {zephyr_ok}")
 
     exec_res = pipeline_result.get("execution_results") or {}
     total_ex = int(exec_res.get("total_tests") or 0)

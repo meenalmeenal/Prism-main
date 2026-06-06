@@ -3,10 +3,9 @@
 Responsible for fetching Jira issue details and returning normalized
 issue data suitable for the AI test generator.
 
-The client supports two modes:
-- Real HTTP calls using Jira's REST API when credentials are available
-- A deterministic mock response when credentials are missing or HTTP
-  requests are unavailable
+Requires JIRA_BASE_URL, JIRA_EMAIL, and JIRA_API_TOKEN to be set
+in the environment (.env). Raises RuntimeError on any auth or
+connection failure — no mock fallback.
 """
 
 from __future__ import annotations
@@ -19,7 +18,7 @@ from typing import Any, Dict, Optional
 from dotenv import load_dotenv
 
 logger = logging.getLogger(__name__)
-load_dotenv()
+load_dotenv(override=True)
 
 
 @dataclass
@@ -36,17 +35,16 @@ class NormalizedIssue:
 
 
 class JiraClient:
-    """Simple Jira REST client with graceful mocking.
+    """Jira REST client.
 
-    Configuration is read from environment variables by default:
+    Configuration is read from environment variables:
 
     - JIRA_BASE_URL   (e.g. https://your-domain.atlassian.net)
     - JIRA_EMAIL      (account e-mail / username)
-    - JIRA_API_TOKEN  (API token for basic auth)
+    - JIRA_API_TOKEN  (API token from id.atlassian.com)
 
-    If any of these are missing, the client falls back to a
-    deterministic mock response so the rest of the pipeline can run
-    without live Jira access.
+    Raises RuntimeError on missing credentials or API failures.
+    No mock fallback.
     """
 
     def __init__(
@@ -59,17 +57,14 @@ class JiraClient:
         self.email = email or os.getenv("JIRA_EMAIL")
         self.api_token = api_token or os.getenv("JIRA_API_TOKEN")
 
-        self._requests = None
-        if self.base_url and self.email and self.api_token:
-            try:
-                import requests  # type: ignore[import]
-
-                self._requests = requests
-                logger.info("JiraClient initialized in LIVE mode for %s", self.base_url)
-            except ImportError:  # pragma: no cover - environment-specific
-                logger.warning("requests not installed; JiraClient will run in MOCK mode")
-        else:
-            logger.info("JiraClient initialized in MOCK mode (missing credentials)")
+        try:
+            import requests  # type: ignore[import]
+            self._requests = requests
+            logger.info("JiraClient initialized for %s", self.base_url)
+        except ImportError:
+            raise RuntimeError(
+                "The 'requests' package is not installed. Run: pip install requests"
+            )
 
     # ------------------------------------------------------------------
     # Public API
@@ -78,34 +73,72 @@ class JiraClient:
     def get_issue(self, issue_key: str) -> NormalizedIssue:
         """Fetch and normalize a Jira issue.
 
-        When Jira credentials or HTTP support are unavailable, a mocked
-        issue is returned instead so that the pipeline can still be
-        executed end-to-end.
+        Raises RuntimeError if credentials are missing or if the Jira API
+        returns a non-200 response, so failures are visible immediately
+        rather than silently generating mock data.
         """
 
-        if not self._requests or not (self.base_url and self.email and self.api_token):
-            logger.info("Using mocked Jira issue for key %s", issue_key)
-            return self._mock_issue(issue_key)
+        if not self._requests:
+            raise RuntimeError(
+                "Jira credentials are missing or incomplete. "
+                "Please set JIRA_BASE_URL, JIRA_EMAIL, and JIRA_API_TOKEN in your .env file."
+            )
+
+        if not (self.base_url and self.email and self.api_token):
+            raise RuntimeError(
+                "One or more Jira credentials are empty. "
+                "Check JIRA_BASE_URL, JIRA_EMAIL, and JIRA_API_TOKEN in your .env file."
+            )
 
         url = f"{self.base_url}/rest/api/3/issue/{issue_key}"
         auth = (self.email, self.api_token)
         headers = {"Accept": "application/json"}
 
+        logger.info("Fetching Jira issue from: %s", url)
+        logger.info("Auth email: %s | Token length: %d", self.email, len(self.api_token))
+
         try:
             response = self._requests.get(url, headers=headers, auth=auth, timeout=10)
-            if response.status_code != 200:
-                logger.warning(
-                    "Jira API returned status %s for %s; falling back to mock",
-                    response.status_code,
-                    issue_key,
-                )
-                return self._mock_issue(issue_key)
+        except Exception as exc:
+            raise RuntimeError(
+                f"Network error while connecting to Jira ({self.base_url}): {exc}\n"
+                "Check your JIRA_BASE_URL and internet connection."
+            ) from exc
 
-            data = response.json()
-        except Exception as exc:  # pragma: no cover - network failure path
-            logger.warning("Error calling Jira API (%s); falling back to mock", exc)
-            return self._mock_issue(issue_key)
+        if response.status_code == 401:
+            raise RuntimeError(
+                f"Jira authentication failed (401) for {url}.\n"
+                "Your JIRA_EMAIL or JIRA_API_TOKEN is incorrect.\n"
+                "Generate a new token at: https://id.atlassian.com/manage-profile/security/api-tokens"
+            )
 
+        if response.status_code == 403:
+            raise RuntimeError(
+                f"Jira access forbidden (403) for {url}.\n"
+                "Your account does not have permission to read this issue."
+            )
+
+        if response.status_code == 404:
+            raise RuntimeError(
+                f"Jira issue '{issue_key}' not found (404).\n"
+                f"URL attempted: {url}\n"
+                f"Jira response body: {response.text[:500]}\n\n"
+                "Possible causes:\n"
+                "  1. The issue key does not exist in your Jira project.\n"
+                "  2. Your API token is wrong — Jira returns 404 for bad auth on some endpoints.\n"
+                "     -> Regenerate at: https://id.atlassian.com/manage-profile/security/api-tokens\n"
+                "  3. Your JIRA_BASE_URL is wrong (e.g. missing subdomain).\n"
+                f"     -> Current value: {self.base_url}"
+            )
+
+        if response.status_code != 200:
+            raise RuntimeError(
+                f"Jira API returned unexpected status {response.status_code} for '{issue_key}'.\n"
+                f"URL: {url}\n"
+                f"Response body: {response.text[:500]}"
+            )
+
+        data = response.json()
         return self._normalize_issue(issue_key, data)
 
     # ------------------------------------------------------------------
@@ -226,27 +259,6 @@ class JiraClient:
         if isinstance(value, str):
             return [ln.strip(" -*\t") for ln in value.splitlines() if ln.strip(" -*\t")]
         return [str(value)]
-
-    def _mock_issue(self, issue_key: str) -> NormalizedIssue:
-        """Return a deterministic mock issue for offline development."""
-
-        summary = "User can log in using valid credentials"
-        description = (
-            "As a registered user, I want to log into the system using my "
-            "email and password so that I can access my dashboard."
-        )
-        acceptance_criteria = [
-            "Given a valid user account, when correct credentials are provided, then the user is logged in successfully.",
-            "Given an invalid password, an appropriate error message is shown and the user is not logged in.",
-            "Account lockout is triggered after 5 consecutive failed login attempts.",
-        ]
-
-        return NormalizedIssue(
-            issue_key=issue_key,
-            summary=summary,
-            description=description,
-            acceptance_criteria=acceptance_criteria,
-        )
 
 
 __all__ = ["JiraClient", "NormalizedIssue"]
