@@ -78,6 +78,22 @@ async def run_enhanced_pipeline_async(
             ikey = pr_data.get("issue_key") or f"PR-{abs(hash(single_identifier))}"
             logger.info("Resolved PR %s to issue key %s", single_identifier, ikey)
             return ikey
+        elif source == "api_spec":
+            from src.collector.spec_collector import SpecCollector
+            spec_collector = SpecCollector()
+            if single_identifier.startswith("http"):
+                spec_data = spec_collector.process_spec_url(single_identifier)
+            else:
+                spec_data = spec_collector.process_spec_file(single_identifier)
+            ikey = spec_data.get("issue_key") or f"SPEC-{abs(hash(single_identifier))}"
+            # Inject ACs into pipeline via env so pipeline_runner can use them
+            import json, os
+            os.environ["SPEC_ACCEPTANCE_CRITERIA"] = json.dumps(
+                spec_data.get("acceptance_criteria", [])
+            )
+            os.environ["SPEC_SUMMARY"] = spec_data.get("title", "API Spec")
+            logger.info("Resolved spec %s to issue key %s", single_identifier, ikey)
+            return ikey
         else:
             raise ValueError(f"Unsupported source: {source}")
 
