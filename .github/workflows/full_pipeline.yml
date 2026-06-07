@@ -50,13 +50,18 @@ jobs:
           AI_PROVIDER: groq
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            PR_URL="${{ github.event.pull_request.html_url }}"
+            echo "PR triggered — running github_pr mode for: $PR_URL"
+            python -m src.pipeline.enhanced_pipeline github_pr "$PR_URL" --framework playwright
+          elif [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
             ISSUE_KEY="${{ github.event.inputs.issue_key }}"
+            echo "Manual dispatch — running jira mode for: $ISSUE_KEY"
+            python -m src.pipeline.enhanced_pipeline jira "$ISSUE_KEY" --framework playwright
           else
-            ISSUE_KEY="ZT-3"
+            echo "Push triggered — running jira mode for default issue: ZT-3"
+            python -m src.pipeline.enhanced_pipeline jira "ZT-3" --framework playwright
           fi
-          echo "Running pipeline for issue: $ISSUE_KEY"
-          python -m src.pipeline.enhanced_pipeline jira "$ISSUE_KEY" --framework playwright
 
       - name: Upload test results
         if: always()
