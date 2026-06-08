@@ -164,14 +164,14 @@ def generate_html_dashboard(output_path: str = "dashboard.html") -> str:
 <body>
     <div class="container">
         <header>
-            <h1>🚀 Prism Test Automation Dashboard</h1>
+            <h1>Prism Test Automation Dashboard</h1>
             <div class="subtitle">AI-Driven Test Case Generation & Execution Metrics</div>
             <div class="subtitle" style="margin-top: 10px;">Last Updated: {dashboard_data.get('last_updated', 'N/A')}</div>
         </header>
 
         <div class="grid">
             <div class="card">
-                <h2>📊 Coverage Metrics (30 Days)</h2>
+                <h2>Coverage Metrics (30 Days)</h2>
                 <div class="metric">
                     <span class="metric-label">Issues Processed</span>
                     <span class="metric-value">{dashboard_data.get('coverage', {}).get('total_issues_processed', 0)}</span>
@@ -196,7 +196,7 @@ def generate_html_dashboard(output_path: str = "dashboard.html") -> str:
             </div>
 
             <div class="card">
-                <h2>✅ Execution Summary</h2>
+                <h2>Execution Summary</h2>
                 <div class="metric">
                     <span class="metric-label">Total Passed</span>
                     <span class="metric-value status-badge status-pass">{dashboard_data.get('coverage', {}).get('total_passed', 0)}</span>
@@ -212,18 +212,18 @@ def generate_html_dashboard(output_path: str = "dashboard.html") -> str:
             </div>
 
             <div class="card">
-                <h2>📈 Test Type Distribution</h2>
+                <h2>Test Type Distribution</h2>
                 {_generate_test_type_chart(dashboard_data.get('test_type_distribution', {}))}
             </div>
 
             <div class="card">
-                <h2>🎯 Priority Distribution</h2>
+                <h2>Priority Distribution</h2>
                 {_generate_priority_chart(dashboard_data.get('priority_distribution', {}))}
             </div>
         </div>
 
         <div class="card" style="margin-top: 20px;">
-            <h2>⚠️ Flaky Tests</h2>
+            <h2>Flaky Tests</h2>
             {_generate_flaky_tests_table(dashboard_data.get('flaky_tests', []))}
         </div>
     </div>

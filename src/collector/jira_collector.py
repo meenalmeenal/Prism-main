@@ -207,7 +207,7 @@ def main():
         
         for issue in issues:
             summary = collector.get_issue_summary(issue)
-            print(f"\n📌 {summary['key']}: {summary['summary']}")
+            print(f"\nIssue {summary['key']}: {summary['summary']}")
             print(f"   Status: {summary['status']}")
             print(f"   ACs: {len(summary['acceptance_criteria'])}")
     else:
@@ -218,16 +218,16 @@ def main():
         summary = collector.get_issue_summary(issue_data)
         
         print(f"\n{'='*60}")
-        print(f"✅ Issue: {summary['key']}")
+        print(f"Issue: {summary['key']}")
         print('='*60)
-        print(f"📝 Summary: {summary['summary']}")
-        print(f"📊 Status: {summary['status']}")
-        print(f"🎯 Type: {summary['issue_type']}")
-        print(f"⭐ Priority: {summary['priority']}")
-        print(f"👤 Reporter: {summary['reporter']}")
-        print(f"👨‍💻 Assignee: {summary['assignee']}")
+        print(f"Summary: {summary['summary']}")
+        print(f"Status: {summary['status']}")
+        print(f"Type: {summary['issue_type']}")
+        print(f"Priority: {summary['priority']}")
+        print(f"Reporter: {summary['reporter']}")
+        print(f"Assignee: {summary['assignee']}")
         
-        print(f"\n📋 Acceptance Criteria ({len(summary['acceptance_criteria'])}):")
+        print(f"\nAcceptance Criteria ({len(summary['acceptance_criteria'])}):")
         for i, ac in enumerate(summary['acceptance_criteria'], 1):
             print(f"  {i}. {ac}")
 

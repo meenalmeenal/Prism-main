@@ -1,45 +1,45 @@
-# Prism – AI-Powered Test Automation Framework
+# Prism - AI-Powered Test Automation Framework
 
-Prism is an **AI-driven test automation framework** that automatically generates, validates, and executes test cases from **Jira issues, GitHub pull requests, or OpenAPI/Swagger specifications**, and publishes them directly to **Zephyr Scale** while generating **Playwright automation scripts**.
+Prism is an AI-driven test automation framework that automatically generates, validates, and executes test cases from Jira issues, GitHub pull requests, or OpenAPI/Swagger specifications, and publishes them directly to Zephyr Scale while generating Playwright automation scripts.
 
-The framework combines **rule-based logic + LLM intelligence** to accelerate QA workflows and enable **end-to-end automated testing pipelines**.
+The framework combines rule-based logic + LLM intelligence to accelerate QA workflows and enable end-to-end automated testing pipelines.
 
-This project is developed as part of the **Samsung PRISM R&D Program**.
+This project is developed as part of the Samsung PRISM R&D Program.
 
 ---
 
-# 🚀 Key Features
+## Key Features
 
-### 🔌 OpenAPI / Swagger Spec Integration
+### OpenAPI / Swagger Spec Integration
 Directly parse OpenAPI/Swagger JSON or YAML files (or URLs) to extract paths, methods, response codes, and parameters to generate structured API acceptance criteria and corresponding test cases.
 
-### 🧠 AI-Powered Test Generation
-Generate comprehensive test cases automatically using **Groq LLaMA models** (`llama-3.3-70b-versatile`).
+### AI-Powered Test Generation
+Generate comprehensive test cases automatically using Groq LLaMA models (llama-3.3-70b-versatile).
 
-### 🐙 GitHub PR Integration
+### GitHub PR Integration
 Automatically extract Jira issue keys from GitHub Pull Requests and trigger the full test pipeline.
 
-### 🎫 Jira Integration
+### Jira Integration
 Automatically fetch requirements and user stories from Jira issues.
 
-### 📊 Zephyr Scale Publishing
-Publish generated test cases and test execution results directly to **Zephyr Scale** via REST API (Bearer token).
+### Zephyr Scale Publishing
+Publish generated test cases and test execution results directly to Zephyr Scale via REST API (Bearer token).
 
-### 📝 Automated Script Generation
-Convert AI-generated test cases into **Playwright, Cypress, or Nightwatch.js** automation scripts.
+### Automated Script Generation
+Convert AI-generated test cases into Playwright, Cypress, or Nightwatch.js automation scripts.
 
-### 🛡️ PII Protection
+### PII Protection
 Automatically detect and mask sensitive information before sending prompts to the LLM.
 
-### 📈 Execution Metrics
+### Execution Metrics
 Track pass/fail results, test coverage, and generation statistics to generate local dashboards.
 
-### 🔁 Continuous Feedback Loop
+### Continuous Feedback Loop
 Log failed test results in a feedback store to continuously refine and improve future AI test generations.
 
 ---
 
-# 📐 Architecture
+## Architecture
 
 ```
 Jira Issue / GitHub PR / OpenAPI Spec
@@ -50,56 +50,56 @@ Requirement Collector (PR / Jira / Spec)
                  ↓
         Test Case Validator
                  ↓
-         Zephyr Publisher
+          Zephyr Publisher
                  ↓
-  Automation Code Generator (.spec.js)
+   Automation Code Generator (.spec.js)
                  ↓
-       Test Suite Execution
+        Test Suite Execution
                  ↓
-     Metrics & Feedback Loop
+      Metrics & Feedback Loop
 ```
 
 ---
 
-# 🛠️ Tech Stack
+## Tech Stack
 
 | Component       | Technology                             |
 | --------------- | -------------------------------------- |
 | Backend         | Python 3.9+                            |
-| AI Engine       | Groq LLaMA (`llama-3.3-70b-versatile`) |
+| AI Engine       | Groq LLaMA (llama-3.3-70b-versatile)   |
 | Automation      | Playwright, Cypress, Nightwatch.js     |
 | Package Manager | npm / Node.js                          |
 | Issue Tracking  | Jira Cloud                             |
 | Test Management | Zephyr Scale (SmartBear)               |
-| CI Integration  | GitHub PRs (`PyGithub`)                |
+| CI Integration  | GitHub PRs (PyGithub)                  |
 
 ---
 
-# 📋 Prerequisites
+## Prerequisites
 
 Install the following before setup:
 
-* Node.js **v18+**
-* Python **v3.9+**
-* npm **v9+**
-* Git
-* Groq API account → [console.groq.com](https://console.groq.com)
-* Jira Cloud account
-* Zephyr Scale installed in Jira
-* GitHub Personal Access Token (classic, `repo` scope)
+- Node.js v18+
+- Python v3.9+
+- npm v9+
+- Git
+- Groq API account (console.groq.com)
+- Jira Cloud account
+- Zephyr Scale installed in Jira
+- GitHub Personal Access Token (classic, repo scope)
 
 ---
 
-# ⚙️ Installation
+## Installation
 
-### 1️⃣ Clone Repository
+### 1. Clone Repository
 
 ```bash
 git clone https://github.com/meenalmeenal/Prism_main.git
 cd Prism_main
 ```
 
-### 2️⃣ Setup Python Environment
+### 2. Setup Python Environment
 
 ```bash
 python -m venv .venv
@@ -123,7 +123,7 @@ Install dependencies:
 pip install -r requirements.txt
 ```
 
-### 3️⃣ Install Node Dependencies
+### 3. Install Node Dependencies
 
 ```bash
 npm install
@@ -137,7 +137,7 @@ npx playwright install
 
 ---
 
-# 🔧 Environment Configuration
+## Environment Configuration
 
 Copy the example file and fill in your credentials:
 
@@ -180,11 +180,11 @@ AI_RETRY_DELAY_SECONDS=2.0
 AI_FALLBACK_ENABLED=true
 ```
 
-> **GitHub Token**: Generate at GitHub → Settings → Developer Settings → Personal Access Tokens → Tokens (classic). Select the **`repo`** scope.
+GitHub Token: Generate at GitHub → Settings → Developer Settings → Personal Access Tokens → Tokens (classic). Select the repo scope.
 
 ---
 
-# 🏁 Quick Start
+## Quick Start
 
 Running the enhanced pipeline uses the following general structure:
 ```bash
@@ -220,14 +220,14 @@ python -m src.pipeline.enhanced_pipeline api_spec https://raw.githubusercontent.
 
 | Flag | Default | Description |
 |------|---------|-------------|
-| `--framework` | `playwright` | Automation framework (`playwright`, `nightwatch`, `cypress`, or `gherkin`) |
+| `--framework` | `playwright` | Automation framework (playwright, nightwatch, cypress, or gherkin) |
 | `--max-retries` | `3` | AI generation retry attempts |
 | `--retry-delay` | `2.0` | Seconds between retries |
 | `--team` | `None` | Optional team name tag |
 
 ---
 
-# 🧪 Running Tests
+## Running Tests
 
 ### Playwright
 ```bash
@@ -262,7 +262,7 @@ npx cypress run --browser chrome --headed --spec generated_tests/<test-file>.spe
 
 ---
 
-# 📂 Project Structure
+## Project Structure
 
 ```
 Prism/
@@ -297,7 +297,7 @@ Prism/
 
 ---
 
-# 📊 Metrics Dashboard
+## Metrics Dashboard
 
 Pipeline metrics are written to `data/dashboard_data.json` and can be viewed locally or fed into the dashboard view:
 
@@ -328,9 +328,9 @@ Pipeline metrics are written to `data/dashboard_data.json` and can be viewed loc
 
 ---
 
-# 🖥️ Mock Application
+## Mock Application
 
-A local **mock login application** is bundled for testing the generated scripts.
+A local mock login application is bundled for testing the generated scripts.
 
 | Endpoint           | Description           |
 | ------------------ | --------------------- |
@@ -339,18 +339,18 @@ A local **mock login application** is bundled for testing the generated scripts.
 | `GET /api/protected` | JWT protected route |
 | `GET /boundary-test` | Boundary testing    |
 
-Port: `3000` (started automatically during automated test runs).
+Port: 3000 (started automatically during automated test runs).
 
 ---
 
-# 🔍 Troubleshooting
+## Troubleshooting
 
 ### GitHub 401 Bad Credentials
-* Generate a fresh **classic PAT** at [github.com/settings/tokens](https://github.com/settings/tokens) with the `repo` scope.
-* Paste it into `.env` as `GITHUB_TOKEN=ghp_...` (no quotes).
+- Generate a fresh classic PAT at github.com/settings/tokens with the repo scope.
+- Paste it into .env as GITHUB_TOKEN=ghp_... (no quotes).
 
 ### Groq API Error
-Verify `GROQ_API_KEY` at [console.groq.com](https://console.groq.com).
+Verify GROQ_API_KEY at console.groq.com.
 
 ### Playwright Browser Missing
 ```bash
@@ -370,6 +370,6 @@ LOG_LEVEL=DEBUG python -m src.pipeline.enhanced_pipeline jira ZT-123
 
 ---
 
-# 📄 License
+## License
 
 MIT License
