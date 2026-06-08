@@ -109,8 +109,9 @@ async def run_enhanced_pipeline_async(
             max_ai_retries=max_ai_retries,
             retry_delay_seconds=retry_delay_seconds,
             skip_zephyr=False,
-            requirements=spec_data,  # ← None for jira/github_pr, dict for api_spec
-        )
+            requirements=spec_data,
+            framework=framework,  # ← add this
+)
 
         if source == "github_pr":
             test_files = [
@@ -209,7 +210,7 @@ def main(argv: Optional[List[str]] = None) -> None:
     parser.add_argument(
         "--framework",
         default="playwright",
-        choices=["playwright", "nightwatch", "cypress"],
+        choices=["playwright", "nightwatch", "cypress","gherkin"],
         help="Target automation framework (default: playwright)",
     )
     parser.add_argument(

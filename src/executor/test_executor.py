@@ -60,6 +60,59 @@ def _parse_playwright_summary(combined_output: str) -> Optional[Tuple[int, int, 
         return passed, failed, skipped
     return None
 
+def _parse_nightwatch_summary(combined_output: str) -> Optional[Tuple[int, int, int]]:
+    """Parse Nightwatch CLI summary."""
+    text = _strip_ansi(combined_output)
+    passed = failed = skipped = 0
+    saw_any = False
+    for line in text.splitlines():
+        m = re.search(r"(\d+) passed", line)
+        if m:
+            passed = int(m.group(1)); saw_any = True
+        m = re.search(r"(\d+) failed", line)
+        if m:
+            failed = int(m.group(1)); saw_any = True
+        m = re.search(r"(\d+) skipped", line)
+        if m:
+            skipped = int(m.group(1)); saw_any = True
+    return (passed, failed, skipped) if saw_any else None
+
+
+def _parse_cypress_summary(combined_output: str) -> Optional[Tuple[int, int, int]]:
+    """Parse Cypress CLI summary."""
+    text = _strip_ansi(combined_output)
+    passed = failed = skipped = 0
+    saw_any = False
+    for line in text.splitlines():
+        m = re.search(r"(\d+) passing", line)
+        if m:
+            passed = int(m.group(1)); saw_any = True
+        m = re.search(r"(\d+) failing", line)
+        if m:
+            failed = int(m.group(1)); saw_any = True
+        m = re.search(r"(\d+) pending", line)
+        if m:
+            skipped = int(m.group(1)); saw_any = True
+    return (passed, failed, skipped) if saw_any else None
+
+
+def _parse_cucumber_summary(combined_output: str) -> Optional[Tuple[int, int, int]]:
+    """Parse Cucumber.js CLI summary."""
+    text = _strip_ansi(combined_output)
+    passed = failed = skipped = 0
+    saw_any = False
+    for line in text.splitlines():
+        m = re.search(r"(\d+) passed", line)
+        if m:
+            passed = int(m.group(1)); saw_any = True
+        m = re.search(r"(\d+) failed", line)
+        if m:
+            failed = int(m.group(1)); saw_any = True
+        m = re.search(r"(\d+) skipped", line)
+        if m:
+            skipped = int(m.group(1)); saw_any = True
+    return (passed, failed, skipped) if saw_any else None
+
 
 class TestExecutor:
     """
@@ -79,179 +132,122 @@ class TestExecutor:
         issue_key: str,
         headed: bool = True,
     ) -> Dict[str, Any]:
-        """
-        Execute generated automation tests.
-
-        Runs the full ``generated_tests/`` suite once (same as ``npm test`` /
-        ``playwright test`` with root ``playwright.config.js``), not per-file.
-
-        Args:
-            test_files: list of generated spec paths (used for logging / sanity;
-                execution always targets the whole ``generated_tests`` folder).
-            issue_key: jira issue key
-            headed: When True (default), run Playwright interactive UI via ``--ui``
-                (never ``--headed``; they must not be combined). Set False for default
-                CLI run (e.g. headless CI).
-
-        Returns:
-            dict containing test_results and aggregate passed/failed from CLI output
-        """
+        if self.framework == "nightwatch":
+            return await self._execute_nightwatch(test_files, issue_key)
+        elif self.framework == "cypress":
+            return await self._execute_cypress(test_files, issue_key)
+        elif self.framework == "gherkin":
+            return await self._execute_cucumber(test_files, issue_key)
+        else:
+            return await self._execute_playwright(test_files, issue_key, headed)
+    
+    async def _execute_playwright(
+        self,
+        test_files: List[str],
+        issue_key: str,
+        headed: bool = True,
+    ) -> Dict[str, Any]:
         tests_dir = self.project_root / GENERATED_TESTS_DIR
         config_path = self.project_root / PLAYWRIGHT_CONFIG
         use_config = config_path.is_file()
 
         logger.info(
             "Executing Playwright suite under %s/ for %s (ui_mode=%s, %d spec path(s) from pipeline)",
-            GENERATED_TESTS_DIR,
-            issue_key,
-            headed,
-            len(test_files),
+            GENERATED_TESTS_DIR, issue_key, headed, len(test_files),
         )
-
-        if not use_config:
-            logger.warning(
-                "%s not found in %s — running without --config (e.g. npx playwright test %s --ui).",
-                PLAYWRIGHT_CONFIG,
-                self.project_root,
-                GENERATED_TESTS_DIR,
-            )
 
         if not tests_dir.is_dir():
             msg = f"Missing tests directory {tests_dir}"
             logger.warning(msg)
-            return {
-                "issue_key": issue_key,
-                "total_tests": 0,
-                "passed": 0,
-                "failed": 0,
-                "errors": 1,
-                "test_results": [
-                    {
-                        "test_file": f"{GENERATED_TESTS_DIR}/",
-                        "test_name": "playwright_suite",
-                        "status": "error",
-                        "error": msg,
-                    }
-                ],
-                "parsed_from_output": False,
-            }
+            return {"issue_key": issue_key, "total_tests": 0, "passed": 0, "failed": 0,
+                    "errors": 1, "test_results": [{"test_name": "playwright_suite", "status": "error", "error": msg}],
+                    "parsed_from_output": False}
 
-        # Strict shape: npx playwright test [test_files...] [--config playwright.config.js] [--ui]
-        # --ui and --headed conflict; demo mode uses --ui only.
         target = [Path(f).name for f in test_files] if test_files else [GENERATED_TESTS_DIR]
         pw_args = ["npx", "playwright", "test"] + target
         if use_config:
             pw_args.extend(["--config", PLAYWRIGHT_CONFIG])
         if headed:
             pw_args.append("--ui")
-
-        if sys.platform == "win32":
-            cmd = ["cmd", "/c", *pw_args]
-        else:
-            cmd = pw_args
-
+        cmd = ["cmd", "/c", *pw_args] if sys.platform == "win32" else pw_args
         logger.info("Running: %s (cwd=%s)", " ".join(pw_args), self.project_root)
+        return self._run_and_parse(cmd, issue_key, _parse_playwright_summary, "playwright_suite")
 
+    async def _execute_nightwatch(
+        self,
+        test_files: List[str],
+        issue_key: str,
+    ) -> Dict[str, Any]:
+        target = [Path(f).name for f in test_files] if test_files else [GENERATED_TESTS_DIR]
+        cmd_args = ["npx", "nightwatch"] + target + ["--env", "default"]
+        cmd = ["cmd", "/c", *cmd_args] if sys.platform == "win32" else cmd_args
+        logger.info("Running: %s (cwd=%s)", " ".join(cmd_args), self.project_root)
+        return self._run_and_parse(cmd, issue_key, _parse_nightwatch_summary, "nightwatch_suite")
+
+    async def _execute_cypress(
+        self,
+        test_files: List[str],
+        issue_key: str,
+    ) -> Dict[str, Any]:
+        cmd_args = ["npx", "cypress", "run"]
+        if test_files:
+            cmd_args += ["--spec", ",".join(test_files)]
+        cmd = ["cmd", "/c", *cmd_args] if sys.platform == "win32" else cmd_args
+        logger.info("Running: %s (cwd=%s)", " ".join(cmd_args), self.project_root)
+        return self._run_and_parse(cmd, issue_key, _parse_cypress_summary, "cypress_suite")
+
+    async def _execute_cucumber(
+        self,
+        test_files: List[str],
+        issue_key: str,
+    ) -> Dict[str, Any]:
+        cmd_args = ["npx", "cucumber-js", "--config", "cucumber.config.js"]
+        cmd = ["cmd", "/c", *cmd_args] if sys.platform == "win32" else cmd_args
+        logger.info("Running: %s (cwd=%s)", " ".join(cmd_args), self.project_root)
+        return self._run_and_parse(cmd, issue_key, _parse_cucumber_summary, "cucumber_suite")
+
+    def _run_and_parse(
+        self,
+        cmd: List[str],
+        issue_key: str,
+        parser,
+        suite_name: str,
+    ) -> Dict[str, Any]:
         try:
             process = subprocess.run(
-                cmd,
-                cwd=str(self.project_root),
-                capture_output=True,
-                text=True,
+                cmd, cwd=str(self.project_root), capture_output=True, text=True,
             )
         except Exception as e:
-            logger.exception("Playwright subprocess failed to start")
-            return {
-                "issue_key": issue_key,
-                "total_tests": 0,
-                "passed": 0,
-                "failed": 0,
-                "errors": 1,
-                "test_results": [
-                    {
-                        "test_file": f"{GENERATED_TESTS_DIR}/",
-                        "test_name": "playwright_suite",
-                        "status": "error",
-                        "error": str(e),
-                    }
-                ],
-                "parsed_from_output": False,
-            }
+            logger.exception("Subprocess failed to start")
+            return {"issue_key": issue_key, "total_tests": 0, "passed": 0, "failed": 0,
+                    "errors": 1, "test_results": [{"test_name": suite_name, "status": "error", "error": str(e)}],
+                    "parsed_from_output": False}
 
-        out = process.stdout or ""
-        err = process.stderr or ""
-        logger.info("Playwright stdout (raw):\n%s", out if out.strip() else "(empty)")
-        logger.info("Playwright stderr (raw):\n%s", err if err.strip() else "(empty)")
+        combined = (process.stdout or "") + "\n" + (process.stderr or "")
+        parsed = parser(combined)
 
-        combined = out + "\n" + err
-        parsed = _parse_playwright_summary(combined)
-
-        if parsed is not None:
+        if parsed:
             passed, failed, skipped = parsed
             total = passed + failed + skipped
             parsed_from_output = True
-            logger.info(
-                "Parsed Playwright summary: %d passed, %d failed, %d skipped (total=%d)",
-                passed,
-                failed,
-                skipped,
-                total,
-            )
         else:
-            parsed_from_output = False
-            # Fallback: treat whole run as one logical test (legacy behavior)
             passed = 1 if process.returncode == 0 else 0
             failed = 0 if process.returncode == 0 else 1
             skipped = 0
             total = 1
-            logger.warning(
-                "Could not parse Playwright pass/fail counts from CLI output; "
-                "using return code fallback (passed=%d, failed=%d).",
-                passed,
-                failed,
-            )
+            parsed_from_output = False
 
-        if parsed_from_output:
-            suite_status = (
-                "passed" if failed == 0 and process.returncode == 0 else "failed"
-            )
-        else:
-            suite_status = "passed" if process.returncode == 0 else "failed"
+        suite_status = "passed" if failed == 0 and process.returncode == 0 else "failed"
+        logger.info("Execution complete: %d/%d passed (failed=%d)", passed, total, failed)
 
-        results = [
-            {
-                "test_file": f"{GENERATED_TESTS_DIR}/",
-                "test_name": "playwright_suite",
-                "status": suite_status,
-                "stdout": process.stdout,
-                "stderr": process.stderr,
-                "returncode": process.returncode,
-                "parsed_passed": passed if parsed_from_output else None,
-                "parsed_failed": failed if parsed_from_output else None,
-                "parsed_skipped": skipped if parsed_from_output else None,
-            }
-        ]
-
-        summary: Dict[str, Any] = {
+        return {
             "issue_key": issue_key,
             "total_tests": total,
             "passed": passed,
             "failed": failed,
             "errors": 0,
-            "skipped": skipped if parsed_from_output else 0,
-            "test_results": results,
+            "skipped": skipped,
+            "test_results": [{"test_name": suite_name, "status": suite_status,
+                              "stdout": process.stdout, "stderr": process.stderr}],
             "parsed_from_output": parsed_from_output,
         }
-
-        total = summary["total_tests"]
-        ok = summary["passed"]
-        logger.info(
-            "Execution complete: %d/%d passed (failed=%d, errors=%d, skipped=%s)",
-            ok,
-            total,
-            summary["failed"],
-            summary["errors"],
-            summary.get("skipped", 0),
-        )
-
-        return summary

@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 class AutomationGenerator:
     """Generates automation test scripts from validated test cases."""
 
-    SUPPORTED_FRAMEWORKS = ["nightwatch", "playwright", "cypress"]
+    SUPPORTED_FRAMEWORKS = ["nightwatch", "playwright", "cypress", "gherkin"]
 
     def __init__(self, framework: str = "playwright", output_dir: str = "generated_tests"):
         """Initialize the automation generator.
@@ -68,16 +68,19 @@ class AutomationGenerator:
 
         for test_case in test_cases:
             try:
+                test_id = test_case.get("id", "unknown").replace(" ", "_").replace("/", "_")  # ← MUST BE FIRST
+
                 if self.framework == "playwright":
                     code = self._generate_playwright(test_case, issue_key, base_url)
                 elif self.framework == "nightwatch":
                     code = self._generate_nightwatch(test_case, issue_key, base_url)
-                else:  # cypress
+                elif self.framework == "cypress":
                     code = self._generate_cypress(test_case, issue_key, base_url)
+                else:  # gherkin
+                    code = self._generate_gherkin(test_case, issue_key)
 
-                # Save to file
-                test_id = test_case.get("id", "unknown").replace(" ", "_").replace("/", "_")
-                filename = f"{issue_key}_{test_id}.spec.js"
+                ext = "feature" if self.framework == "gherkin" else "spec.js"
+                filename = f"{issue_key}_{test_id}.{ext}"
                 filepath = self.output_dir / filename
 
                 with filepath.open("w", encoding="utf-8") as f:
@@ -253,6 +256,57 @@ class AutomationGenerator:
         lines.append("  });")
         lines.append("});")
 
+        return "\n".join(lines)
+    
+
+    def _generate_gherkin(self, test_case: Dict[str, Any], issue_key: str) -> str:
+        """Generate Gherkin .feature file from test case."""
+        title = test_case.get("title", "Untitled Test")
+        test_type = test_case.get("type", "positive")
+        priority = test_case.get("priority", "P3")
+        steps = test_case.get("steps", [])
+        preconditions = test_case.get("preconditions", [])
+        tags = test_case.get("tags", []) + [test_type, priority, issue_key]
+
+        tag_line = " ".join(f"@{t.lower().replace(' ', '_')}" for t in tags)
+
+        lines = [
+            f"# Auto-generated feature file for {issue_key}",
+            f"# Type: {test_type}, Priority: {priority}",
+            "",
+            tag_line,
+            f"Feature: {title}",
+            "",
+        ]
+
+        # Scenario title
+        lines.append(f"  Scenario: {title}")
+
+        # Preconditions as Given
+        if preconditions:
+            for i, precond in enumerate(preconditions):
+                keyword = "Given" if i == 0 else "And"
+                lines.append(f"    {keyword} {precond}")
+        else:
+            lines.append("    Given the user is on the application")
+
+        # Steps → When/Then
+        for i, step in enumerate(steps):
+            action = step.get("action", "")
+            expected = step.get("expected_result", "")
+            test_data = step.get("test_data")
+
+            action_line = f"{action}"
+            if test_data:
+                action_line += f' "{test_data}"'
+
+            keyword = "When" if i == 0 else "And"
+            lines.append(f"    {keyword} {action_line}")
+
+            if expected:
+                lines.append(f"    Then {expected}")
+
+        lines.append("")
         return "\n".join(lines)
 
     def _action_to_playwright(self, action: str, test_data: Optional[str], expected: str) -> Optional[str]:

@@ -12,7 +12,10 @@
   "license": "ISC",
   "description": "A comprehensive test automation framework that integrates with Jira, GitHub PRs, and Zephyr Scale, featuring rule-based and AI-powered test generation with robust test execution using Playwright.",
   "devDependencies": {
-    "@playwright/test": "^1.58.2"
+    "@cucumber/cucumber": "^13.0.0",
+    "@playwright/test": "^1.58.2",
+    "cypress": "^15.16.0",
+    "nightwatch": "^3.16.0"
   },
   "dependencies": {
     "express": "^5.2.1"

@@ -68,12 +68,14 @@ def _configure_logging() -> None:
 # ---------------------------------------------------------------------------
 
 
+# FIXED signature
 def run_pipeline(
     issue_key: str,
     max_ai_retries: int = 3,
     retry_delay_seconds: float = 2.0,
     skip_zephyr: bool = False,
     requirements: Optional[Dict[str, Any]] = None,
+    framework: str = "playwright",  # ← add this
 ) -> Dict[str, Any]:
     """Run the full Jira -> AI -> Validator -> Zephyr pipeline.
 
@@ -236,55 +238,53 @@ def run_pipeline(
         if r.get("status") in {"live"}
     )
 
-    # 5. Playwright codegen + execution (always after Zephyr; uses validated test cases)
+    # 5. Codegen + execution (always after Zephyr; uses validated test cases)
     automation_results: List[Dict[str, Any]] = []
     execution_results: Dict[str, Any] = {}
     test_files: List[str] = []
 
+    _framework = framework if framework in AutomationGenerator.SUPPORTED_FRAMEWORKS else os.getenv("PRISM_AUTOMATION_FRAMEWORK", "playwright").strip().lower()
+
     if validated_cases:
         try:
-            framework = os.getenv("PRISM_AUTOMATION_FRAMEWORK", "playwright").strip().lower()
-            if framework not in AutomationGenerator.SUPPORTED_FRAMEWORKS:
-                framework = "playwright"
-            auto_gen = AutomationGenerator(framework=framework)
+            auto_gen = AutomationGenerator(framework=_framework)
             automation_results = auto_gen.generate_from_test_cases(
                 test_cases=validated_cases,
                 issue_key=issue_key,
             )
+            result["automation_results"] = automation_results
+
             test_files = [
                 r["file_path"]
                 for r in automation_results
                 if r.get("status") == "generated" and r.get("file_path")
             ]
-            result["automation_results"] = automation_results
-
             if test_files:
-                logger.info("Triggering Playwright automation...")
-                executor = TestExecutor(framework=framework)
+                logger.info("Triggering %s automation...", _framework)
+                executor = TestExecutor(framework=_framework)
 
-                async def _run_playwright() -> Dict[str, Any]:
+                async def _run_tests() -> Dict[str, Any]:
                     return await executor.execute_tests(
                         test_files=test_files,
                         issue_key=issue_key,
                     )
 
-                """execution_results = asyncio.run(_run_playwright())"""
                 import nest_asyncio
                 nest_asyncio.apply()
-                execution_results = asyncio.run(_run_playwright())
+                execution_results = asyncio.run(_run_tests())
                 result["execution_results"] = execution_results
             else:
                 logger.warning(
-                    "No automation files were generated for %s; skipping Playwright execution.",
+                    "No automation files were generated for %s; skipping execution.",
                     issue_key,
                 )
         except Exception as exc:  # pragma: no cover - defensive
-            msg = f"Automation or Playwright execution failed: {exc}"
+            msg = f"Automation or execution failed: {exc}"
             logger.exception(msg)
             result["execution_error"] = msg
     else:
         logger.info(
-            "Skipping automation and Playwright: no validated test cases for %s",
+            "Skipping automation execution: no validated test cases for %s",
             issue_key,
         )
 
@@ -375,7 +375,7 @@ def main(argv: Optional[List[str]] = None) -> None:
             f"(failed={failed_ex}, errors={err_ex})"
         )
     else:
-        print("Execution: skipped (no Playwright specs executed)")
+        print("Execution: skipped (no specs executed)")
 
     if jira_error:
         print(f"Jira error: {jira_error}")
