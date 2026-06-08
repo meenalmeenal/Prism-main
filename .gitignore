@@ -44,7 +44,7 @@ yarn-error.log*
 package-lock.json
 
 # ──────────────────────────────────────────────
-# Playwright & Nightwatch
+# Playwright, Nightwatch, Cypress
 # ──────────────────────────────────────────────
 test-results/
 playwright-report/
@@ -52,6 +52,9 @@ blob-report/
 playwright/.cache/
 tests_output/
 nightwatch/
+cypress/screenshots/
+cypress/videos/
+cypress/downloads/
 
 # ──────────────────────────────────────────────
 # Generated output (runtime artifacts)

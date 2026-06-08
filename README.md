@@ -220,7 +220,7 @@ python -m src.pipeline.enhanced_pipeline api_spec https://raw.githubusercontent.
 
 | Flag | Default | Description |
 |------|---------|-------------|
-| `--framework` | `playwright` | Automation framework (`playwright`, `nightwatch`, or `cypress`) |
+| `--framework` | `playwright` | Automation framework (`playwright`, `nightwatch`, `cypress`, or `gherkin`) |
 | `--max-retries` | `3` | AI generation retry attempts |
 | `--retry-delay` | `2.0` | Seconds between retries |
 | `--team` | `None` | Optional team name tag |
@@ -229,6 +229,7 @@ python -m src.pipeline.enhanced_pipeline api_spec https://raw.githubusercontent.
 
 # 🧪 Running Tests
 
+### Playwright
 ```bash
 npm test                  # Run all Playwright tests
 npm run test:ui           # Open Playwright UI mode
@@ -237,9 +238,26 @@ npx playwright show-report  # View HTML report
 ```
 
 Run a specific generated test:
-
 ```bash
 npx playwright test generated_tests/<test-file>.spec.js
+```
+
+### Gherkin / Cucumber.js
+Run the Gherkin feature files:
+```bash
+npx cucumber-js --config cucumber.config.js
+```
+
+### Nightwatch.js
+Run the generated Nightwatch tests:
+```bash
+npx nightwatch generated_tests/<test-file>.spec.js --env default
+```
+
+### Cypress
+Run the generated Cypress tests:
+```bash
+npx cypress run --browser chrome --headed --spec generated_tests/<test-file>.spec.js
 ```
 
 ---

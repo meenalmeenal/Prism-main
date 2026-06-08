@@ -189,7 +189,7 @@ class TestExecutor:
         test_files: List[str],
         issue_key: str,
     ) -> Dict[str, Any]:
-        cmd_args = ["npx", "cypress", "run"]
+        cmd_args = ["npx", "cypress", "run", "--browser", "chrome", "--headed"]
         if test_files:
             cmd_args += ["--spec", ",".join(test_files)]
         cmd = ["cmd", "/c", *cmd_args] if sys.platform == "win32" else cmd_args
