@@ -90,8 +90,9 @@ class ZephyrClient:
         self.base_url = (base_url or os.getenv("ZEPHYR_BASE_URL") or self.BASE_URL).rstrip('/') + '/'
         self.timeout = aiohttp.ClientTimeout(total=timeout)
         self.session: Optional[aiohttp.ClientSession] = None
+        self.dry_run = os.getenv("ZEPHYR_DRY_RUN", "false").lower() in {"1", "true", "yes"}
 
-        if not self.api_token:
+        if not self.api_token and not self.dry_run:
             raise ValueError("ZEPHYR_API_TOKEN is required but not set.")
 
     async def __aenter__(self) -> 'ZephyrClient':
@@ -172,9 +173,11 @@ class ZephyrClient:
             "testScript": {
                 "type": "STEP_BY_STEP",
                 "steps": test_case.get("steps", [])
-            },
-            "issueLinks": [issue_key]
+            }
         }
+        if issue_key and not (issue_key.startswith("PR-") or issue_key.startswith("SPEC-")):
+            data["issueLinks"] = [issue_key]
+            
         return await self._request("POST", endpoint, json=data)
 
     async def create_test_cycle(
@@ -340,6 +343,21 @@ class ZephyrClient:
         if not test_cases:
             return []
 
+        if self.dry_run:
+            logger.info("Zephyr dry-run mode: generating mock demo publish results")
+            results = []
+            for idx, tc in enumerate(test_cases, start=1):
+                results.append({
+                    "issue_key": issue_key,
+                    "test_case_key": f"ZT-T{idx}",
+                    "cycle_key": "ZT-C1",
+                    "execution_id": f"ZT-E{idx}",
+                    "status": "demo",
+                    "zephyr_test_case": {"key": f"ZT-T{idx}"},
+                    "zephyr_execution": {"statusName": "Pass"},
+                })
+            return results
+
         async def _run():
             try:
                 return await self._async_publish_live(issue_key, test_cases)
@@ -354,4 +372,17 @@ class ZephyrClient:
         test_cases: List[Dict[str, Any]],
     ) -> List[Dict[str, Any]]:
         """Async version of publish_test_cases."""
+        if self.dry_run:
+            results = []
+            for idx, tc in enumerate(test_cases, start=1):
+                results.append({
+                    "issue_key": issue_key,
+                    "test_case_key": f"ZT-T{idx}",
+                    "cycle_key": "ZT-C1",
+                    "execution_id": f"ZT-E{idx}",
+                    "status": "demo",
+                    "zephyr_test_case": {"key": f"ZT-T{idx}"},
+                    "zephyr_execution": {"statusName": "Pass"},
+                })
+            return results
         return await self._async_publish_live(issue_key, test_cases)

@@ -70,15 +70,20 @@ async def run_enhanced_pipeline_async(
     if dry_run:
         os.environ["ZEPHYR_DRY_RUN"] = "true"
 
-    def _resolve_issue_key(single_identifier: str) -> str:
+    def _resolve_issue_key(single_identifier: str) -> Any:
         if source == "jira":
             return single_identifier
         elif source == "github_pr":
             pr_collector = PRCollector()
             pr_data = pr_collector.process_pr_url(single_identifier)
-            ikey = pr_data.get("issue_key") or f"PR-{abs(hash(single_identifier))}"
-            logger.info("Resolved PR %s to issue key %s", single_identifier, ikey)
-            return ikey
+            ikey = pr_data.get("issue_key")
+            if ikey:
+                logger.info("Resolved PR %s to Jira issue key %s", single_identifier, ikey)
+                return ikey
+            else:
+                ikey = f"PR-{abs(hash(single_identifier))}"
+                logger.info("PR %s has no Jira key. Resolved to local key %s", single_identifier, ikey)
+                return ikey, pr_data
         elif source == "api_spec":
             from src.collector.spec_collector import SpecCollector
             spec_collector = SpecCollector()
