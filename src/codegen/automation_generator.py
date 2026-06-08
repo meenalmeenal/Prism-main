@@ -334,7 +334,7 @@ class AutomationGenerator:
 
         # Fill
         if any(word in action_lower for word in ["enter", "fill", "type"]):
-            value = test_data or "test".replace("'", "\\'")
+            value = (test_data or "test").replace("'", "\\'")
             if "email" in action_lower:
                 return f"cy.get('input[type=\"email\"]').type('{value}');"
             elif "password" in action_lower:
