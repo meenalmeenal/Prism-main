@@ -112,6 +112,16 @@ async def run_enhanced_pipeline_async(
             requirements=spec_data,  # ← None for jira/github_pr, dict for api_spec
         )
 
+        if source == "github_pr":
+            test_files = [
+                r["file_path"]
+                for r in core_result.get("automation_results", [])  # ← use core_result
+                if r.get("status") == "generated"
+            ]
+            if test_files:
+                PRCollector().push_generated_tests(single_identifier, test_files)
+                logger.info("Pushed %d test files to PR branch", len(test_files))
+
         generated_cases: List[Dict[str, Any]] = core_result.get("generated_test_cases", [])
         validated_cases: List[Dict[str, Any]] = core_result.get("validated_test_cases", []) or generated_cases
 

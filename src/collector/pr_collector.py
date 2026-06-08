@@ -43,3 +43,19 @@ class PRCollector:
             return repo_name, pr_number
         except (IndexError, ValueError):
             return None, None
+    def push_generated_tests(self, pr_url: str, test_files: list[str]) -> None:
+        """Push generated test files back to the PR's head branch."""
+        repo_name, pr_number = self._parse_pr_url(pr_url)
+        pr_details = self.github.get_pr_details(repo_name, pr_number)
+        branch = pr_details["head_branch"]
+
+        for file_path in test_files:
+            with open(file_path, 'r', encoding='utf-8') as f:
+                content = f.read()
+            self.github.push_file(
+                repo_name=repo_name,
+                branch=branch,
+                file_path=file_path.replace("\\", "/"),  # normalize Windows paths
+                content=content,
+                commit_message="chore: add AI-generated tests",
+            )

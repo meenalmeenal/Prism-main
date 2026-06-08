@@ -1,4 +1,5 @@
 # src/integrations/github_client.py
+import base64
 import os
 from typing import Dict, Optional
 
@@ -16,7 +17,6 @@ class GitHubClient:
         try:
             repo = self.client.get_repo(repo_name)
             pr = repo.get_pull(pr_number)
-            
             return {
                 "title": pr.title,
                 "body": pr.body,
@@ -33,9 +33,38 @@ class GitHubClient:
     def extract_issue_key(pr_title: str, pr_body: str) -> Optional[str]:
         """Extract Jira issue key from PR title or body."""
         import re
-        # Look for patterns like "PROJ-123" in title or body
         for text in [pr_title, pr_body]:
             match = re.search(r'([A-Z]+-\d+)', text)
             if match:
                 return match.group(1)
         return None
+
+    def push_file(  # ← 4 spaces, inside class
+        self,
+        repo_name: str,
+        branch: str,
+        file_path: str,
+        content: str,
+        commit_message: str = "chore: add AI-generated tests",
+    ) -> None:
+        """Create or update a file in the repo on the given branch."""
+        try:
+            repo = self.client.get_repo(repo_name)
+            try:
+                existing = repo.get_contents(file_path, ref=branch)
+                repo.update_file(
+                    path=file_path,
+                    message=commit_message,
+                    content=content,
+                    sha=existing.sha,
+                    branch=branch,
+                )
+            except GithubException:
+                repo.create_file(
+                    path=file_path,
+                    message=commit_message,
+                    content=content,
+                    branch=branch,
+                )
+        except GithubException as e:
+            raise Exception(f"Failed to push file {file_path}: {e}")
