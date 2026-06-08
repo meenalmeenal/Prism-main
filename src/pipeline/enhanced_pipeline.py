@@ -27,6 +27,7 @@ from src.executor.test_executor import TestExecutor
 from src.pipeline.pipeline_runner import run_pipeline
 from src.codegen.automation_generator import AutomationGenerator
 from src.feedback.feedback_store import FeedbackStore, TestFeedback
+from src.utils.pii_masker import mask_pii
 from datetime import datetime
 import json
 
@@ -142,7 +143,7 @@ async def run_enhanced_pipeline_async(
                 fb = TestFeedback(
                     test_case_id=tr.get("test_name", tr.get("test_file", "unknown")),
                     issue_key=issue_key,
-                    error_message=tr.get("error", tr.get("stderr", "")) or "Unknown error",
+                    error_message=mask_pii(tr.get("error", tr.get("stderr", "")) or "Unknown error"),
                     test_steps=[],
                     timestamp=datetime.now().isoformat(),
                 )

@@ -10,6 +10,7 @@ import json
 import logging
 from typing import List, Dict
 from src.utils.security import pii_scanner
+from src.utils.pii_masker import mask_pii
 from pathlib import Path
 from dotenv import load_dotenv
 
@@ -95,6 +96,9 @@ class AITestGenerator:
         if not self.client:
             return []
 
+        summary = mask_pii(summary)
+        acceptance_criteria = [mask_pii(ac) for ac in acceptance_criteria]
+
         prompt = PromptTemplates.get_test_generation_prompt(
             issue_key=issue_key,
             summary=summary,
@@ -128,6 +132,8 @@ class AITestGenerator:
 
         if not self.client:
             return {}
+
+        prompt = mask_pii(prompt)
 
         try:
             response = self.client.chat.completions.create(
@@ -165,6 +171,14 @@ class AITestGenerator:
             Refined test case dictionary
         """
         
+        feedback = mask_pii(feedback)
+        try:
+            tc_str = json.dumps(test_case, ensure_ascii=False)
+            tc_str_masked = mask_pii(tc_str)
+            test_case = json.loads(tc_str_masked)
+        except Exception:
+            pass
+
         prompt = PromptTemplates.get_refinement_prompt(test_case, feedback)
 
         if not self.client:
@@ -321,16 +335,10 @@ class RuleBasedTestGenerator:
         summary: str,
         acceptance_criteria: List[str],
     ) -> List[Dict]:
-        """Generate rule-based test cases.
-
-        The strategy is deliberately simple and academically defensible:
-
-        * For each acceptance criterion we derive three test cases
-          (positive, negative, boundary).
-        * If no explicit acceptance criteria are provided we synthesize a
-          single generic criterion from the summary so the pipeline still
-          produces output.
-        """
+        """Generate rule-based test cases."""
+        summary = mask_pii(summary)
+        if acceptance_criteria:
+            acceptance_criteria = [mask_pii(ac) for ac in acceptance_criteria]
 
         if not acceptance_criteria:
             logger.warning(

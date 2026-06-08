@@ -14,6 +14,7 @@ from datetime import datetime
 
 from ..ai_engine.ai_test_generator import AITestGenerator
 from ..integrations.zephyr_client import ZephyrClient
+from src.utils.pii_masker import mask_pii
 
 logger = logging.getLogger(__name__)
 
@@ -53,7 +54,7 @@ class FeedbackLoop:
                             failed_test = {
                                 'title': test_case.get('title'),
                                 'file': test.get('file'),
-                                'error': test_case.get('error', {}).get('message', 'Unknown error'),
+                                'error': mask_pii(test_case.get('error', {}).get('message', 'Unknown error')),
                                 'steps': test_case.get('results', [{}])[0].get('steps', []),
                                 'retry_count': self._get_retry_count(test_case.get('title', ''))
                             }
