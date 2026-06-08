@@ -178,7 +178,7 @@ class TestExecutor:
         test_files: List[str],
         issue_key: str,
     ) -> Dict[str, Any]:
-        target = [Path(f).name for f in test_files] if test_files else [GENERATED_TESTS_DIR]
+        target = [str(Path(f)) for f in test_files] if test_files else [GENERATED_TESTS_DIR]
         cmd_args = ["npx", "nightwatch"] + target + ["--env", "default"]
         cmd = ["cmd", "/c", *cmd_args] if sys.platform == "win32" else cmd_args
         logger.info("Running: %s (cwd=%s)", " ".join(cmd_args), self.project_root)
@@ -215,7 +215,12 @@ class TestExecutor:
     ) -> Dict[str, Any]:
         try:
             process = subprocess.run(
-                cmd, cwd=str(self.project_root), capture_output=True, text=True,
+                cmd,
+                cwd=str(self.project_root),
+                capture_output=True,
+                text=True,
+                encoding="utf-8",
+                errors="replace",
             )
         except Exception as e:
             logger.exception("Subprocess failed to start")
