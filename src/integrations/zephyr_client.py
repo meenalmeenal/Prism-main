@@ -230,6 +230,14 @@ class ZephyrClient:
                 return None
             raise
 
+    async def update_test_case(self, test_id: str, updates: Dict[str, Any]) -> Dict[str, Any]:
+        endpoint = f"/testcases/{test_id}"
+        try:
+            return await self._request("PUT", endpoint, json=updates)
+        except Exception as e:
+            logger.exception(f"Failed to update test case {test_id}: {e}")
+            return {}
+
     async def get_test_cycle(self, cycle_key: str) -> Optional[Dict]:
         endpoint = f"/testcycles/{cycle_key}"
         try:

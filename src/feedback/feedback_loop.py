@@ -126,7 +126,7 @@ class FeedbackLoop:
             prompt = self.generate_retry_prompt(test)
             try:
                 # Generate new test case using AI
-                new_test = await self.ai_generator.generate_test_case(prompt)
+                new_test = self.ai_generator.generate_test_case(prompt)
                 
                 # Update test ID with retry suffix
                 base_id = re.sub(r'-R\d+$', '', test.get('test_id', ''))
