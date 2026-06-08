@@ -73,6 +73,7 @@ def run_pipeline(
     max_ai_retries: int = 3,
     retry_delay_seconds: float = 2.0,
     skip_zephyr: bool = False,
+    requirements: Optional[Dict[str, Any]] = None,
 ) -> Dict[str, Any]:
     """Run the full Jira -> AI -> Validator -> Zephyr pipeline.
 
@@ -123,22 +124,34 @@ def run_pipeline(
     }
 
     # 1. Fetch and normalize Jira issue -------------------------------------------------
-    try:
-        normalized_issue: NormalizedIssue = jira_client.get_issue(issue_key)
+    if requirements:
+        normalized_issue = NormalizedIssue(
+            issue_key=issue_key,
+            summary=requirements.get("title", "API Spec"),
+            description=requirements.get("description", ""),
+            acceptance_criteria=requirements.get("acceptance_criteria", [])
+        )
         result["jira_issue"] = asdict(normalized_issue)
         logger.info(
-            "Fetched Jira issue %s (summary length=%d, %d ACs)",
-            normalized_issue.issue_key,
-            len(normalized_issue.summary or ""),
+            "Using injected requirements for %s (%d ACs)",
+            issue_key,
             len(normalized_issue.acceptance_criteria),
         )
-    except Exception as exc:  # pragma: no cover - defensive
-        msg = f"Failed to fetch Jira issue {issue_key}: {exc}"
-        logger.error(msg)
-        result["jira_error"] = msg
-        # We can still attempt to proceed with a mocked issue from JiraClient,
-        # but if even that failed there's nothing meaningful to do.
-        return result
+    else:
+        try:
+            normalized_issue: NormalizedIssue = jira_client.get_issue(issue_key)
+            result["jira_issue"] = asdict(normalized_issue)
+            logger.info(
+                "Fetched Jira issue %s (summary length=%d, %d ACs)",
+                normalized_issue.issue_key,
+                len(normalized_issue.summary or ""),
+                len(normalized_issue.acceptance_criteria),
+            )
+        except Exception as exc:  # pragma: no cover - defensive
+            msg = f"Failed to fetch Jira issue {issue_key}: {exc}"
+            logger.error(msg)
+            result["jira_error"] = msg
+            return result
 
     # 2. Generate test cases (rule-based only in this phase) ---------------------------
     try:

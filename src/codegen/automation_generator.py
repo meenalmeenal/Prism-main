@@ -272,13 +272,13 @@ class AutomationGenerator:
         # Fill/Enter
         if any(word in action_lower for word in ["enter", "fill", "type", "input"]):
             if "email" in action_lower or "username" in action_lower:
-                value = test_data or "testuser"
+                value = test_data or "testuser".replace("'", "\\'")
                 return f"await page.fill('#username', '{value}');"
             elif "password" in action_lower:
-                value = test_data or "password"
+                value = test_data or "password".replace("'", "\\'")
                 return f"await page.fill('#password', '{value}');"
             else:
-                value = test_data or "test value"
+                value = test_data or "test value".replace("'", "\\'")
                 return f"await page.fill('input[type=\"text\"]', '{value}');"
 
         # Verify/Assert
@@ -308,7 +308,7 @@ class AutomationGenerator:
 
         # Fill
         if any(word in action_lower for word in ["enter", "fill", "type"]):
-            value = test_data or "test"
+            value = test_data or "test".replace("'", "\\'")
             return f"browser.setValue('input', '{value}');"
 
         # Verify
@@ -334,7 +334,7 @@ class AutomationGenerator:
 
         # Fill
         if any(word in action_lower for word in ["enter", "fill", "type"]):
-            value = test_data or "test"
+            value = test_data or "test".replace("'", "\\'")
             if "email" in action_lower:
                 return f"cy.get('input[type=\"email\"]').type('{value}');"
             elif "password" in action_lower:

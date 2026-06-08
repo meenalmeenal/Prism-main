@@ -86,14 +86,8 @@ async def run_enhanced_pipeline_async(
             else:
                 spec_data = spec_collector.process_spec_file(single_identifier)
             ikey = spec_data.get("issue_key") or f"SPEC-{abs(hash(single_identifier))}"
-            # Inject ACs into pipeline via env so pipeline_runner can use them
-            import json, os
-            os.environ["SPEC_ACCEPTANCE_CRITERIA"] = json.dumps(
-                spec_data.get("acceptance_criteria", [])
-            )
-            os.environ["SPEC_SUMMARY"] = spec_data.get("title", "API Spec")
             logger.info("Resolved spec %s to issue key %s", single_identifier, ikey)
-            return ikey
+            return ikey, spec_data  # ← return tuple now
         else:
             raise ValueError(f"Unsupported source: {source}")
 
@@ -108,16 +102,14 @@ async def run_enhanced_pipeline_async(
     all_results: List[Dict[str, Any]] = []
 
     for single_identifier in identifiers:
-        issue_key = _resolve_issue_key(single_identifier)
-
-        # ------------------------------------------------------------------
-        # 1) Core Jira -> AI (disabled) -> Validator -> Zephyr (skipped here)
-        # ------------------------------------------------------------------
+        resolved = _resolve_issue_key(single_identifier)
+        issue_key, spec_data = resolved if isinstance(resolved, tuple) else (resolved, None)
         core_result = run_pipeline(
             issue_key=issue_key,
             max_ai_retries=max_ai_retries,
             retry_delay_seconds=retry_delay_seconds,
             skip_zephyr=False,
+            requirements=spec_data,  # ← None for jira/github_pr, dict for api_spec
         )
 
         generated_cases: List[Dict[str, Any]] = core_result.get("generated_test_cases", [])
@@ -202,7 +194,7 @@ def main(argv: Optional[List[str]] = None) -> None:
     """
 
     parser = argparse.ArgumentParser(description="Run enhanced AI test generation pipeline")
-    parser.add_argument("source", choices=["jira", "github_pr"], help="Input source type")
+    parser.add_argument("source", choices=["jira", "github_pr","api_spec"], help="Input source type")
     parser.add_argument("identifier", help="Jira issue key or GitHub PR URL")
     parser.add_argument(
         "--framework",
