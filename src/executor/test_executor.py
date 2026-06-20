@@ -167,11 +167,14 @@ class TestExecutor:
         pw_args = ["npx", "playwright", "test"] + target
         if use_config:
             pw_args.extend(["--config", PLAYWRIGHT_CONFIG])
-        if headed:
-            pw_args.append("--ui")
+        # --ui opens the familiar Playwright Test UI window.
+        # --reporter=json writes accurate pass/fail counts to a file we can parse.
+        import tempfile, os as _os
+        json_report = _os.path.join(str(self.project_root), "playwright-results.json")
+        pw_args.extend(["--ui", f"--reporter=json"])
         cmd = ["cmd", "/c", *pw_args] if sys.platform == "win32" else pw_args
         logger.info("Running: %s (cwd=%s)", " ".join(pw_args), self.project_root)
-        return self._run_and_parse(cmd, issue_key, _parse_playwright_summary, "playwright_suite")
+        return self._run_and_parse_with_json(cmd, issue_key, json_report)
 
     async def _execute_nightwatch(
         self,
@@ -205,6 +208,73 @@ class TestExecutor:
         cmd = ["cmd", "/c", *cmd_args] if sys.platform == "win32" else cmd_args
         logger.info("Running: %s (cwd=%s)", " ".join(cmd_args), self.project_root)
         return self._run_and_parse(cmd, issue_key, _parse_cucumber_summary, "cucumber_suite")
+
+    def _run_and_parse_with_json(
+        self,
+        cmd: List[str],
+        issue_key: str,
+        json_report_path: str,
+    ) -> Dict[str, Any]:
+        """Run Playwright with --ui and parse results from JSON report file."""
+        import json as _json, os as _os
+        try:
+            process = subprocess.run(
+                cmd,
+                cwd=str(self.project_root),
+                capture_output=True,
+                text=True,
+                encoding="utf-8",
+                errors="replace",
+            )
+        except Exception as e:
+            logger.exception("Subprocess failed to start")
+            return {"issue_key": issue_key, "total_tests": 0, "passed": 0, "failed": 0,
+                    "errors": 1, "test_results": [{"test_name": "playwright_suite", "status": "error", "error": str(e)}],
+                    "parsed_from_output": False}
+
+        # Try to read the JSON report
+        passed = failed = skipped = 0
+        parsed_from_output = False
+        if _os.path.exists(json_report_path):
+            try:
+                with open(json_report_path, encoding="utf-8") as f:
+                    report = _json.load(f)
+                stats = report.get("stats", {})
+                passed = stats.get("expected", 0)
+                failed = stats.get("unexpected", 0)
+                skipped = stats.get("skipped", 0)
+                parsed_from_output = True
+                logger.info("Parsed JSON report: %d passed, %d failed", passed, failed)
+            except Exception as e:
+                logger.warning("Failed to parse JSON report: %s", e)
+
+        if not parsed_from_output:
+            # Fallback: try stdout parsing
+            combined = (process.stdout or "") + "\n" + (process.stderr or "")
+            parsed = _parse_playwright_summary(combined)
+            if parsed:
+                passed, failed, skipped = parsed
+                parsed_from_output = True
+            else:
+                passed = 1 if process.returncode == 0 else 0
+                failed = 0 if process.returncode == 0 else 1
+                skipped = 0
+
+        total = passed + failed + skipped
+        suite_status = "passed" if failed == 0 and process.returncode == 0 else "failed"
+        logger.info("Execution complete: %d/%d passed (failed=%d)", passed, total, failed)
+
+        return {
+            "issue_key": issue_key,
+            "total_tests": total,
+            "passed": passed,
+            "failed": failed,
+            "errors": 0,
+            "skipped": skipped,
+            "test_results": [{"test_name": "playwright_suite", "status": suite_status,
+                              "stdout": process.stdout, "stderr": process.stderr}],
+            "parsed_from_output": parsed_from_output,
+        }
 
     def _run_and_parse(
         self,

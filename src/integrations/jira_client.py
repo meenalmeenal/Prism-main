@@ -141,6 +141,114 @@ class JiraClient:
         data = response.json()
         return self._normalize_issue(issue_key, data)
 
+    def create_issue(self, summary: str, description: str = "", acceptance_criteria: list[str] | None = None) -> str:
+        """Create a new Story in the configured Jira project and return its issue key.
+
+        Parameters
+        ----------
+        summary:
+            The story title / PR title.
+        description:
+            PR body text used as story description.
+        acceptance_criteria:
+            List of AC strings appended to description.
+
+        Returns
+        -------
+        str
+            The new Jira issue key, e.g. 'ZT-27'.
+        """
+        project_key = os.getenv("JIRA_PROJECT_KEY") or self.base_url.split("/")[-1] or "ZT"
+        # Infer project key from existing env or use ZT as fallback
+        project_key = os.getenv("ZEPHYR_PROJECT_KEY", "ZT")
+
+        body_text = description or ""
+        if acceptance_criteria:
+            body_text += "\n\nAcceptance Criteria:\n" + "\n".join(f"- {ac}" for ac in acceptance_criteria)
+
+        payload = {
+            "fields": {
+                "project": {"key": project_key},
+                "summary": summary[:255],  # Jira max summary length
+                "description": {
+                    "type": "doc",
+                    "version": 1,
+                    "content": [
+                        {
+                            "type": "paragraph",
+                            "content": [{"type": "text", "text": body_text or "Auto-created from GitHub PR"}]
+                        }
+                    ]
+                },
+                "issuetype": {"name": "Story"},
+            }
+        }
+
+        url = f"{self.base_url}/rest/api/3/issue"
+        auth = (self.email, self.api_token)
+        headers = {"Accept": "application/json", "Content-Type": "application/json"}
+
+        logger.info("Creating Jira story: %s", summary[:60])
+        response = self._requests.post(url, json=payload, headers=headers, auth=auth, timeout=10)
+
+        if response.status_code not in (200, 201):
+            raise RuntimeError(
+                f"Failed to create Jira issue ({response.status_code}): {response.text[:300]}"
+            )
+
+        issue_key = response.json()["key"]
+        logger.info("Auto-created Jira story: %s", issue_key)
+
+        # Try to add the issue to the active sprint
+        try:
+            sprint_id = self._get_active_sprint_id(project_key)
+            if sprint_id:
+                self._add_issue_to_sprint(issue_key, sprint_id)
+                logger.info("Added %s to active sprint %s", issue_key, sprint_id)
+            else:
+                logger.info("No active sprint found for project %s — issue left in backlog", project_key)
+        except Exception as e:
+            logger.warning("Could not add %s to sprint: %s", issue_key, e)
+
+        return issue_key
+
+    def _get_active_sprint_id(self, project_key: str) -> Optional[int]:
+        """Find the active sprint ID for the project using the Agile API."""
+        auth = (self.email, self.api_token)
+        headers = {"Accept": "application/json"}
+
+        # Get all boards for the project
+        boards_url = f"{self.base_url}/rest/agile/1.0/board?projectKeyOrId={project_key}&type=scrum"
+        r = self._requests.get(boards_url, headers=headers, auth=auth, timeout=10)
+        if r.status_code != 200:
+            return None
+        boards = r.json().get("values", [])
+        if not boards:
+            return None
+
+        board_id = boards[0]["id"]
+
+        # Get active sprints for the board
+        sprints_url = f"{self.base_url}/rest/agile/1.0/board/{board_id}/sprint?state=active"
+        r = self._requests.get(sprints_url, headers=headers, auth=auth, timeout=10)
+        if r.status_code != 200:
+            return None
+        sprints = r.json().get("values", [])
+        if not sprints:
+            return None
+
+        return sprints[0]["id"]
+
+    def _add_issue_to_sprint(self, issue_key: str, sprint_id: int) -> None:
+        """Add an issue to a sprint using the Agile API."""
+        auth = (self.email, self.api_token)
+        headers = {"Accept": "application/json", "Content-Type": "application/json"}
+        url = f"{self.base_url}/rest/agile/1.0/sprint/{sprint_id}/issue"
+        r = self._requests.post(url, json={"issues": [issue_key]}, headers=headers, auth=auth, timeout=10)
+        if r.status_code not in (200, 201, 204):
+            raise RuntimeError(f"Sprint assignment failed ({r.status_code}): {r.text[:200]}")
+
+
     # ------------------------------------------------------------------
     # Normalization & mocking helpers
     # ------------------------------------------------------------------

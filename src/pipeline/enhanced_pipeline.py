@@ -81,9 +81,34 @@ async def run_enhanced_pipeline_async(
                 logger.info("Resolved PR %s to Jira issue key %s", single_identifier, ikey)
                 return ikey
             else:
-                ikey = f"PR-{abs(hash(single_identifier))}"
-                logger.info("PR %s has no Jira key. Resolved to local key %s", single_identifier, ikey)
-                return ikey, pr_data
+                # No Jira key in PR — auto-create a Jira story from PR title + ACs
+                logger.info("PR %s has no Jira key — auto-creating a Jira story...", single_identifier)
+                from src.integrations.jira_client import JiraClient
+                jira = JiraClient()
+                # Parse acceptance criteria from PR body bullet points
+                body = pr_data.get("description", "") or ""
+                ac_lines = [
+                    line.lstrip("-•* ").strip()
+                    for line in body.splitlines()
+                    if line.strip().startswith(("-", "•", "*")) and len(line.strip()) > 2
+                ]
+                pr_title = pr_data.get("title", "GitHub PR") or "GitHub PR"
+                # Extract PR number for labelling
+                try:
+                    pr_number = single_identifier.rstrip("/").split("/")[-1]
+                    pr_label = f"PR #{pr_number}"
+                except Exception:
+                    pr_label = "GitHub PR"
+                # Include PR reference in summary and description
+                summary_with_pr = f"[{pr_label}] {pr_title}"
+                description_with_pr = f"Auto-created from GitHub {pr_label}: {single_identifier}\n\n{body}"
+                ikey = jira.create_issue(
+                    summary=summary_with_pr,
+                    description=description_with_pr,
+                    acceptance_criteria=ac_lines,
+                )
+                logger.info("Auto-created Jira story %s for %s", ikey, pr_label)
+                return ikey  # proceed exactly like a Jira-triggered run
         elif source == "api_spec":
             from src.collector.spec_collector import SpecCollector
             spec_collector = SpecCollector()

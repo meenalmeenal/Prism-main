@@ -315,35 +315,66 @@ class AutomationGenerator:
 
         # Navigation
         if "navigate" in action_lower or "open" in action_lower or "go to" in action_lower:
-            return f"await page.goto(baseUrl);"
+            return "await page.goto(baseUrl);"
 
-        # Click
-        if "click" in action_lower:
+        # Click — use role/text-based selectors to avoid generic tag clicks
+        if "click" in action_lower or "select" in action_lower:
+            for keyword in [
+                "forgot password", "reset password", "send reset", "reset link",
+                "submit", "sign in", "log in", "login", "sign up", "register",
+                "continue", "cancel", "back", "next", "confirm", "verify",
+                "save", "delete", "edit", "update", "close", "ok",
+            ]:
+                if keyword in action_lower:
+                    label = keyword.title()
+                    return (
+                        f"await page.getByRole('button', {{ name: /{label}/i }})"
+                        f".or(page.getByRole('link', {{ name: /{label}/i }}))"
+                        f".first().click();\n"
+                        f"    await page.waitForLoadState('domcontentloaded');"
+                    )
             if "button" in action_lower:
-                return "await page.click('button');"
-            return "await page.click('a');"
+                return (
+                    "await page.getByRole('button').first().click();\n"
+                    "    await page.waitForLoadState('domcontentloaded');"
+                )
+            # Generic link — wait after to avoid context-closed errors
+            return (
+                "await page.getByRole('link').first().click();\n"
+                "    await page.waitForLoadState('domcontentloaded');"
+            )
 
         # Fill/Enter
         if any(word in action_lower for word in ["enter", "fill", "type", "input"]):
             if "email" in action_lower or "username" in action_lower:
-                value = test_data or "testuser".replace("'", "\\'")
-                return f"await page.fill('#username', '{value}');"
+                value = test_data or "testuser@example.com"
+                return (
+                    f"await page.getByRole('textbox', {{ name: /email|username/i }})"
+                    f".or(page.locator('#username, #email, input[type=email]'))"
+                    f".first().fill('{value}');"
+                )
             elif "password" in action_lower:
-                value = test_data or "password".replace("'", "\\'")
-                return f"await page.fill('#password', '{value}');"
+                value = test_data or "TestPassword123!"
+                return (
+                    f"await page.getByRole('textbox', {{ name: /password/i }})"
+                    f".or(page.locator('#password, input[type=password]'))"
+                    f".first().fill('{value}');"
+                )
             else:
-                value = test_data or "test value".replace("'", "\\'")
-                return f"await page.fill('input[type=\"text\"]', '{value}');"
+                value = (test_data or "test value").replace("'", "\\'")
+                return f"await page.locator('input[type=\"text\"], textarea').first().fill('{value}');"
 
         # Verify/Assert
-        if any(word in action_lower for word in ["verify", "check", "assert", "expect"]):
-            if "visible" in action_lower or "display" in action_lower:
-                return "await expect(page.locator('body')).toBeVisible();"
-            return "// TODO: Add specific assertion"
+        if any(word in action_lower for word in ["verify", "check", "assert", "expect", "should"]):
+            if "error" in action_lower or "message" in action_lower:
+                return "await expect(page.locator('body')).toContainText(/error|invalid|message/i);"
+            if "redirect" in action_lower:
+                return "await page.waitForURL(/.+/, { timeout: 5000 });"
+            return "await expect(page.locator('body')).toBeVisible();"
 
         # Wait
         if "wait" in action_lower:
-            return "await page.waitForTimeout(1000);"
+            return "await page.waitForLoadState('domcontentloaded');"
 
         return None
 

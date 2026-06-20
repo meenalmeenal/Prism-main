@@ -17,7 +17,11 @@ Directly parse OpenAPI/Swagger JSON or YAML files (or URLs) to extract paths, me
 Generate comprehensive test cases automatically using Groq LLaMA models (llama-3.3-70b-versatile).
 
 ### GitHub PR Integration
-Automatically extract Jira issue keys from GitHub Pull Requests and trigger the full test pipeline.
+Automatically trigger the full test pipeline when a GitHub Pull Request is opened or updated.
+
+- If the PR title contains a Jira issue key (e.g. `ZT-23: Add login validation`), the pipeline fetches that story from Jira.
+- If the PR has **no Jira key**, the pipeline **auto-creates a new Jira Story** from the PR title and description, labels it `[PR #N] <title>`, and adds it to the active sprint automatically.
+- Bullet points in the PR body are parsed as acceptance criteria for the AI.
 
 ### Jira Integration
 Automatically fetch requirements and user stories from Jira issues.
@@ -275,9 +279,10 @@ Prism/
 │   ├── executor/             # Automation test executors
 │   ├── feedback/             # Feedback loop for failed tests
 │   ├── integrations/
-│   │   ├── github_client.py  # GitHub API client
-│   │   ├── jira_client.py    # Jira REST API client
-│   │   └── zephyr_client.py  # Zephyr Scale REST API client
+│   │   ├── github_client.py      # GitHub API client
+│   │   ├── jira_client.py        # Jira REST API client (create + fetch issues)
+│   │   ├── webhook_listener.py   # Unified Jira + GitHub webhook server
+│   │   └── zephyr_client.py      # Zephyr Scale REST API client
 │   ├── pipeline/
 │   │   ├── enhanced_pipeline.py  # Main CLI entry point
 │   │   └── pipeline_runner.py    # Core pipeline orchestration
@@ -330,16 +335,73 @@ Pipeline metrics are written to `data/dashboard_data.json` and can be viewed loc
 
 ## Mock Application
 
-A local mock login application is bundled for testing the generated scripts.
+A local mock application is bundled for running the generated Playwright scripts against a real UI.
 
-| Endpoint           | Description           |
-| ------------------ | --------------------- |
-| `GET /`            | Login UI              |
-| `POST /api/login`  | Authentication        |
-| `GET /api/protected` | JWT protected route |
-| `GET /boundary-test` | Boundary testing    |
+| Endpoint                | Description                    |
+| ----------------------- | ------------------------------ |
+| `GET /`                 | Login UI (username + password) |
+| `POST /api/login`       | Authentication endpoint        |
+| `GET /api/protected`    | JWT protected route            |
+| `GET /reset-password`   | Reset password UI (email form) |
+| `GET /reset-confirm`    | Set new password UI            |
+| `POST /api/reset-password` | Send reset link endpoint    |
+| `POST /api/reset-confirm`  | Confirm new password endpoint |
+| `GET /boundary-test`    | Boundary testing page          |
 
-Port: 3000 (started automatically during automated test runs).
+Port: 3000 (started automatically by Playwright during test runs via `node mock-server.js`).
+
+---
+
+## Automated Webhook Listener (Auto-Trigger on Create/Upload)
+
+Prism contains a unified Webhook Listener server that can automatically run the pipeline whenever a new Jira story is created, or a new GitHub PR is opened/updated.
+
+### 1. Start the Webhook Listener
+Define the port and security secrets in your `.env` file:
+```env
+WEBHOOK_PORT=5000
+JIRA_WEBHOOK_SECRET=your-secure-jira-secret
+GITHUB_WEBHOOK_SECRET=your-secure-github-secret
+```
+
+Then start the background server:
+```bash
+python -m src.integrations.webhook_listener
+```
+It starts listening at `http://localhost:5000`.
+
+### 2. Expose the Server (via localtunnel or ngrok)
+Since Jira Cloud and GitHub are external systems, they need a public internet address to send webhooks to.
+
+**Option A — localtunnel (recommended, no account needed):**
+```bash
+npx localtunnel --port 5000
+```
+This outputs a public URL like `https://full-pigs-occur.loca.lt`.
+
+**Option B — ngrok:**
+```bash
+ngrok http 5000
+```
+This generates a public forwarding URL (e.g., `https://a1b2-34-56.ngrok-free.app`).
+
+### 3. Register Jira Webhook
+1. Go to your Jira settings: **System** -> **Webhooks**.
+2. Click **Create a Webhook**.
+3. Set the **URL** to:
+   `https://<ngrok-url>/webhook/jira?secret=<JIRA_WEBHOOK_SECRET>`
+4. Scroll down to **Events** and under **Issue**, check the **Created** and **Updated** checkboxes.
+5. Save.
+
+### 4. Register GitHub Webhook
+1. Navigate to your GitHub Repository -> **Settings** -> **Webhooks**.
+2. Click **Add webhook**.
+3. Set **Payload URL** to:
+   `https://<ngrok-url>/webhook/github`
+4. Set **Content type** to `application/json`.
+5. Set **Secret** to your `GITHUB_WEBHOOK_SECRET`.
+6. Select **Let me select individual events**, and check **Pull requests**.
+7. Click **Add webhook**.
 
 ---
 
