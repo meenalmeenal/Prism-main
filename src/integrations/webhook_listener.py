@@ -119,9 +119,9 @@ async def github_webhook_handler(request: web.Request) -> web.Response:
     logger.info(f"GitHub Webhook Event: {event_type} | Action: {action} | PR URL: {pr_url}")
 
     if event_type == "pull_request" and pr_url:
-        # Trigger on PR opened, reopened, or synchronized (new code pushed)
-        if action in {"opened", "reopened", "synchronize"}:
-            logger.info(f"Triggering background pipeline for GitHub PR {pr_url}")
+        # Trigger on PR opened, reopened, synchronized (new push), edited, or ready for review
+        if action in {"opened", "reopened", "synchronize", "edited", "ready_for_review"}:
+            logger.info(f"Triggering background pipeline for GitHub PR {pr_url} (action={action})")
             asyncio.create_task(run_pipeline_in_background(source="github_pr", identifier=pr_url))
             return web.Response(text=f"Pipeline triggered for GitHub PR {pr_url}", status=200)
         else:
@@ -168,7 +168,7 @@ def main():
 
     try:
         asyncio.run(_run_app())
-    except KeyboardInterrupt:
+    except (KeyboardInterrupt, IndexError):
         logger.info("Webhook Listener stopped.")
 
 
