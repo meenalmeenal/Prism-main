@@ -1,4 +1,5 @@
-# Prism - AI-Powered Test Automation Framework
+# IIITNR_25PI18_AI_Driven_Zephyr_Test_Case_Automation
+SRIB-PRISM Program
 
 Prism is an AI-driven test automation framework that automatically generates, validates, and executes test cases from Jira issues, GitHub pull requests, or OpenAPI/Swagger specifications, and publishes them directly to Zephyr Scale while generating Playwright automation scripts.
 
