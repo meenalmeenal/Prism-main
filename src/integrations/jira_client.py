@@ -341,6 +341,9 @@ class JiraClient:
                 continue
             if line.startswith(("- ", "* ")):
                 bullets.append(line[2:].strip())
+            elif line.startswith(("-", "*")) and len(line) > 1 and not line.startswith(("--", "**")):
+                # Handle "-word" format (no space after dash/asterisk)
+                bullets.append(line[1:].strip())
             elif any(line.lower().startswith(prefix) for prefix in ["ac ", "ac1", "1.", "2."]):
                 # Very light-weight heuristic for common AC formats
                 bullets.append(line.split(" ", 1)[-1].strip())
