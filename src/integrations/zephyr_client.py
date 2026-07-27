@@ -268,6 +268,16 @@ class ZephyrClient:
             logger.exception(f"Failed to link {test_case_key} to {issue_key}")
             return False
 
+    async def link_cycle_to_issue(self, cycle_key: str, issue_key: str) -> bool:
+        """Link a test cycle to a Jira issue so it shows under 'Linked work items'."""
+        endpoint = f"/testcycles/{cycle_key}/links/issues"
+        try:
+            await self._request("POST", endpoint, json={"issueKey": issue_key})
+            return True
+        except aiohttp.ClientError:
+            logger.exception(f"Failed to link cycle {cycle_key} to {issue_key}")
+            return False
+
     # ------------------------------------------------------------------
     # Pipeline entry point
     # ------------------------------------------------------------------
@@ -298,6 +308,11 @@ class ZephyrClient:
         logger.info(f"Created cycle response: {cycle}")
         cycle_key = cycle.get("key") or cycle.get("id") or cycle.get("cycleKey")
         logger.info(f"Using cycle key: {cycle_key}")
+
+        if cycle_key and not (issue_key.startswith("PR-") or issue_key.startswith("SPEC-")):
+            linked = await self.link_cycle_to_issue(cycle_key, issue_key)
+            logger.info(f"Cycle {cycle_key} linked to {issue_key}: {linked}")
+
         results: List[Dict[str, Any]] = []
 
         for tc in test_cases:

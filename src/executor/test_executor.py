@@ -167,11 +167,9 @@ class TestExecutor:
         pw_args = ["npx", "playwright", "test"] + target
         if use_config:
             pw_args.extend(["--config", PLAYWRIGHT_CONFIG])
-        # --ui opens the familiar Playwright Test UI window.
-        # --reporter=json writes accurate pass/fail counts to a file we can parse.
         import tempfile, os as _os
         json_report = _os.path.join(str(self.project_root), "playwright-results.json")
-        pw_args.extend(["--ui", f"--reporter=json"])
+        pw_args.extend([f"--reporter=json"])
         cmd = ["cmd", "/c", *pw_args] if sys.platform == "win32" else pw_args
         logger.info("Running: %s (cwd=%s)", " ".join(pw_args), self.project_root)
         return self._run_and_parse_with_json(cmd, issue_key, json_report)

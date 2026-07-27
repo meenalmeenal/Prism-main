@@ -1,4 +1,3 @@
-
 """
 AI Test Case Generator using Google Gemini.
 This module handles AI API communication and response parsing.
@@ -248,6 +247,10 @@ class AITestGenerator:
                 # Set default values
                 tc.setdefault("preconditions", [])
                 tc.setdefault("tags", [])
+                if not tc.get("description", "").strip():
+                    tc["description"] = " ".join(
+                        s.get("action", "") for s in tc.get("steps", [])
+                    )[:500]
                 
                 # Ensure steps are properly numbered
                 for j, step in enumerate(tc["steps"], 1):

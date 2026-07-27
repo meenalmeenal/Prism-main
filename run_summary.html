@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html><head><meta charset="UTF-8"><title>Prism Run Summary</title>
+<style>
+body{font-family:-apple-system,Segoe UI,Roboto,sans-serif;background:#f5f5f5;padding:20px;max-width:1100px;margin:0 auto}
+header{background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;padding:24px;border-radius:10px;margin-bottom:24px}
+h1{margin:0 0 6px}
+.issue-block{background:#fff;border-radius:10px;padding:20px;margin-bottom:24px;box-shadow:0 2px 4px rgba(0,0,0,.1)}
+.source{color:#888;font-weight:normal;font-size:.7em}
+.tc-card{border:1px solid #eee;border-radius:8px;padding:14px;margin:12px 0}
+.tc-header{display:flex;gap:8px;align-items:center;margin-bottom:6px}
+.badge{padding:3px 10px;border-radius:12px;font-size:.75em;font-weight:bold;color:#fff;background:#667eea}
+.badge.prio{background:#555}
+.zid{margin-left:auto;font-size:.8em;color:#666}
+.desc{color:#444;margin:6px 0}
+.steps li{margin:4px 0;font-size:.9em}
+</style></head>
+<body>
+<header><h1>Prism Pipeline — Run Summary</h1><div>Generated: 2026-07-27 22:56:26</div></header>
+
+    <section class="issue-block">
+      <h2>ZT-34 <span class="source">(jira)</span></h2>
+      
+    <div class="tc-card">
+      <div class="tc-header">
+        <span class="badge type-positive">POSITIVE</span>
+        <span class="badge prio">P1</span>
+        <span class="zid">Zephyr: ZT-T506</span>
+      </div>
+      <h3>Registration succeeds when passwords match</h3>
+      <p class="desc">Verifies that a user can successfully register when both password fields contain the same value, ensuring the registration flow works end-to-end for the happy path.</p>
+      <ul class="steps"><li><b>Navigate to the registration page</b> → Registration page loads successfully with email, password, and confirm password fields visible</li><li><b>Enter a valid email address in the email field</b> → Email field is populated with the entered email</li><li><b>Enter a valid password in the password field</b> → Password field shows masked characters</li><li><b>Enter the same password in the confirm password field</b> → Confirm password field shows masked characters, matching the password field</li><li><b>Click the register button</b> → User is redirected to a confirmation page, registration success message is displayed</li></ul>
+    </div>
+    <div class="tc-card">
+      <div class="tc-header">
+        <span class="badge type-positive">POSITIVE</span>
+        <span class="badge prio">P1</span>
+        <span class="zid">Zephyr: ZT-T507</span>
+      </div>
+      <h3>Registration form submission is enabled when passwords match</h3>
+      <p class="desc">Verifies that the register button is enabled and allows form submission only when both password fields contain the same value, ensuring the registration form behaves correctly.</p>
+      <ul class="steps"><li><b>Navigate to the registration page</b> → Registration page loads successfully with email, password, and confirm password fields visible</li><li><b>Enter a valid email address in the email field</b> → Email field is populated with the entered email</li><li><b>Enter a valid password in the password field</b> → Password field shows masked characters</li><li><b>Enter the same password in the confirm password field</b> → Confirm password field shows masked characters, matching the password field, register button is enabled</li><li><b>Click the register button</b> → User is redirected to a confirmation page, registration success message is displayed</li></ul>
+    </div>
+    <div class="tc-card">
+      <div class="tc-header">
+        <span class="badge type-negative">NEGATIVE</span>
+        <span class="badge prio">P2</span>
+        <span class="zid">Zephyr: ZT-T508</span>
+      </div>
+      <h3>Registration fails when passwords do not match</h3>
+      <p class="desc">Verifies that the registration process fails and displays an appropriate error message when the two password fields do not contain the same value, ensuring the system correctly handles mismatched passwords.</p>
+      <ul class="steps"><li><b>Navigate to the registration page</b> → Registration page loads successfully with email, password, and confirm password fields visible</li><li><b>Enter a valid email address in the email field</b> → Email field is populated with the entered email</li><li><b>Enter a valid password in the password field</b> → Password field shows masked characters</li><li><b>Enter a different password in the confirm password field</b> → Confirm password field shows masked characters, not matching the password field</li><li><b>Click the register button</b> → Registration form does not submit, an error message 'Passwords do not match' is displayed</li></ul>
+    </div>
+    <div class="tc-card">
+      <div class="tc-header">
+        <span class="badge type-negative">NEGATIVE</span>
+        <span class="badge prio">P2</span>
+        <span class="zid">Zephyr: ZT-T509</span>
+      </div>
+      <h3>Registration form submission is blocked when passwords do not match</h3>
+      <p class="desc">Verifies that the register button is disabled or form submission is blocked when the two password fields do not contain the same value, ensuring the registration form prevents submission with mismatched passwords.</p>
+      <ul class="steps"><li><b>Navigate to the registration page</b> → Registration page loads successfully with email, password, and confirm password fields visible</li><li><b>Enter a valid email address in the email field</b> → Email field is populated with the entered email</li><li><b>Enter a valid password in the password field</b> → Password field shows masked characters</li><li><b>Enter a different password in the confirm password field</b> → Confirm password field shows masked characters, not matching the password field, register button is disabled</li><li><b>Attempt to click the register button</b> → Register button is unresponsive or form submission is blocked, preventing registration with mismatched passwords</li></ul>
+    </div>
+    <div class="tc-card">
+      <div class="tc-header">
+        <span class="badge type-boundary">BOUNDARY</span>
+        <span class="badge prio">P3</span>
+        <span class="zid">Zephyr: ZT-T510</span>
+      </div>
+      <h3>Registration with minimum length password</h3>
+      <p class="desc">Verifies that the system allows registration with the minimum length password and checks for password match, ensuring the system handles boundary cases correctly.</p>
+      <ul class="steps"><li><b>Navigate to the registration page</b> → Registration page loads successfully with email, password, and confirm password fields visible</li><li><b>Enter a valid email address in the email field</b> → Email field is populated with the entered email</li><li><b>Enter a password with the minimum length in the password field</b> → Password field shows masked characters</li><li><b>Enter the same password in the confirm password field</b> → Confirm password field shows masked characters, matching the password field</li><li><b>Click the register button</b> → User is redirected to a confirmation page, registration success message is displayed</li></ul>
+    </div>
+    </section>
+</body></html>

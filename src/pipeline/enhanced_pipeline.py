@@ -18,6 +18,7 @@ import os
 from typing import Any, Dict, List, Optional
 
 from dotenv import load_dotenv
+from src.reporting.run_summary import generate_and_open_summary
 load_dotenv(override=True)
 
 
@@ -312,6 +313,9 @@ def main(argv: Optional[List[str]] = None) -> None:
         print(f"Zephyr published (total): {total_z}")
         print(f"Automation files (total): {total_auto}")
         print(f"Executed tests (total): {total_exec} (passed={total_pass}, failed={total_fail})")
+
+        path = generate_and_open_summary(result)
+        print(f"\nDetailed run summary opened in browser: {path}")
     else:
         core = result.get("core_pipeline", {})
         execution = result.get("execution") or {}
@@ -329,6 +333,9 @@ def main(argv: Optional[List[str]] = None) -> None:
                 f"Executed tests: {execution.get('total_tests', 0)} "
                 f"(passed={execution.get('passed', 0)}, failed={execution.get('failed', 0)})"
             )
+
+        path = generate_and_open_summary(result)
+        print(f"\nDetailed run summary opened in browser: {path}")
 
 
 if __name__ == "__main__":  # pragma: no cover

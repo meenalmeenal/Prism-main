@@ -87,6 +87,7 @@ Each test case in the array must follow this exact structure:
 {
   "id": "string - Format: '[ISSUE_KEY]-TC-[NUMBER]-[TYPE]' (e.g., 'ZT-3-TC-001-POSITIVE')",
   "title": "string - Clear, descriptive test case title",
+  "description": "string - 2-4 sentence summary of what this test verifies and why, written for a Zephyr 'Description' field",
   "type": "string - One of: 'positive', 'negative', 'boundary', 'ui_validation', 'risk_based'",
   "priority": "string - One of: 'P1' (critical), 'P2' (high), 'P3' (medium)",
   "preconditions": [
@@ -115,6 +116,7 @@ Each test case in the array must follow this exact structure:
 {{
   "id": "{issue_key}-TC-001-POSITIVE",
   "title": "User successfully logs in with valid credentials",
+  "description": "Verifies that a registered user can log in using a correct email and password combination, confirming the authentication flow works end-to-end for the happy path.",
   "type": "positive",
   "priority": "P1",
   "preconditions": [
