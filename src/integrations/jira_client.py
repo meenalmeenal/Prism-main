@@ -32,6 +32,7 @@ class NormalizedIssue:
     summary: str
     description: str
     acceptance_criteria: list[str]
+    issue_id: str = ""
 
 
 class JiraClient:
@@ -255,6 +256,7 @@ class JiraClient:
 
     def _normalize_issue(self, issue_key: str, payload: Dict[str, Any]) -> NormalizedIssue:
         fields: Dict[str, Any] = payload.get("fields", {})
+        issue_id = str(payload.get("id") or "")
 
         summary = str(fields.get("summary") or "")
 
@@ -277,6 +279,7 @@ class JiraClient:
             summary=summary,
             description=description,
             acceptance_criteria=acceptance_criteria,
+            issue_id=issue_id,
         )
 
     def _extract_text(self, value: Any) -> str:

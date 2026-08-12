@@ -44,24 +44,20 @@ async def run_pipeline_in_background(source: str, identifier: str):
         logger.exception(f"Error executing background pipeline for {identifier}: {e}")
 
 async def jira_webhook_handler(request: web.Request) -> web.Response:
-    """Handle incoming Jira Webhooks."""
     logger.info("Received Jira Webhook request.")
-    
-    # 1. Verify Secret if configured
+
     if JIRA_SECRET:
         token = request.query.get("secret")
         if not token or not hmac.compare_digest(token, JIRA_SECRET):
             logger.warning("Jira Webhook unauthorized: Invalid secret token.")
             return web.Response(text="Unauthorized: Invalid secret token", status=401)
 
-    # 2. Parse payload
     try:
         payload = await request.json()
     except Exception as e:
         logger.error(f"Failed to parse JSON body from Jira Webhook: {e}")
         return web.Response(text="Invalid JSON payload", status=400)
 
-    # 3. Inspect event and issue details
     event = payload.get("webhookEvent")
     issue = payload.get("issue", {})
     issue_key = issue.get("key")
@@ -70,16 +66,34 @@ async def jira_webhook_handler(request: web.Request) -> web.Response:
 
     logger.info(f"Jira Webhook Event: {event} | Issue Key: {issue_key} | Issue Type: {issue_type}")
 
-    # Process if issue key exists (usually on issue_created or issue_updated events)
-    if issue_key:
-        # We can trigger on issue creation or update
-        # Filter for stories or process all types
+    if not issue_key:
+        logger.warning("Jira Webhook received but no valid issue key found in payload.")
+        return web.Response(text="No valid issue key found in payload", status=200)
+
+    should_run = False
+
+    if event == "jira:issue_updated":
+        changelog_items = payload.get("changelog", {}).get("items", [])
+        changed_fields = {item.get("field") for item in changelog_items}
+        if "description" in changed_fields:
+            should_run = True
+        else:
+            logger.info(f"Ignoring update to {issue_key} — changed fields: {changed_fields}")
+
+    elif event == "jira:issue_created":
+        # Only run immediately on creation if description was already filled in at create time
+        description = fields.get("description")
+        if description:
+            should_run = True
+        else:
+            logger.info(f"Ignoring creation of {issue_key} — description empty, will wait for update.")
+
+    if should_run:
         logger.info(f"Triggering background pipeline for Jira issue {issue_key}")
         asyncio.create_task(run_pipeline_in_background(source="jira", identifier=issue_key))
         return web.Response(text=f"Pipeline triggered for Jira issue {issue_key}", status=200)
 
-    logger.warning("Jira Webhook received but no valid issue key found in payload.")
-    return web.Response(text="No valid issue key found in payload", status=200)
+    return web.Response(text=f"Event ignored for {issue_key}", status=200)
 
 async def github_webhook_handler(request: web.Request) -> web.Response:
     """Handle incoming GitHub Webhooks (Pull Requests)."""

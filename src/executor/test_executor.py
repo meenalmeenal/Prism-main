@@ -213,9 +213,11 @@ class TestExecutor:
         issue_key: str,
         json_report_path: str,
     ) -> Dict[str, Any]:
-        """Run Playwright with --ui and parse results from JSON report file."""
+        """Run Playwright and parse results from the JSON report file."""
         import json as _json, os as _os
         try:
+            env = _os.environ.copy()
+            env["PLAYWRIGHT_JSON_OUTPUT_NAME"] = json_report_path
             process = subprocess.run(
                 cmd,
                 cwd=str(self.project_root),
@@ -223,6 +225,7 @@ class TestExecutor:
                 text=True,
                 encoding="utf-8",
                 errors="replace",
+                env=env,
             )
         except Exception as e:
             logger.exception("Subprocess failed to start")

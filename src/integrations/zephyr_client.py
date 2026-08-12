@@ -268,14 +268,17 @@ class ZephyrClient:
             logger.exception(f"Failed to link {test_case_key} to {issue_key}")
             return False
 
-    async def link_cycle_to_issue(self, cycle_key: str, issue_key: str) -> bool:
+    async def link_cycle_to_issue(self, cycle_key: str, issue_id: str) -> bool:
         """Link a test cycle to a Jira issue so it shows under 'Linked work items'."""
+        if not issue_id or not issue_id.isdigit():
+            logger.warning(f"Skipping cycle link — no valid numeric issue_id for cycle {cycle_key}")
+            return False
         endpoint = f"/testcycles/{cycle_key}/links/issues"
         try:
-            await self._request("POST", endpoint, json={"issueKey": issue_key})
+            await self._request("POST", endpoint, json={"issueId": int(issue_id)})
             return True
         except aiohttp.ClientError:
-            logger.exception(f"Failed to link cycle {cycle_key} to {issue_key}")
+            logger.exception(f"Failed to link cycle {cycle_key} to issue id {issue_id}")
             return False
 
     # ------------------------------------------------------------------
@@ -301,7 +304,9 @@ class ZephyrClient:
             "precondition": "\n".join(tc.get("preconditions", [])),
         }
 
-    async def _async_publish_live(self, issue_key: str, test_cases: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    async def _async_publish_live(
+        self, issue_key: str, test_cases: List[Dict[str, Any]], issue_id: Optional[str] = None
+    ) -> List[Dict[str, Any]]:
         await self.connect()
         cycle_name = f"Prism auto-tests — {issue_key}"
         cycle = await self.create_test_cycle(name=cycle_name)
@@ -310,8 +315,8 @@ class ZephyrClient:
         logger.info(f"Using cycle key: {cycle_key}")
 
         if cycle_key and not (issue_key.startswith("PR-") or issue_key.startswith("SPEC-")):
-            linked = await self.link_cycle_to_issue(cycle_key, issue_key)
-            logger.info(f"Cycle {cycle_key} linked to {issue_key}: {linked}")
+            linked = await self.link_cycle_to_issue(cycle_key, issue_id or "")
+            logger.info(f"Cycle {cycle_key} linked to {issue_key} (id={issue_id}): {linked}")
 
         results: List[Dict[str, Any]] = []
 
@@ -353,6 +358,7 @@ class ZephyrClient:
         self,
         issue_key: str,
         test_cases: List[Dict[str, Any]],
+        issue_id: Optional[str] = None,
     ) -> List[Dict[str, Any]]:
         """Publish test cases to Zephyr Essential Cloud. Raises on failure."""
         if not test_cases:
@@ -375,16 +381,16 @@ class ZephyrClient:
 
         async def _run():
             try:
-                return await self._async_publish_live(issue_key, test_cases)
+                return await self._async_publish_live(issue_key, test_cases, issue_id)
             finally:
                 await self.close()
-
         return _run_async_safely(lambda: _run())
 
     async def publish_test_cases_async(
         self,
         issue_key: str,
         test_cases: List[Dict[str, Any]],
+        issue_id: Optional[str] = None, 
     ) -> List[Dict[str, Any]]:
         """Async version of publish_test_cases."""
         if self.dry_run:
@@ -400,4 +406,4 @@ class ZephyrClient:
                     "zephyr_execution": {"statusName": "Pass"},
                 })
             return results
-        return await self._async_publish_live(issue_key, test_cases)
+        return await self._async_publish_live(issue_key, test_cases, issue_id)

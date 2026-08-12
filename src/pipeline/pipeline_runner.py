@@ -225,8 +225,9 @@ def run_pipeline(
         logger.info("Skipping Zephyr publishing for %s (skip_zephyr=True)", issue_key)
     else:
         if validated_cases:
-            # Publishes to Zephyr via REST API
-            publish_results = zephyr_client.publish_test_cases(issue_key, validated_cases)
+            publish_results = zephyr_client.publish_test_cases(
+                issue_key, validated_cases, issue_id=normalized_issue.issue_id
+            )
         else:
             logger.warning("No validated test cases to publish for issue %s", issue_key)
 
