@@ -386,6 +386,9 @@ ngrok http 5000
 ```
 This generates a public forwarding URL (e.g., `https://a1b2-34-56.ngrok-free.app`).
 
+cloudflared tunnel --url http://localhost:5000
+
+
 ### 3. Register Jira Webhook
 1. Go to your Jira settings: **System** -> **Webhooks**.
 2. Click **Create a Webhook**.

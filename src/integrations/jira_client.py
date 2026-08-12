@@ -182,6 +182,7 @@ class JiraClient:
                     ]
                 },
                 "issuetype": {"name": "Story"},
+                "labels": ["auto-created-from-pr"],
             }
         }
 

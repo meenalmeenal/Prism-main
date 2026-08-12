@@ -6,7 +6,7 @@ import logging
 import os
 from aiohttp import web
 from dotenv import load_dotenv
-
+from src.reporting.run_summary import generate_and_open_summary
 # Ensure logs directory exists
 os.makedirs("logs", exist_ok=True)
 
@@ -40,9 +40,14 @@ async def run_pipeline_in_background(source: str, identifier: str):
             dry_run=os.getenv("ZEPHYR_DRY_RUN", "false").lower() in {"1", "true", "yes"}
         )
         logger.info(f"Background pipeline run completed for {identifier}. Result: {result.get('issue_key') or 'Batch completed'}")
+        try:
+            path = generate_and_open_summary(result)
+            logger.info(f"Run summary written and opened: {path}")
+        except Exception as e:
+            logger.warning(f"Could not generate/open run summary: {e}")
     except Exception as e:
         logger.exception(f"Error executing background pipeline for {identifier}: {e}")
-
+        
 async def jira_webhook_handler(request: web.Request) -> web.Response:
     logger.info("Received Jira Webhook request.")
 
@@ -81,12 +86,16 @@ async def jira_webhook_handler(request: web.Request) -> web.Response:
             logger.info(f"Ignoring update to {issue_key} — changed fields: {changed_fields}")
 
     elif event == "jira:issue_created":
-        # Only run immediately on creation if description was already filled in at create time
-        description = fields.get("description")
-        if description:
-            should_run = True
+        labels = fields.get("labels", []) or []
+        if "auto-created-from-pr" in labels:
+            logger.info(f"Ignoring creation of {issue_key} — auto-created from a GitHub PR, pipeline already ran.")
         else:
-            logger.info(f"Ignoring creation of {issue_key} — description empty, will wait for update.")
+            # Only run immediately on creation if description was already filled in at create time
+            description = fields.get("description")
+            if description:
+                should_run = True
+            else:
+                logger.info(f"Ignoring creation of {issue_key} — description empty, will wait for update.")
 
     if should_run:
         logger.info(f"Triggering background pipeline for Jira issue {issue_key}")

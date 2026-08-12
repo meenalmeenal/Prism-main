@@ -15,50 +15,90 @@ h1{margin:0 0 6px}
 .steps li{margin:4px 0;font-size:.9em}
 </style></head>
 <body>
-<header><h1>Prism Pipeline — Run Summary</h1><div>Generated: 2026-08-01 12:58:45</div></header>
+<header><h1>Prism Pipeline — Run Summary</h1><div>Generated: 2026-08-12 20:20:05</div></header>
 
     <section class="issue-block">
-      <h2>ZT-36 <span class="source">(github_pr)</span></h2>
+      <h2>ZT-43 <span class="source">(github_pr)</span></h2>
       
     <div class="tc-card">
       <div class="tc-header">
         <span class="badge type-positive">POSITIVE</span>
         <span class="badge prio">P1</span>
-        <span class="zid">Zephyr: ZT-T525</span>
+        <span class="zid">Zephyr: ZT-T562</span>
       </div>
-      <h3>User successfully registers with valid credentials</h3>
-      <p class="desc">Verifies that a new user can register using a correct name, email, and password combination, confirming the registration flow works end-to-end for the happy path.</p>
-      <ul class="steps"><li><b>Navigate to the registration page</b> → Registration page loads successfully with name, email, and password fields visible</li><li><b>Enter valid name in the name field</b> → Name field is populated with the entered name</li><li><b>Enter valid email address in the email field</b> → Email field is populated with the entered email</li><li><b>Enter valid password in the password field</b> → Password field shows masked characters</li><li><b>Enter valid confirm password in the confirm password field</b> → Confirm password field shows masked characters, register button becomes enabled</li><li><b>Click the register button</b> → User is redirected to login page, registration success message displays</li></ul>
+      <h3>User successfully logs in with valid credentials</h3>
+      <p class="desc">Verifies that a registered user can log in using a correct email and password combination, confirming the authentication flow works end-to-end for the happy path.</p>
+      <ul class="steps"><li><b>Navigate to the login page</b> → Login page loads successfully with email and password fields visible</li><li><b>Enter valid email address in the email field</b> → Email field is populated with the entered email</li><li><b>Enter valid password in the password field</b> → Password field shows masked characters, login button becomes enabled</li><li><b>Click the login button</b> → User is redirected to dashboard page, welcome message displays with user's name</li><li><b>Verify user session is established</b> → User profile icon is visible in header, logout option is available</li></ul>
     </div>
     <div class="tc-card">
       <div class="tc-header">
         <span class="badge type-positive">POSITIVE</span>
+        <span class="badge prio">P2</span>
+        <span class="zid">Zephyr: ZT-T563</span>
+      </div>
+      <h3>User logs in after a short period of inactivity</h3>
+      <p class="desc">Verifies that a user's session remains active after a short period of inactivity, ensuring the session expiration timer works correctly.</p>
+      <ul class="steps"><li><b>Wait for 20 minutes without interacting with the application</b> → User remains logged in, session is still active</li><li><b>Interact with the application by clicking on a link</b> → User is still logged in, no login prompt appears</li></ul>
+    </div>
+    <div class="tc-card">
+      <div class="tc-header">
+        <span class="badge type-negative">NEGATIVE</span>
         <span class="badge prio">P1</span>
-        <span class="zid">Zephyr: ZT-T526</span>
+        <span class="zid">Zephyr: ZT-T564</span>
       </div>
-      <h3>User successfully registers with valid credentials and special characters</h3>
-      <p class="desc">Verifies that a new user can register using a correct name, email, and password combination with special characters, confirming the registration flow works end-to-end for the happy path.</p>
-      <ul class="steps"><li><b>Navigate to the registration page</b> → Registration page loads successfully with name, email, and password fields visible</li><li><b>Enter valid name in the name field</b> → Name field is populated with the entered name</li><li><b>Enter valid email address in the email field</b> → Email field is populated with the entered email</li><li><b>Enter valid password in the password field</b> → Password field shows masked characters</li><li><b>Enter valid confirm password in the confirm password field</b> → Confirm password field shows masked characters, register button becomes enabled</li><li><b>Click the register button</b> → User is redirected to login page, registration success message displays</li></ul>
+      <h3>Invalid password shows error message</h3>
+      <p class="desc">Verifies that entering an incorrect password results in an error message, ensuring the password validation works correctly.</p>
+      <ul class="steps"><li><b>Enter valid email address in the email field</b> → Email field is populated with the entered email</li><li><b>Enter an invalid password in the password field</b> → Password field shows masked characters, login button becomes enabled</li><li><b>Click the login button</b> → Error message appears below the password field, indicating incorrect password</li></ul>
     </div>
     <div class="tc-card">
       <div class="tc-header">
         <span class="badge type-negative">NEGATIVE</span>
         <span class="badge prio">P2</span>
-        <span class="zid">Zephyr: ZT-T527</span>
+        <span class="zid">Zephyr: ZT-T565</span>
       </div>
-      <h3>User registration fails with missing required fields</h3>
-      <p class="desc">Verifies that a new user cannot register without providing required fields, confirming the registration flow handles missing fields correctly.</p>
-      <ul class="steps"><li><b>Navigate to the registration page</b> → Registration page loads successfully with name, email, and password fields visible</li><li><b>Leave name field blank</b> → Name field is empty</li><li><b>Leave email field blank</b> → Email field is empty</li><li><b>Leave password field blank</b> → Password field is empty, register button is disabled</li><li><b>Click the register button</b> → Error message displays indicating that name, email, and password are required</li></ul>
+      <h3>Empty fields show validation errors</h3>
+      <p class="desc">Verifies that leaving email or password fields empty results in validation errors, ensuring the form validation works correctly.</p>
+      <ul class="steps"><li><b>Click the login button without entering any credentials</b> → Error messages appear below both email and password fields, indicating required fields</li><li><b>Enter valid email address in the email field but leave password field empty</b> → Error message appears below the password field, indicating required field</li></ul>
     </div>
     <div class="tc-card">
       <div class="tc-header">
-        <span class="badge type-negative">NEGATIVE</span>
-        <span class="badge prio">P2</span>
-        <span class="zid">Zephyr: ZT-T528</span>
+        <span class="badge type-boundary">BOUNDARY</span>
+        <span class="badge prio">P1</span>
+        <span class="zid">Zephyr: ZT-T566</span>
       </div>
-      <h3>User registration fails with invalid email address</h3>
-      <p class="desc">Verifies that a new user cannot register with an invalid email address, confirming the registration flow handles invalid email addresses correctly.</p>
-      <ul class="steps"><li><b>Navigate to the registration page</b> → Registration page loads successfully with name, email, and password fields visible</li><li><b>Enter valid name in the name field</b> → Name field is populated with the entered name</li><li><b>Enter invalid email address in the email field</b> → Email field is populated with the entered email</li><li><b>Enter valid password in the password field</b> → Password field shows masked characters</li><li><b>Enter valid confirm password in the confirm password field</b> → Confirm password field shows masked characters, register button is disabled</li><li><b>Click the register button</b> → Error message displays indicating that email address is invalid</li></ul>
+      <h3>Account locks after 5 failed attempts</h3>
+      <p class="desc">Verifies that the account lockout mechanism works correctly after 5 consecutive failed login attempts, ensuring security against brute-force attacks.</p>
+      <ul class="steps"><li><b>Enter valid email address in the email field</b> → Email field is populated with the entered email</li><li><b>Enter an invalid password in the password field and click the login button 5 times</b> → After the 5th attempt, an account lockout message appears, indicating the account is temporarily locked</li></ul>
+    </div>
+    <div class="tc-card">
+      <div class="tc-header">
+        <span class="badge type-ui_validation">UI_VALIDATION</span>
+        <span class="badge prio">P2</span>
+        <span class="zid">Zephyr: ZT-T567</span>
+      </div>
+      <h3>Field validation and button states</h3>
+      <p class="desc">Verifies that the login form fields and buttons behave as expected, with proper validation and state changes.</p>
+      <ul class="steps"><li><b>Enter valid email address in the email field</b> → Email field is populated with the entered email, login button remains disabled</li><li><b>Enter valid password in the password field</b> → Password field shows masked characters, login button becomes enabled</li><li><b>Clear the password field</b> → Login button becomes disabled again</li></ul>
+    </div>
+    <div class="tc-card">
+      <div class="tc-header">
+        <span class="badge type-risk_based">RISK_BASED</span>
+        <span class="badge prio">P1</span>
+        <span class="zid">Zephyr: ZT-T568</span>
+      </div>
+      <h3>SQL injection attempt</h3>
+      <p class="desc">Verifies that the application is secure against SQL injection attacks by attempting to inject malicious SQL code.</p>
+      <ul class="steps"><li><b>Enter a SQL injection payload in the email field</b> → Application does not execute the malicious SQL code, instead shows an error message or ignores the input</li></ul>
+    </div>
+    <div class="tc-card">
+      <div class="tc-header">
+        <span class="badge type-risk_based">RISK_BASED</span>
+        <span class="badge prio">P1</span>
+        <span class="zid">Zephyr: ZT-T569</span>
+      </div>
+      <h3>XSS attempt</h3>
+      <p class="desc">Verifies that the application is secure against cross-site scripting (XSS) attacks by attempting to inject malicious JavaScript code.</p>
+      <ul class="steps"><li><b>Enter a XSS payload in the email field</b> → Application does not execute the malicious JavaScript code, instead shows an error message or ignores the input</li></ul>
     </div>
     </section>
 </body></html>
