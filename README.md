@@ -14,8 +14,12 @@ This project is developed as part of the Samsung PRISM R&D Program.
 ### OpenAPI / Swagger Spec Integration
 Directly parse OpenAPI/Swagger JSON or YAML files (or URLs) to extract paths, methods, response codes, and parameters to generate structured API acceptance criteria and corresponding test cases.
 
-### AI-Powered Test Generation
-Generate comprehensive test cases automatically using Groq LLaMA models (llama-3.3-70b-versatile).
+### AI-Powered Test Generation & Categories
+Generate comprehensive test cases automatically using Groq LLaMA models (llama-3.3-70b-versatile). The framework supports four distinct test categories:
+- **Positive**: Happy path scenarios where everything works as expected.
+- **Negative**: Error handling, invalid inputs, and failure scenarios.
+- **Boundary**: Edge cases, limits, and constraint validation (e.g. character length boundaries).
+- **Risk-Based**: Focuses on security vulnerabilities (XSS, SQL injection), authentication failures, session handling, critical business rules, and complex logical paths.
 
 ### GitHub PR Integration
 Automatically trigger the full test pipeline when a GitHub Pull Request is opened or updated.
@@ -32,15 +36,24 @@ Publish generated test cases and test execution results directly to Zephyr Scale
 
 ### Automated Script Generation
 Convert AI-generated test cases into Playwright, Cypress, or Nightwatch.js automation scripts.
+- **Playwright Reliability**: Generated scripts implement state-based assertions and wait strategies (e.g., verifying element visibility/URI state changes) and utilize Playwright's auto-retrying assertions (`expect(locator).toBeVisible()`) to minimize flakiness. CI retries are configured automatically (retries: 2 on CI).
 
 ### PII Protection
 Automatically detect and mask sensitive information before sending prompts to the LLM.
 
-### Execution Metrics
+### Execution Metrics & Dashboard Viewer
 Track pass/fail results, test coverage, and generation statistics to generate local dashboards.
+- **HTML Dashboard Viewer**: Open [`src/dashboard/dashboard.html`](file:///d:/Prism_Main/Prism-main/src/dashboard/dashboard.html) in any browser to view live stat cards, test type distribution (now showing risk-based tests), priority distribution, and flaky test tables. It reads metrics dynamically from `data/dashboard_data.json` with a robust fallback to manual JSON upload in case of local CORS restrictions.
 
 ### Continuous Feedback Loop
 Log failed test results in a feedback store to continuously refine and improve future AI test generations.
+
+### Continuous Integration (CI/CD) Workflow
+Prism includes a GitHub Actions CI workflow configured at [`.github/workflows/playwright.yml`](file:///d:/Prism_Main/Prism-main/.github/workflows/playwright.yml) that:
+- Triggers automatically on pushes or pull requests to the `main` branch.
+- Performs checkout, sets up Node.js 18, installs dependencies (`npm ci`), and downloads Playwright browsers with system dependencies.
+- Automatically launches the background mock application (`mock-server.js`) prior to running the test suite.
+- Executes tests (`npm test`) and uploads the Playwright HTML test report as a workflow build artifact (using `actions/upload-artifact@v4`) even if tests fail.
 
 ---
 
@@ -322,12 +335,13 @@ Pipeline metrics are written to `data/dashboard_data.json` and can be viewed loc
   "test_type_distribution": {
     "positive": 8,
     "negative": 5,
-    "boundary": 2
+    "boundary": 2,
+    "risk_based": 1
   },
   "priority_distribution": {
-    "High": 6,
-    "Medium": 7,
-    "Low": 2
+    "P1": 6,
+    "P2": 7,
+    "P3": 2
   }
 }
 ```
@@ -356,6 +370,12 @@ Port: 3000 (started automatically by Playwright during test runs via `node mock-
 ## Automated Webhook Listener (Auto-Trigger on Create/Upload)
 
 Prism contains a unified Webhook Listener server that can automatically run the pipeline whenever a new Jira story is created, or a new GitHub PR is opened/updated.
+
+### Webhook Idempotency & Event Persistence
+To ensure production-grade reliability and handle duplicate deliveries gracefully, the listener integrates:
+- **SQLite Persistence**: Webhook event records are persisted locally in `data/webhook_events.db`.
+- **Idempotency Checks**: Duplicate deliveries are detected and skipped if they have already been processed.
+- **Event Tracking**: The lifecycle of each webhook (received, processing, completed, failed) is logged, and failure reasons are fully captured for auditing.
 
 ### 1. Start the Webhook Listener
 Define the port and security secrets in your `.env` file:
