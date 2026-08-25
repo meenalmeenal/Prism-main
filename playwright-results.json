@@ -86,12 +86,12 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 3210,
+                      "duration": 2785,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-08-25T06:46:12.258Z",
+                      "startTime": "2026-08-25T10:20:57.350Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -137,12 +137,12 @@
                       "workerIndex": 1,
                       "parallelIndex": 1,
                       "status": "passed",
-                      "duration": 3804,
+                      "duration": 3015,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-08-25T06:46:12.263Z",
+                      "startTime": "2026-08-25T10:20:57.335Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -188,12 +188,12 @@
                       "workerIndex": 2,
                       "parallelIndex": 2,
                       "status": "passed",
-                      "duration": 3893,
+                      "duration": 3037,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-08-25T06:46:12.253Z",
+                      "startTime": "2026-08-25T10:20:57.346Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -225,7 +225,7 @@
           "specs": [
             {
               "title": "Risk verification: system prevents security vulnerabilities or logical failures ",
-              "ok": false,
+              "ok": true,
               "tags": [],
               "tests": [
                 {
@@ -238,96 +238,18 @@
                     {
                       "workerIndex": 3,
                       "parallelIndex": 3,
-                      "status": "failed",
-                      "duration": 8835,
-                      "error": {
-                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('#global-error')\nExpected pattern: \u001b[32m/locked|lockout/i\u001b[39m\nReceived string:  \u001b[31m\"Invalid input detected. Access denied.\"\u001b[39m\nTimeout: 5000ms\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('#global-error')\u001b[22m\n\u001b[2m    9 × locator resolved to <div role=\"alert\" id=\"global-error\" class=\"global-error\">Invalid input detected. Access denied.</div>\u001b[22m\n\u001b[2m      - unexpected value \"Invalid input detected. Access denied.\"\u001b[22m\n",
-                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('#global-error')\nExpected pattern: \u001b[32m/locked|lockout/i\u001b[39m\nReceived string:  \u001b[31m\"Invalid input detected. Access denied.\"\u001b[39m\nTimeout: 5000ms\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('#global-error')\u001b[22m\n\u001b[2m    9 × locator resolved to <div role=\"alert\" id=\"global-error\" class=\"global-error\">Invalid input detected. Access denied.</div>\u001b[22m\n\u001b[2m      - unexpected value \"Invalid input detected. Access denied.\"\u001b[22m\n\n    at D:\\Prism_Main\\Prism-main\\generated_tests\\ZT-3_ZT-3-RB-004.spec.js:26:49",
-                        "location": {
-                          "file": "D:\\Prism_Main\\Prism-main\\generated_tests\\ZT-3_ZT-3-RB-004.spec.js",
-                          "column": 49,
-                          "line": 26
-                        },
-                        "snippet": "\u001b[0m \u001b[90m 24 |\u001b[39m     \u001b[90m// Expected: No security lockout leakages occur and data integrity is preserved.\u001b[39m\n \u001b[90m 25 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'body'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 26 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'#global-error'\u001b[39m))\u001b[33m.\u001b[39mtoContainText(\u001b[35m/locked|lockout/i\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                                 \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 27 |\u001b[39m   })\u001b[33m;\u001b[39m\n \u001b[90m 28 |\u001b[39m })\u001b[33m;\u001b[39m\u001b[0m"
-                      },
-                      "errors": [
-                        {
-                          "location": {
-                            "file": "D:\\Prism_Main\\Prism-main\\generated_tests\\ZT-3_ZT-3-RB-004.spec.js",
-                            "column": 49,
-                            "line": 26
-                          },
-                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('#global-error')\nExpected pattern: \u001b[32m/locked|lockout/i\u001b[39m\nReceived string:  \u001b[31m\"Invalid input detected. Access denied.\"\u001b[39m\nTimeout: 5000ms\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('#global-error')\u001b[22m\n\u001b[2m    9 × locator resolved to <div role=\"alert\" id=\"global-error\" class=\"global-error\">Invalid input detected. Access denied.</div>\u001b[22m\n\u001b[2m      - unexpected value \"Invalid input detected. Access denied.\"\u001b[22m\n\n\n  24 |     // Expected: No security lockout leakages occur and data integrity is preserved.\n  25 |     await expect(page.locator('body')).toBeVisible();\n> 26 |     await expect(page.locator('#global-error')).toContainText(/locked|lockout/i);\n     |                                                 ^\n  27 |   });\n  28 | });\n    at D:\\Prism_Main\\Prism-main\\generated_tests\\ZT-3_ZT-3-RB-004.spec.js:26:49"
-                        }
-                      ],
+                      "status": "passed",
+                      "duration": 3031,
+                      "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-08-25T06:46:12.260Z",
+                      "startTime": "2026-08-25T10:20:57.362Z",
                       "annotations": [],
-                      "attachments": [
-                        {
-                          "name": "error-context",
-                          "contentType": "text/markdown",
-                          "path": "D:\\Prism_Main\\Prism-main\\test-results\\ZT-3_ZT-3-RB-004-ZT-3-Risk-51d26-lities-or-logical-failures--chromium\\error-context.md"
-                        }
-                      ],
-                      "errorLocation": {
-                        "file": "D:\\Prism_Main\\Prism-main\\generated_tests\\ZT-3_ZT-3-RB-004.spec.js",
-                        "column": 49,
-                        "line": 26
-                      }
-                    },
-                    {
-                      "workerIndex": 6,
-                      "parallelIndex": 1,
-                      "status": "failed",
-                      "duration": 5559,
-                      "error": {
-                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('#global-error')\nExpected pattern: \u001b[32m/locked|lockout/i\u001b[39m\nReceived string:  \u001b[31m\"Invalid input detected. Access denied.\"\u001b[39m\nTimeout: 5000ms\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('#global-error')\u001b[22m\n\u001b[2m    9 × locator resolved to <div role=\"alert\" id=\"global-error\" class=\"global-error\">Invalid input detected. Access denied.</div>\u001b[22m\n\u001b[2m      - unexpected value \"Invalid input detected. Access denied.\"\u001b[22m\n",
-                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('#global-error')\nExpected pattern: \u001b[32m/locked|lockout/i\u001b[39m\nReceived string:  \u001b[31m\"Invalid input detected. Access denied.\"\u001b[39m\nTimeout: 5000ms\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('#global-error')\u001b[22m\n\u001b[2m    9 × locator resolved to <div role=\"alert\" id=\"global-error\" class=\"global-error\">Invalid input detected. Access denied.</div>\u001b[22m\n\u001b[2m      - unexpected value \"Invalid input detected. Access denied.\"\u001b[22m\n\n    at D:\\Prism_Main\\Prism-main\\generated_tests\\ZT-3_ZT-3-RB-004.spec.js:26:49",
-                        "location": {
-                          "file": "D:\\Prism_Main\\Prism-main\\generated_tests\\ZT-3_ZT-3-RB-004.spec.js",
-                          "column": 49,
-                          "line": 26
-                        },
-                        "snippet": "\u001b[0m \u001b[90m 24 |\u001b[39m     \u001b[90m// Expected: No security lockout leakages occur and data integrity is preserved.\u001b[39m\n \u001b[90m 25 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'body'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 26 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'#global-error'\u001b[39m))\u001b[33m.\u001b[39mtoContainText(\u001b[35m/locked|lockout/i\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                                 \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 27 |\u001b[39m   })\u001b[33m;\u001b[39m\n \u001b[90m 28 |\u001b[39m })\u001b[33m;\u001b[39m\u001b[0m"
-                      },
-                      "errors": [
-                        {
-                          "location": {
-                            "file": "D:\\Prism_Main\\Prism-main\\generated_tests\\ZT-3_ZT-3-RB-004.spec.js",
-                            "column": 49,
-                            "line": 26
-                          },
-                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('#global-error')\nExpected pattern: \u001b[32m/locked|lockout/i\u001b[39m\nReceived string:  \u001b[31m\"Invalid input detected. Access denied.\"\u001b[39m\nTimeout: 5000ms\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('#global-error')\u001b[22m\n\u001b[2m    9 × locator resolved to <div role=\"alert\" id=\"global-error\" class=\"global-error\">Invalid input detected. Access denied.</div>\u001b[22m\n\u001b[2m      - unexpected value \"Invalid input detected. Access denied.\"\u001b[22m\n\n\n  24 |     // Expected: No security lockout leakages occur and data integrity is preserved.\n  25 |     await expect(page.locator('body')).toBeVisible();\n> 26 |     await expect(page.locator('#global-error')).toContainText(/locked|lockout/i);\n     |                                                 ^\n  27 |   });\n  28 | });\n    at D:\\Prism_Main\\Prism-main\\generated_tests\\ZT-3_ZT-3-RB-004.spec.js:26:49"
-                        }
-                      ],
-                      "stdout": [],
-                      "stderr": [],
-                      "retry": 1,
-                      "startTime": "2026-08-25T06:46:24.516Z",
-                      "annotations": [],
-                      "attachments": [
-                        {
-                          "name": "error-context",
-                          "contentType": "text/markdown",
-                          "path": "D:\\Prism_Main\\Prism-main\\test-results\\ZT-3_ZT-3-RB-004-ZT-3-Risk-51d26-lities-or-logical-failures--chromium-retry1\\error-context.md"
-                        },
-                        {
-                          "name": "trace",
-                          "contentType": "application/zip",
-                          "path": "D:\\Prism_Main\\Prism-main\\test-results\\ZT-3_ZT-3-RB-004-ZT-3-Risk-51d26-lities-or-logical-failures--chromium-retry1\\trace.zip"
-                        }
-                      ],
-                      "errorLocation": {
-                        "file": "D:\\Prism_Main\\Prism-main\\generated_tests\\ZT-3_ZT-3-RB-004.spec.js",
-                        "column": 49,
-                        "line": 26
-                      }
+                      "attachments": []
                     }
                   ],
-                  "status": "unexpected"
+                  "status": "expected"
                 }
               ],
               "id": "03c911cfc7e7ddce872e-3374161b4a6f76f5498f",
@@ -368,12 +290,12 @@
                       "workerIndex": 4,
                       "parallelIndex": 4,
                       "status": "passed",
-                      "duration": 3424,
+                      "duration": 2867,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-08-25T06:46:12.255Z",
+                      "startTime": "2026-08-25T10:20:57.348Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -419,12 +341,12 @@
                       "workerIndex": 5,
                       "parallelIndex": 5,
                       "status": "passed",
-                      "duration": 3808,
+                      "duration": 2931,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-08-25T06:46:12.251Z",
+                      "startTime": "2026-08-25T10:20:57.347Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -467,15 +389,15 @@
                   "projectName": "chromium",
                   "results": [
                     {
-                      "workerIndex": 0,
-                      "parallelIndex": 0,
+                      "workerIndex": 4,
+                      "parallelIndex": 4,
                       "status": "passed",
-                      "duration": 602,
+                      "duration": 822,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-08-25T06:46:16.838Z",
+                      "startTime": "2026-08-25T10:21:01.319Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -507,7 +429,7 @@
           "specs": [
             {
               "title": "Risk verification: system prevents security vulnerabilities or logical failures ",
-              "ok": false,
+              "ok": true,
               "tags": [],
               "tests": [
                 {
@@ -518,98 +440,20 @@
                   "projectName": "chromium",
                   "results": [
                     {
-                      "workerIndex": 4,
-                      "parallelIndex": 4,
-                      "status": "failed",
-                      "duration": 5478,
-                      "error": {
-                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('#global-error')\nExpected pattern: \u001b[32m/locked|lockout/i\u001b[39m\nReceived string:  \u001b[31m\"Invalid input detected. Access denied.\"\u001b[39m\nTimeout: 5000ms\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('#global-error')\u001b[22m\n\u001b[2m    9 × locator resolved to <div role=\"alert\" id=\"global-error\" class=\"global-error\">Invalid input detected. Access denied.</div>\u001b[22m\n\u001b[2m      - unexpected value \"Invalid input detected. Access denied.\"\u001b[22m\n",
-                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('#global-error')\nExpected pattern: \u001b[32m/locked|lockout/i\u001b[39m\nReceived string:  \u001b[31m\"Invalid input detected. Access denied.\"\u001b[39m\nTimeout: 5000ms\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('#global-error')\u001b[22m\n\u001b[2m    9 × locator resolved to <div role=\"alert\" id=\"global-error\" class=\"global-error\">Invalid input detected. Access denied.</div>\u001b[22m\n\u001b[2m      - unexpected value \"Invalid input detected. Access denied.\"\u001b[22m\n\n    at D:\\Prism_Main\\Prism-main\\generated_tests\\ZT-3_ZT-3-RB-008.spec.js:26:49",
-                        "location": {
-                          "file": "D:\\Prism_Main\\Prism-main\\generated_tests\\ZT-3_ZT-3-RB-008.spec.js",
-                          "column": 49,
-                          "line": 26
-                        },
-                        "snippet": "\u001b[0m \u001b[90m 24 |\u001b[39m     \u001b[90m// Expected: No security lockout leakages occur and data integrity is preserved.\u001b[39m\n \u001b[90m 25 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'body'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 26 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'#global-error'\u001b[39m))\u001b[33m.\u001b[39mtoContainText(\u001b[35m/locked|lockout/i\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                                 \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 27 |\u001b[39m   })\u001b[33m;\u001b[39m\n \u001b[90m 28 |\u001b[39m })\u001b[33m;\u001b[39m\u001b[0m"
-                      },
-                      "errors": [
-                        {
-                          "location": {
-                            "file": "D:\\Prism_Main\\Prism-main\\generated_tests\\ZT-3_ZT-3-RB-008.spec.js",
-                            "column": 49,
-                            "line": 26
-                          },
-                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('#global-error')\nExpected pattern: \u001b[32m/locked|lockout/i\u001b[39m\nReceived string:  \u001b[31m\"Invalid input detected. Access denied.\"\u001b[39m\nTimeout: 5000ms\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('#global-error')\u001b[22m\n\u001b[2m    9 × locator resolved to <div role=\"alert\" id=\"global-error\" class=\"global-error\">Invalid input detected. Access denied.</div>\u001b[22m\n\u001b[2m      - unexpected value \"Invalid input detected. Access denied.\"\u001b[22m\n\n\n  24 |     // Expected: No security lockout leakages occur and data integrity is preserved.\n  25 |     await expect(page.locator('body')).toBeVisible();\n> 26 |     await expect(page.locator('#global-error')).toContainText(/locked|lockout/i);\n     |                                                 ^\n  27 |   });\n  28 | });\n    at D:\\Prism_Main\\Prism-main\\generated_tests\\ZT-3_ZT-3-RB-008.spec.js:26:49"
-                        }
-                      ],
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 656,
+                      "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-08-25T06:46:16.838Z",
+                      "startTime": "2026-08-25T10:21:01.320Z",
                       "annotations": [],
-                      "attachments": [
-                        {
-                          "name": "error-context",
-                          "contentType": "text/markdown",
-                          "path": "D:\\Prism_Main\\Prism-main\\test-results\\ZT-3_ZT-3-RB-008-ZT-3-Risk-45429-lities-or-logical-failures--chromium\\error-context.md"
-                        }
-                      ],
-                      "errorLocation": {
-                        "file": "D:\\Prism_Main\\Prism-main\\generated_tests\\ZT-3_ZT-3-RB-008.spec.js",
-                        "column": 49,
-                        "line": 26
-                      }
-                    },
-                    {
-                      "workerIndex": 7,
-                      "parallelIndex": 2,
-                      "status": "failed",
-                      "duration": 5559,
-                      "error": {
-                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('#global-error')\nExpected pattern: \u001b[32m/locked|lockout/i\u001b[39m\nReceived string:  \u001b[31m\"Invalid input detected. Access denied.\"\u001b[39m\nTimeout: 5000ms\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('#global-error')\u001b[22m\n\u001b[2m    9 × locator resolved to <div role=\"alert\" id=\"global-error\" class=\"global-error\">Invalid input detected. Access denied.</div>\u001b[22m\n\u001b[2m      - unexpected value \"Invalid input detected. Access denied.\"\u001b[22m\n",
-                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('#global-error')\nExpected pattern: \u001b[32m/locked|lockout/i\u001b[39m\nReceived string:  \u001b[31m\"Invalid input detected. Access denied.\"\u001b[39m\nTimeout: 5000ms\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('#global-error')\u001b[22m\n\u001b[2m    9 × locator resolved to <div role=\"alert\" id=\"global-error\" class=\"global-error\">Invalid input detected. Access denied.</div>\u001b[22m\n\u001b[2m      - unexpected value \"Invalid input detected. Access denied.\"\u001b[22m\n\n    at D:\\Prism_Main\\Prism-main\\generated_tests\\ZT-3_ZT-3-RB-008.spec.js:26:49",
-                        "location": {
-                          "file": "D:\\Prism_Main\\Prism-main\\generated_tests\\ZT-3_ZT-3-RB-008.spec.js",
-                          "column": 49,
-                          "line": 26
-                        },
-                        "snippet": "\u001b[0m \u001b[90m 24 |\u001b[39m     \u001b[90m// Expected: No security lockout leakages occur and data integrity is preserved.\u001b[39m\n \u001b[90m 25 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'body'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 26 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'#global-error'\u001b[39m))\u001b[33m.\u001b[39mtoContainText(\u001b[35m/locked|lockout/i\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                                 \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 27 |\u001b[39m   })\u001b[33m;\u001b[39m\n \u001b[90m 28 |\u001b[39m })\u001b[33m;\u001b[39m\u001b[0m"
-                      },
-                      "errors": [
-                        {
-                          "location": {
-                            "file": "D:\\Prism_Main\\Prism-main\\generated_tests\\ZT-3_ZT-3-RB-008.spec.js",
-                            "column": 49,
-                            "line": 26
-                          },
-                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('#global-error')\nExpected pattern: \u001b[32m/locked|lockout/i\u001b[39m\nReceived string:  \u001b[31m\"Invalid input detected. Access denied.\"\u001b[39m\nTimeout: 5000ms\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('#global-error')\u001b[22m\n\u001b[2m    9 × locator resolved to <div role=\"alert\" id=\"global-error\" class=\"global-error\">Invalid input detected. Access denied.</div>\u001b[22m\n\u001b[2m      - unexpected value \"Invalid input detected. Access denied.\"\u001b[22m\n\n\n  24 |     // Expected: No security lockout leakages occur and data integrity is preserved.\n  25 |     await expect(page.locator('body')).toBeVisible();\n> 26 |     await expect(page.locator('#global-error')).toContainText(/locked|lockout/i);\n     |                                                 ^\n  27 |   });\n  28 | });\n    at D:\\Prism_Main\\Prism-main\\generated_tests\\ZT-3_ZT-3-RB-008.spec.js:26:49"
-                        }
-                      ],
-                      "stdout": [],
-                      "stderr": [],
-                      "retry": 1,
-                      "startTime": "2026-08-25T06:46:24.515Z",
-                      "annotations": [],
-                      "attachments": [
-                        {
-                          "name": "error-context",
-                          "contentType": "text/markdown",
-                          "path": "D:\\Prism_Main\\Prism-main\\test-results\\ZT-3_ZT-3-RB-008-ZT-3-Risk-45429-lities-or-logical-failures--chromium-retry1\\error-context.md"
-                        },
-                        {
-                          "name": "trace",
-                          "contentType": "application/zip",
-                          "path": "D:\\Prism_Main\\Prism-main\\test-results\\ZT-3_ZT-3-RB-008-ZT-3-Risk-45429-lities-or-logical-failures--chromium-retry1\\trace.zip"
-                        }
-                      ],
-                      "errorLocation": {
-                        "file": "D:\\Prism_Main\\Prism-main\\generated_tests\\ZT-3_ZT-3-RB-008.spec.js",
-                        "column": 49,
-                        "line": 26
-                      }
+                      "attachments": []
                     }
                   ],
-                  "status": "unexpected"
+                  "status": "expected"
                 }
               ],
               "id": "993a0e62e404630eea77-35cf5a3030cc2e423fd0",
@@ -647,15 +491,15 @@
                   "projectName": "chromium",
                   "results": [
                     {
-                      "workerIndex": 5,
-                      "parallelIndex": 5,
+                      "workerIndex": 1,
+                      "parallelIndex": 1,
                       "status": "passed",
-                      "duration": 377,
+                      "duration": 616,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-08-25T06:46:17.219Z",
+                      "startTime": "2026-08-25T10:21:01.440Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -698,15 +542,15 @@
                   "projectName": "chromium",
                   "results": [
                     {
-                      "workerIndex": 1,
-                      "parallelIndex": 1,
+                      "workerIndex": 2,
+                      "parallelIndex": 2,
                       "status": "passed",
-                      "duration": 353,
+                      "duration": 651,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-08-25T06:46:17.218Z",
+                      "startTime": "2026-08-25T10:21:01.465Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -749,15 +593,15 @@
                   "projectName": "chromium",
                   "results": [
                     {
-                      "workerIndex": 2,
-                      "parallelIndex": 2,
+                      "workerIndex": 5,
+                      "parallelIndex": 5,
                       "status": "passed",
-                      "duration": 519,
+                      "duration": 923,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-08-25T06:46:17.309Z",
+                      "startTime": "2026-08-25T10:21:01.470Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -789,7 +633,7 @@
           "specs": [
             {
               "title": "Risk verification: system prevents security vulnerabilities or logical failures ",
-              "ok": false,
+              "ok": true,
               "tags": [],
               "tests": [
                 {
@@ -800,98 +644,20 @@
                   "projectName": "chromium",
                   "results": [
                     {
-                      "workerIndex": 0,
-                      "parallelIndex": 0,
-                      "status": "failed",
-                      "duration": 5309,
-                      "error": {
-                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('#global-error')\nExpected pattern: \u001b[32m/locked|lockout/i\u001b[39m\nReceived string:  \u001b[31m\"Invalid input detected. Access denied.\"\u001b[39m\nTimeout: 5000ms\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('#global-error')\u001b[22m\n\u001b[2m    9 × locator resolved to <div role=\"alert\" id=\"global-error\" class=\"global-error\">Invalid input detected. Access denied.</div>\u001b[22m\n\u001b[2m      - unexpected value \"Invalid input detected. Access denied.\"\u001b[22m\n",
-                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('#global-error')\nExpected pattern: \u001b[32m/locked|lockout/i\u001b[39m\nReceived string:  \u001b[31m\"Invalid input detected. Access denied.\"\u001b[39m\nTimeout: 5000ms\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('#global-error')\u001b[22m\n\u001b[2m    9 × locator resolved to <div role=\"alert\" id=\"global-error\" class=\"global-error\">Invalid input detected. Access denied.</div>\u001b[22m\n\u001b[2m      - unexpected value \"Invalid input detected. Access denied.\"\u001b[22m\n\n    at D:\\Prism_Main\\Prism-main\\generated_tests\\ZT-3_ZT-3-RB-012.spec.js:26:49",
-                        "location": {
-                          "file": "D:\\Prism_Main\\Prism-main\\generated_tests\\ZT-3_ZT-3-RB-012.spec.js",
-                          "column": 49,
-                          "line": 26
-                        },
-                        "snippet": "\u001b[0m \u001b[90m 24 |\u001b[39m     \u001b[90m// Expected: No security lockout leakages occur and data integrity is preserved.\u001b[39m\n \u001b[90m 25 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'body'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 26 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'#global-error'\u001b[39m))\u001b[33m.\u001b[39mtoContainText(\u001b[35m/locked|lockout/i\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                                 \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 27 |\u001b[39m   })\u001b[33m;\u001b[39m\n \u001b[90m 28 |\u001b[39m })\u001b[33m;\u001b[39m\u001b[0m"
-                      },
-                      "errors": [
-                        {
-                          "location": {
-                            "file": "D:\\Prism_Main\\Prism-main\\generated_tests\\ZT-3_ZT-3-RB-012.spec.js",
-                            "column": 49,
-                            "line": 26
-                          },
-                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('#global-error')\nExpected pattern: \u001b[32m/locked|lockout/i\u001b[39m\nReceived string:  \u001b[31m\"Invalid input detected. Access denied.\"\u001b[39m\nTimeout: 5000ms\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('#global-error')\u001b[22m\n\u001b[2m    9 × locator resolved to <div role=\"alert\" id=\"global-error\" class=\"global-error\">Invalid input detected. Access denied.</div>\u001b[22m\n\u001b[2m      - unexpected value \"Invalid input detected. Access denied.\"\u001b[22m\n\n\n  24 |     // Expected: No security lockout leakages occur and data integrity is preserved.\n  25 |     await expect(page.locator('body')).toBeVisible();\n> 26 |     await expect(page.locator('#global-error')).toContainText(/locked|lockout/i);\n     |                                                 ^\n  27 |   });\n  28 | });\n    at D:\\Prism_Main\\Prism-main\\generated_tests\\ZT-3_ZT-3-RB-012.spec.js:26:49"
-                        }
-                      ],
+                      "workerIndex": 3,
+                      "parallelIndex": 3,
+                      "status": "passed",
+                      "duration": 548,
+                      "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-08-25T06:46:17.476Z",
+                      "startTime": "2026-08-25T10:21:01.473Z",
                       "annotations": [],
-                      "attachments": [
-                        {
-                          "name": "error-context",
-                          "contentType": "text/markdown",
-                          "path": "D:\\Prism_Main\\Prism-main\\test-results\\ZT-3_ZT-3-RB-012-ZT-3-Risk-e5066-lities-or-logical-failures--chromium\\error-context.md"
-                        }
-                      ],
-                      "errorLocation": {
-                        "file": "D:\\Prism_Main\\Prism-main\\generated_tests\\ZT-3_ZT-3-RB-012.spec.js",
-                        "column": 49,
-                        "line": 26
-                      }
-                    },
-                    {
-                      "workerIndex": 8,
-                      "parallelIndex": 0,
-                      "status": "failed",
-                      "duration": 5366,
-                      "error": {
-                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('#global-error')\nExpected pattern: \u001b[32m/locked|lockout/i\u001b[39m\nReceived string:  \u001b[31m\"Invalid input detected. Access denied.\"\u001b[39m\nTimeout: 5000ms\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('#global-error')\u001b[22m\n\u001b[2m    9 × locator resolved to <div role=\"alert\" id=\"global-error\" class=\"global-error\">Invalid input detected. Access denied.</div>\u001b[22m\n\u001b[2m      - unexpected value \"Invalid input detected. Access denied.\"\u001b[22m\n",
-                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('#global-error')\nExpected pattern: \u001b[32m/locked|lockout/i\u001b[39m\nReceived string:  \u001b[31m\"Invalid input detected. Access denied.\"\u001b[39m\nTimeout: 5000ms\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('#global-error')\u001b[22m\n\u001b[2m    9 × locator resolved to <div role=\"alert\" id=\"global-error\" class=\"global-error\">Invalid input detected. Access denied.</div>\u001b[22m\n\u001b[2m      - unexpected value \"Invalid input detected. Access denied.\"\u001b[22m\n\n    at D:\\Prism_Main\\Prism-main\\generated_tests\\ZT-3_ZT-3-RB-012.spec.js:26:49",
-                        "location": {
-                          "file": "D:\\Prism_Main\\Prism-main\\generated_tests\\ZT-3_ZT-3-RB-012.spec.js",
-                          "column": 49,
-                          "line": 26
-                        },
-                        "snippet": "\u001b[0m \u001b[90m 24 |\u001b[39m     \u001b[90m// Expected: No security lockout leakages occur and data integrity is preserved.\u001b[39m\n \u001b[90m 25 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'body'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 26 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'#global-error'\u001b[39m))\u001b[33m.\u001b[39mtoContainText(\u001b[35m/locked|lockout/i\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                                 \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 27 |\u001b[39m   })\u001b[33m;\u001b[39m\n \u001b[90m 28 |\u001b[39m })\u001b[33m;\u001b[39m\u001b[0m"
-                      },
-                      "errors": [
-                        {
-                          "location": {
-                            "file": "D:\\Prism_Main\\Prism-main\\generated_tests\\ZT-3_ZT-3-RB-012.spec.js",
-                            "column": 49,
-                            "line": 26
-                          },
-                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('#global-error')\nExpected pattern: \u001b[32m/locked|lockout/i\u001b[39m\nReceived string:  \u001b[31m\"Invalid input detected. Access denied.\"\u001b[39m\nTimeout: 5000ms\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('#global-error')\u001b[22m\n\u001b[2m    9 × locator resolved to <div role=\"alert\" id=\"global-error\" class=\"global-error\">Invalid input detected. Access denied.</div>\u001b[22m\n\u001b[2m      - unexpected value \"Invalid input detected. Access denied.\"\u001b[22m\n\n\n  24 |     // Expected: No security lockout leakages occur and data integrity is preserved.\n  25 |     await expect(page.locator('body')).toBeVisible();\n> 26 |     await expect(page.locator('#global-error')).toContainText(/locked|lockout/i);\n     |                                                 ^\n  27 |   });\n  28 | });\n    at D:\\Prism_Main\\Prism-main\\generated_tests\\ZT-3_ZT-3-RB-012.spec.js:26:49"
-                        }
-                      ],
-                      "stdout": [],
-                      "stderr": [],
-                      "retry": 1,
-                      "startTime": "2026-08-25T06:46:25.107Z",
-                      "annotations": [],
-                      "attachments": [
-                        {
-                          "name": "error-context",
-                          "contentType": "text/markdown",
-                          "path": "D:\\Prism_Main\\Prism-main\\test-results\\ZT-3_ZT-3-RB-012-ZT-3-Risk-e5066-lities-or-logical-failures--chromium-retry1\\error-context.md"
-                        },
-                        {
-                          "name": "trace",
-                          "contentType": "application/zip",
-                          "path": "D:\\Prism_Main\\Prism-main\\test-results\\ZT-3_ZT-3-RB-012-ZT-3-Risk-e5066-lities-or-logical-failures--chromium-retry1\\trace.zip"
-                        }
-                      ],
-                      "errorLocation": {
-                        "file": "D:\\Prism_Main\\Prism-main\\generated_tests\\ZT-3_ZT-3-RB-012.spec.js",
-                        "column": 49,
-                        "line": 26
-                      }
+                      "attachments": []
                     }
                   ],
-                  "status": "unexpected"
+                  "status": "expected"
                 }
               ],
               "id": "9cb58589ae6c50fa7a73-76fbf26fececa3fcc06d",
@@ -906,11 +672,11 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2026-08-25T06:46:03.453Z",
-    "duration": 27519.902,
-    "expected": 9,
+    "startTime": "2026-08-25T10:20:49.500Z",
+    "duration": 13901.82,
+    "expected": 12,
     "skipped": 0,
-    "unexpected": 3,
+    "unexpected": 0,
     "flaky": 0
   }
 }

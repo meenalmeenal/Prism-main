@@ -547,7 +547,7 @@ class RuleBasedTestGenerator:
                 {
                     "step_number": 2,
                     "action": "Trigger complex conditional logic or error paths to verify business rules under load or stress.",
-                    "expected_result": "No security lockout leakages occur and data integrity is preserved.",
+                    "expected_result": "No security leakages occur during execution and data integrity is preserved.",
                 },
             ]
 

@@ -30,10 +30,12 @@ class GitHubClient:
             raise Exception(f"GitHub API error: {e}")
 
     @staticmethod
-    def extract_issue_key(pr_title: str, pr_body: str) -> Optional[str]:
+    def extract_issue_key(pr_title: Optional[str], pr_body: Optional[str]) -> Optional[str]:
         """Extract Jira issue key from PR title or body."""
         import re
         for text in [pr_title, pr_body]:
+            if not text:
+                continue
             match = re.search(r'([A-Z]+-\d+)', text)
             if match:
                 return match.group(1)
