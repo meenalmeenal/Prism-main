@@ -48,7 +48,7 @@ Generate 8-10 detailed test cases that thoroughly cover the acceptance criteria 
 2. **Negative Test Cases (2-3 cases)**: Error handling, invalid inputs, failure scenarios
 3. **Boundary Test Cases (1-2 cases)**: Edge cases, limits, special values (min/max lengths, special characters)
 4. **UI Validation Test Cases (1 case)**: Field validation, button states, form behavior, disabled/enabled states
-5. **Risk-Based Test Cases (2 cases)**: Security risks (SQL injection, XSS), authentication failures, session handling, data integrity issues
+5. **Risk-Based Test Cases (1-2 cases per requirement)**: Cover areas with historically high defect likelihood, critical business logic, or complex conditional paths (not just negative/edge-case input handling, which is already covered by the negative/boundary categories). This includes security risks (SQL injection, XSS), authentication failures, session handling, and data integrity issues.
 
 **Critical Requirements:**
 - Each test case MUST have complete detailed, step-by-step instructions
@@ -174,7 +174,7 @@ Each test case in the array must follow this exact structure:
                 "properties": {
                     "id": {
                         "type": "string",
-                        "pattern": "^[A-Z]+-[0-9]+-TC-[0-9]{3}-(POSITIVE|NEGATIVE|BOUNDARY|UI_VALIDATION)$"
+                        "pattern": "^[A-Z]+-[0-9]+-TC-[0-9]{3}-(POSITIVE|NEGATIVE|BOUNDARY|UI_VALIDATION|RISK_BASED)$"
                     },
                     "title": {
                         "type": "string",
@@ -182,7 +182,7 @@ Each test case in the array must follow this exact structure:
                     },
                     "type": {
                         "type": "string",
-                        "enum": ["positive", "negative", "boundary", "ui_validation"]
+                        "enum": ["positive", "negative", "boundary", "ui_validation", "risk_based"]
                     },
                     "priority": {
                         "type": "string",

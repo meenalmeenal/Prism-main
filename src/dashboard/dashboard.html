@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prism Test Metrics Dashboard</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+        :root {
+            --bg: #09090e;
+            --surface: #12121a;
+            --surface-hover: #171724;
+            --border: rgba(255, 255, 255, 0.08);
+            --border-hover: rgba(255, 255, 255, 0.15);
+            --text-primary: #f3f4f6;
+            --text-secondary: #9ca3af;
+            --accent: #6366f1;
+            --accent-glow: rgba(99, 102, 241, 0.15);
+            --success: #10b981;
+            --failure: #ef4444;
+            --warning: #f59e0b;
+            --info: #3b82f6;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text-primary);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            padding: 2.5rem 1.5rem;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        /* Header Style */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .logo-box {
+            width: 42px;
+            height: 42px;
+            background: linear-gradient(135deg, var(--accent), #4f46e5);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.25rem;
+            color: #ffffff;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+        }
+
+        .title-area h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            letter-spacing: -0.025em;
+        }
+
+        .title-area p {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            margin-top: 0.25rem;
+        }
+
+        .status-badge {
+            background-color: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            color: var(--success);
+            padding: 0.35rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .status-badge::before {
+            content: '';
+            width: 6px;
+            height: 6px;
+            background-color: var(--success);
+            border-radius: 50%;
+            display: inline-block;
+            box-shadow: 0 0 8px var(--success);
+        }
+
+        .updated-time {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            font-family: 'JetBrains Mono', monospace;
+            text-align: right;
+            margin-top: 0.35rem;
+        }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1.25rem;
+        }
+
+        .stat-card {
+            background-color: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            border-color: var(--border-hover);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+        }
+
+        .stat-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background-color: var(--card-color, var(--accent));
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-weight: 600;
+        }
+
+        .stat-value {
+            font-size: 2.25rem;
+            font-weight: 700;
+            margin-top: 0.5rem;
+            letter-spacing: -0.03em;
+        }
+
+        .stat-meta {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            margin-top: 0.5rem;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* Data Upload / Load Section */
+        .load-indicator {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background-color: rgba(99, 102, 241, 0.05);
+            border: 1px dashed var(--accent);
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            font-size: 0.875rem;
+        }
+
+        .file-label {
+            background-color: var(--accent);
+            color: #ffffff;
+            padding: 0.4rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.75rem;
+            transition: opacity 0.2s;
+        }
+
+        .file-label:hover {
+            opacity: 0.9;
+        }
+
+        #file-input {
+            display: none;
+        }
+
+        /* Detail Grid */
+        .detail-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+
+        @media (max-width: 768px) {
+            .detail-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .panel {
+            background-color: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1.5rem;
+        }
+
+        .panel-title {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 1.25rem;
+            color: var(--text-primary);
+            border-left: 3px solid var(--accent);
+            padding-left: 0.5rem;
+        }
+
+        /* Dist Bar Lists */
+        .bar-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .bar-item {
+            display: flex;
+            flex-direction: column;
+            gap: 0.35rem;
+        }
+
+        .bar-info {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.875rem;
+        }
+
+        .bar-name {
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
+        .bar-count {
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--text-secondary);
+        }
+
+        .bar-container {
+            width: 100%;
+            height: 10px;
+            background-color: rgba(255, 255, 255, 0.05);
+            border-radius: 9999px;
+            overflow: hidden;
+        }
+
+        .bar-fill {
+            height: 100%;
+            border-radius: 9999px;
+            background-color: var(--fill-color, var(--accent));
+            transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Flaky list styling */
+        .flaky-table-wrapper {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        .flaky-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.875rem;
+            text-align: left;
+        }
+
+        .flaky-table th {
+            color: var(--text-secondary);
+            font-weight: 600;
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .flaky-table td {
+            padding: 0.875rem 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .flaky-table tr:hover {
+            background-color: rgba(255, 255, 255, 0.02);
+        }
+
+        .flaky-rate-badge {
+            background-color: rgba(239, 68, 68, 0.1);
+            color: var(--failure);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .no-flaky {
+            text-align: center;
+            color: var(--text-secondary);
+            padding: 2rem 0;
+            font-size: 0.875rem;
+        }
+
+        .flaky-card {
+            margin-top: 1.5rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header>
+            <div class="brand">
+                <div class="logo-box">P</div>
+                <div class="title-area">
+                    <h1>Prism Dashboard</h1>
+                    <p>AI Test Automation Pipeline Metrics & Execution Health</p>
+                </div>
+            </div>
+            <div>
+                <div class="status-badge">Pipeline Active</div>
+                <div class="updated-time" id="last-updated">Last Updated: Loading...</div>
+            </div>
+        </header>
+
+        <!-- Loader Notification for CORS Fallback -->
+        <div class="load-indicator" id="load-msg">
+            <span id="load-status-text">Attempting to load data/dashboard_data.json dynamically...</span>
+            <label for="file-input" class="file-label">Upload JSON</label>
+            <input type="file" id="file-input" accept=".json" />
+        </div>
+
+        <!-- Metrics Grid -->
+        <div class="stats-grid">
+            <div class="stat-card" style="--card-color: var(--accent);">
+                <div class="stat-label">Issues Processed</div>
+                <div class="stat-value" id="stat-issues">-</div>
+                <div class="stat-meta">last 30 days</div>
+            </div>
+            <div class="stat-card" style="--card-color: var(--info);">
+                <div class="stat-label">Tests Generated</div>
+                <div class="stat-value" id="stat-generated">-</div>
+                <div class="stat-meta" id="stat-executed">- executed</div>
+            </div>
+            <div class="stat-card" style="--card-color: var(--success);" id="stat-pass-card">
+                <div class="stat-label">Pass Rate</div>
+                <div class="stat-value" style="color: var(--success);" id="stat-pass-rate">-%</div>
+                <div class="stat-meta" id="stat-pass-meta">- passed / - failed</div>
+            </div>
+            <div class="stat-card" style="--card-color: var(--warning);">
+                <div class="stat-label">Automation Coverage</div>
+                <div class="stat-value" id="stat-coverage">-%</div>
+                <div class="stat-meta">Target: >85%</div>
+            </div>
+        </div>
+
+        <!-- Details Grid -->
+        <div class="detail-grid">
+            <!-- Test Type Distribution -->
+            <div class="panel">
+                <div class="panel-title">Test Type Distribution</div>
+                <div class="bar-list" id="type-dist-list">
+                    <!-- Dynamic Items -->
+                </div>
+            </div>
+
+            <!-- Priority Distribution -->
+            <div class="panel">
+                <div class="panel-title">Priority Distribution</div>
+                <div class="bar-list" id="priority-dist-list">
+                    <!-- Dynamic Items -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Flaky Tests Panel -->
+        <div class="panel flaky-card">
+            <div class="panel-title">Flaky Tests Report</div>
+            <div class="flaky-table-wrapper" id="flaky-wrapper">
+                <!-- Dynamic table or message -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const colorPalette = {
+            positive: '#4f46e5',     // Indigo
+            negative: '#ef4444',     // Red
+            boundary: '#f59e0b',     // Amber
+            risk_based: '#aa77ff',   // Purple
+            ui_validation: '#3b82f6',// Blue
+            unknown: '#6b7280',      // Gray
+            P1: '#ef4444',
+            P2: '#f59e0b',
+            P3: '#10b981'
+        };
+
+        function renderDashboard(data) {
+            // Update timestamp
+            const date = new Date(data.last_updated);
+            document.getElementById('last-updated').innerText = `Last Updated: ${isNaN(date.getTime()) ? 'N/A' : date.toLocaleString()}`;
+
+            // 1. Overall stats
+            const cov = data.coverage || {};
+            document.getElementById('stat-issues').innerText = cov.total_issues_processed ?? 0;
+            document.getElementById('stat-generated').innerText = cov.total_tests_generated ?? 0;
+            document.getElementById('stat-executed').innerText = `${cov.total_tests_executed ?? 0} executed`;
+
+            const passRateVal = cov.overall_pass_rate ?? 0;
+            document.getElementById('stat-pass-rate').innerText = `${passRateVal.toFixed(1)}%`;
+            document.getElementById('stat-pass-meta').innerText = `${cov.total_passed ?? 0} passed / ${cov.total_failed ?? 0} failed`;
+            
+            // Adjust card text color based on pass rate
+            const passCard = document.getElementById('stat-pass-card');
+            const passRateText = document.getElementById('stat-pass-rate');
+            if (passRateVal < 50) {
+                passRateText.style.color = 'var(--failure)';
+                passCard.style.setProperty('--card-color', 'var(--failure)');
+            } else if (passRateVal < 80) {
+                passRateText.style.color = 'var(--warning)';
+                passCard.style.setProperty('--card-color', 'var(--warning)');
+            } else {
+                passRateText.style.color = 'var(--success)';
+                passCard.style.setProperty('--card-color', 'var(--success)');
+            }
+
+            const covVal = cov.coverage_percentage ?? 0;
+            document.getElementById('stat-coverage').innerText = `${covVal.toFixed(1)}%`;
+
+            // 2. Test Type Distribution
+            const typeDist = data.test_type_distribution || {};
+            const typeListEl = document.getElementById('type-dist-list');
+            typeListEl.innerHTML = '';
+            
+            const totalTypes = Object.values(typeDist).reduce((sum, v) => sum + v, 0);
+            Object.entries(typeDist)
+                .sort((a, b) => b[1] - a[1])
+                .forEach(([type, count]) => {
+                    const percentage = totalTypes > 0 ? (count / totalTypes * 100).toFixed(1) : 0;
+                    const fillClr = colorPalette[type] || colorPalette.unknown;
+                    const readableName = type.replace('_', ' ').toUpperCase();
+                    
+                    typeListEl.innerHTML += `
+                        <div class="bar-item">
+                            <div class="bar-info">
+                                <span class="bar-name">${readableName}</span>
+                                <span class="bar-count">${count} (${percentage}%)</span>
+                            </div>
+                            <div class="bar-container">
+                                <div class="bar-fill" style="width: ${percentage}%; --fill-color: ${fillClr}"></div>
+                            </div>
+                        </div>
+                    `;
+                });
+
+            // 3. Priority Distribution
+            const prioDist = data.priority_distribution || {};
+            const prioListEl = document.getElementById('priority-dist-list');
+            prioListEl.innerHTML = '';
+            
+            const totalPrio = Object.values(prioDist).reduce((sum, v) => sum + v, 0);
+            ['P1', 'P2', 'P3'].forEach(prio => {
+                const count = prioDist[prio] || 0;
+                const percentage = totalPrio > 0 ? (count / totalPrio * 100).toFixed(1) : 0;
+                const fillClr = colorPalette[prio] || colorPalette.unknown;
+                
+                prioListEl.innerHTML += `
+                    <div class="bar-item">
+                        <div class="bar-info">
+                            <span class="bar-name">Priority ${prio}</span>
+                            <span class="bar-count">${count} (${percentage}%)</span>
+                        </div>
+                        <div class="bar-container">
+                            <div class="bar-fill" style="width: ${percentage}%; --fill-color: ${fillClr}"></div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            // 4. Flaky tests
+            const flaky = data.flaky_tests || [];
+            const flakyWrapper = document.getElementById('flaky-wrapper');
+            if (flaky.length === 0) {
+                flakyWrapper.innerHTML = `<div class="no-flaky">No flaky tests detected in recent pipeline executions.</div>`;
+            } else {
+                let tableHtml = `
+                    <table class="flaky-table">
+                        <thead>
+                            <tr>
+                                <th>Test Identifier</th>
+                                <th>Runs</th>
+                                <th>Pass/Fail</th>
+                                <th>Flakiness Rate</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                `;
+                flaky.forEach(t => {
+                    tableHtml += `
+                        <tr>
+                            <td>${t.test_id}</td>
+                            <td>${t.total_runs}</td>
+                            <td>${t.pass_count} passed / ${t.fail_count} failed</td>
+                            <td><span class="flaky-rate-badge">${t.flakiness_rate.toFixed(1)}%</span></td>
+                        </tr>
+                    `;
+                });
+                tableHtml += `
+                        </tbody>
+                    </table>
+                `;
+                flakyWrapper.innerHTML = tableHtml;
+            }
+        }
+
+        // Fetch mechanism
+        async function fetchDashboardData() {
+            const paths = [
+                '../../data/dashboard_data.json',
+                './data/dashboard_data.json',
+                'data/dashboard_data.json'
+            ];
+
+            let loaded = false;
+            for (const path of paths) {
+                try {
+                    const response = await fetch(path);
+                    if (response.ok) {
+                        const json = await response.json();
+                        renderDashboard(json);
+                        document.getElementById('load-status-text').innerText = `Successfully loaded metrics from: ${path}`;
+                        document.getElementById('load-msg').style.backgroundColor = 'rgba(16, 185, 129, 0.05)';
+                        document.getElementById('load-msg').style.borderColor = 'var(--success)';
+                        loaded = true;
+                        break;
+                    }
+                } catch (e) {
+                    // Fail silently, try next path
+                }
+            }
+
+            if (!loaded) {
+                document.getElementById('load-status-text').innerText = 'Local fetch blocked (CORS). Please select data/dashboard_data.json manually:';
+                document.getElementById('load-msg').style.backgroundColor = 'rgba(239, 68, 68, 0.05)';
+                document.getElementById('load-msg').style.borderColor = 'var(--failure)';
+                
+                // Load default static mock data if available so dashboard is not empty
+                const defaultMock = {
+                    coverage: {
+                        period_days: 30,
+                        total_issues_processed: 12,
+                        total_tests_generated: 159,
+                        total_tests_executed: 111,
+                        total_passed: 59,
+                        total_failed: 52,
+                        overall_pass_rate: 53.15,
+                        coverage_percentage: 69.8
+                    },
+                    flaky_tests: [
+                        {
+                            test_id: "ZT-3:Login flakiness",
+                            total_runs: 5,
+                            pass_count: 4,
+                            fail_count: 1,
+                            flakiness_rate: 20.0
+                        }
+                    ],
+                    test_type_distribution: {
+                        positive: 52,
+                        negative: 52,
+                        boundary: 52,
+                        risk_based: 3
+                    },
+                    priority_distribution: {
+                        P1: 13,
+                        P2: 106,
+                        P3: 40
+                    },
+                    last_updated: new Date().toISOString()
+                };
+                renderDashboard(defaultMock);
+            }
+        }
+
+        // File upload event listener
+        document.getElementById('file-input').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(evt) {
+                try {
+                    const json = JSON.parse(evt.target.result);
+                    renderDashboard(json);
+                    document.getElementById('load-status-text').innerText = `Displaying metrics from uploaded file: ${file.name}`;
+                    document.getElementById('load-msg').style.backgroundColor = 'rgba(16, 185, 129, 0.05)';
+                    document.getElementById('load-msg').style.borderColor = 'var(--success)';
+                } catch (err) {
+                    alert('Invalid JSON file format.');
+                }
+            };
+            reader.readAsText(file);
+        });
+
+        // Initialize dashboard loading
+        fetchDashboardData();
+    </script>
+</body>
+</html>

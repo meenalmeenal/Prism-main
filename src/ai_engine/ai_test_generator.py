@@ -411,6 +411,20 @@ class RuleBasedTestGenerator:
             )
             counter += 1
 
+            # Risk-based case ----------------------------------------------
+            test_cases.append(
+                self._build_test_case(
+                    issue_key=issue_key,
+                    counter=counter,
+                    summary=summary,
+                    ac_description=ac_clean,
+                    ac_label=ac_short,
+                    test_type="risk_based",
+                    priority="P1" if idx == 1 else "P2",
+                )
+            )
+            counter += 1
+
         logger.info(
             "Rule-based fallback generated %d test cases for %s", len(test_cases), issue_key
         )
@@ -432,7 +446,7 @@ class RuleBasedTestGenerator:
         The structure is designed to satisfy :class:`TestValidator`:
 
         * ``id``: non-trivial, unique string identifier.
-        * ``type``: one of positive/negative/boundary.
+        * ``type``: one of positive/negative/boundary/risk_based.
         * ``priority``: one of P1/P2/P3.
         * ``preconditions`` / ``steps`` / ``tags``: lists with realistic
           but deterministic content.
@@ -446,9 +460,10 @@ class RuleBasedTestGenerator:
         - Positive: emphasises successful / expected behaviour.
         - Negative: emphasises failure, invalid input, or error handling.
         - Boundary: emphasises limits, extremes, and constraint validation.
+        - Risk-based: emphasises security vulnerabilities, authentication, or data integrity.
 
         Each template uses different core verbs and nouns so that the
-        positive/negative/boundary titles share only a small subset of
+        positive/negative/boundary/risk_based titles share only a small subset of
         words (typically just the subject phrase), keeping the similarity
         ratio safely below the 0.8 threshold.
         """
@@ -502,7 +517,7 @@ class RuleBasedTestGenerator:
                     "expected_result": "Errors are logged appropriately without exposing sensitive details to the end user.",
                 },
             ]
-        else:  # boundary
+        elif test_type == "boundary":
             steps = [
                 {
                     "step_number": 1,
@@ -519,6 +534,20 @@ class RuleBasedTestGenerator:
                     "step_number": 3,
                     "action": "Execute a combined scenario using multiple boundary values together.",
                     "expected_result": "Combined boundary conditions still meet the intent of the acceptance criterion or fail safely with clear messaging.",
+                },
+            ]
+        else:  # risk_based
+            steps = [
+                {
+                    "step_number": 1,
+                    "action": f"Inject high-risk inputs (e.g. SQL injection payload, XSS script tags) or attempt access violations for: {ac_description}.",
+                    "test_data": "Test data: SQL injections like ' OR 1=1 -- or script tags <script>alert(1)</script>",
+                    "expected_result": "The system safely sanitizes or rejects the inputs, avoiding security risks.",
+                },
+                {
+                    "step_number": 2,
+                    "action": "Trigger complex conditional logic or error paths to verify business rules under load or stress.",
+                    "expected_result": "No security lockout leakages occur and data integrity is preserved.",
                 },
             ]
 
@@ -539,9 +568,12 @@ class RuleBasedTestGenerator:
         elif test_type == "negative":
             # Focus on invalid input, rejection, and error handling.
             title = f"Failure handling: system rejects invalid or unauthorised scenario for {core_subject}"
-        else:  # boundary
+        elif test_type == "boundary":
             # Focus on limits, extremes, and constraint validation.
             title = f"Boundary conditions: limits and edge cases covered for {core_subject}"
+        else:  # risk_based
+            # Focus on security, vulnerability protection, and critical logic path validation.
+            title = f"Risk verification: system prevents security vulnerabilities or logical failures for {core_subject}"
 
         return {
             "id": tc_id,

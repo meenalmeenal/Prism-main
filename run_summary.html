@@ -15,90 +15,130 @@ h1{margin:0 0 6px}
 .steps li{margin:4px 0;font-size:.9em}
 </style></head>
 <body>
-<header><h1>Prism Pipeline — Run Summary</h1><div>Generated: 2026-08-12 20:20:05</div></header>
+<header><h1>Prism Pipeline — Run Summary</h1><div>Generated: 2026-08-25 12:16:31</div></header>
 
     <section class="issue-block">
-      <h2>ZT-43 <span class="source">(github_pr)</span></h2>
+      <h2>ZT-3 <span class="source">(jira)</span></h2>
       
     <div class="tc-card">
       <div class="tc-header">
         <span class="badge type-positive">POSITIVE</span>
         <span class="badge prio">P1</span>
-        <span class="zid">Zephyr: ZT-T562</span>
+        <span class="zid">Zephyr: ZT-T1</span>
       </div>
-      <h3>User successfully logs in with valid credentials</h3>
-      <p class="desc">Verifies that a registered user can log in using a correct email and password combination, confirming the authentication flow works end-to-end for the happy path.</p>
-      <ul class="steps"><li><b>Navigate to the login page</b> → Login page loads successfully with email and password fields visible</li><li><b>Enter valid email address in the email field</b> → Email field is populated with the entered email</li><li><b>Enter valid password in the password field</b> → Password field shows masked characters, login button becomes enabled</li><li><b>Click the login button</b> → User is redirected to dashboard page, welcome message displays with user's name</li><li><b>Verify user session is established</b> → User profile icon is visible in header, logout option is available</li></ul>
+      <h3>Successful behaviour: system accepts valid scenario for User should be able to type an email in the input box.</h3>
+      <p class="desc"></p>
+      <ul class="steps"><li><b>Navigate to the feature described by: Login Functionality.</b> → Relevant UI or API endpoint is available.</li><li><b>Perform the primary user action that should satisfy: User should be able to type an email in the input box..</b> → The system behaves exactly as described in the acceptance criterion: User should be able to type an email in the input box.</li><li><b>Verify persisted state, UI feedback, and any side effects.</b> → All observable outcomes align with the business expectation and no errors are shown.</li></ul>
+    </div>
+    <div class="tc-card">
+      <div class="tc-header">
+        <span class="badge type-negative">NEGATIVE</span>
+        <span class="badge prio">P2</span>
+        <span class="zid">Zephyr: ZT-T2</span>
+      </div>
+      <h3>Failure handling: system rejects invalid or unauthorised scenario for User should be able to type an email in the input box.</h3>
+      <p class="desc"></p>
+      <ul class="steps"><li><b>Navigate to the feature related to: Login Functionality.</b> → Feature can be accessed by an authorised tester.</li><li><b>Attempt to violate the acceptance criterion by providing invalid or missing data for: User should be able to type an email in the input box..</b> → The system rejects the input gracefully, provides helpful feedback, and does not corrupt state.</li><li><b>Observe logs or error messages if available.</b> → Errors are logged appropriately without exposing sensitive details to the end user.</li></ul>
+    </div>
+    <div class="tc-card">
+      <div class="tc-header">
+        <span class="badge type-boundary">BOUNDARY</span>
+        <span class="badge prio">P2</span>
+        <span class="zid">Zephyr: ZT-T3</span>
+      </div>
+      <h3>Boundary conditions: limits and edge cases covered for User should be able to type an email in the input box.</h3>
+      <p class="desc"></p>
+      <ul class="steps"><li><b>Identify boundary values for inputs involved in: User should be able to type an email in the input box..</b> → Boundary values are clearly identified for all relevant fields or parameters.</li><li><b>Execute the operation using each boundary value in isolation.</b> → The system handles all boundary values without crashes or data loss.</li><li><b>Execute a combined scenario using multiple boundary values together.</b> → Combined boundary conditions still meet the intent of the acceptance criterion or fail safely with clear messaging.</li></ul>
+    </div>
+    <div class="tc-card">
+      <div class="tc-header">
+        <span class="badge type-risk_based">RISK_BASED</span>
+        <span class="badge prio">P1</span>
+        <span class="zid">Zephyr: ZT-T4</span>
+      </div>
+      <h3>Risk verification: system prevents security vulnerabilities or logical failures for User should be able to type an email in the input box.</h3>
+      <p class="desc"></p>
+      <ul class="steps"><li><b>Inject high-risk inputs (e.g. SQL injection payload, XSS script tags) or attempt access violations for: User should be able to type an email in the input box..</b> → The system safely sanitizes or rejects the inputs, avoiding security risks.</li><li><b>Trigger complex conditional logic or error paths to verify business rules under load or stress.</b> → No security lockout leakages occur and data integrity is preserved.</li></ul>
     </div>
     <div class="tc-card">
       <div class="tc-header">
         <span class="badge type-positive">POSITIVE</span>
         <span class="badge prio">P2</span>
-        <span class="zid">Zephyr: ZT-T563</span>
+        <span class="zid">Zephyr: ZT-T5</span>
       </div>
-      <h3>User logs in after a short period of inactivity</h3>
-      <p class="desc">Verifies that a user's session remains active after a short period of inactivity, ensuring the session expiration timer works correctly.</p>
-      <ul class="steps"><li><b>Wait for 20 minutes without interacting with the application</b> → User remains logged in, session is still active</li><li><b>Interact with the application by clicking on a link</b> → User is still logged in, no login prompt appears</li></ul>
+      <h3>Successful behaviour: system accepts valid scenario for User should see a 'Success' message after clicking submit.</h3>
+      <p class="desc"></p>
+      <ul class="steps"><li><b>Navigate to the feature described by: Login Functionality.</b> → Relevant UI or API endpoint is available.</li><li><b>Perform the primary user action that should satisfy: User should see a 'Success' message after clicking submit..</b> → The system behaves exactly as described in the acceptance criterion: User should see a 'Success' message after clicking submit.</li><li><b>Verify persisted state, UI feedback, and any side effects.</b> → All observable outcomes align with the business expectation and no errors are shown.</li></ul>
     </div>
     <div class="tc-card">
       <div class="tc-header">
         <span class="badge type-negative">NEGATIVE</span>
-        <span class="badge prio">P1</span>
-        <span class="zid">Zephyr: ZT-T564</span>
+        <span class="badge prio">P3</span>
+        <span class="zid">Zephyr: ZT-T6</span>
       </div>
-      <h3>Invalid password shows error message</h3>
-      <p class="desc">Verifies that entering an incorrect password results in an error message, ensuring the password validation works correctly.</p>
-      <ul class="steps"><li><b>Enter valid email address in the email field</b> → Email field is populated with the entered email</li><li><b>Enter an invalid password in the password field</b> → Password field shows masked characters, login button becomes enabled</li><li><b>Click the login button</b> → Error message appears below the password field, indicating incorrect password</li></ul>
-    </div>
-    <div class="tc-card">
-      <div class="tc-header">
-        <span class="badge type-negative">NEGATIVE</span>
-        <span class="badge prio">P2</span>
-        <span class="zid">Zephyr: ZT-T565</span>
-      </div>
-      <h3>Empty fields show validation errors</h3>
-      <p class="desc">Verifies that leaving email or password fields empty results in validation errors, ensuring the form validation works correctly.</p>
-      <ul class="steps"><li><b>Click the login button without entering any credentials</b> → Error messages appear below both email and password fields, indicating required fields</li><li><b>Enter valid email address in the email field but leave password field empty</b> → Error message appears below the password field, indicating required field</li></ul>
+      <h3>Failure handling: system rejects invalid or unauthorised scenario for User should see a 'Success' message after clicking submit.</h3>
+      <p class="desc"></p>
+      <ul class="steps"><li><b>Navigate to the feature related to: Login Functionality.</b> → Feature can be accessed by an authorised tester.</li><li><b>Attempt to violate the acceptance criterion by providing invalid or missing data for: User should see a 'Success' message after clicking submit..</b> → The system rejects the input gracefully, provides helpful feedback, and does not corrupt state.</li><li><b>Observe logs or error messages if available.</b> → Errors are logged appropriately without exposing sensitive details to the end user.</li></ul>
     </div>
     <div class="tc-card">
       <div class="tc-header">
         <span class="badge type-boundary">BOUNDARY</span>
-        <span class="badge prio">P1</span>
-        <span class="zid">Zephyr: ZT-T566</span>
-      </div>
-      <h3>Account locks after 5 failed attempts</h3>
-      <p class="desc">Verifies that the account lockout mechanism works correctly after 5 consecutive failed login attempts, ensuring security against brute-force attacks.</p>
-      <ul class="steps"><li><b>Enter valid email address in the email field</b> → Email field is populated with the entered email</li><li><b>Enter an invalid password in the password field and click the login button 5 times</b> → After the 5th attempt, an account lockout message appears, indicating the account is temporarily locked</li></ul>
-    </div>
-    <div class="tc-card">
-      <div class="tc-header">
-        <span class="badge type-ui_validation">UI_VALIDATION</span>
         <span class="badge prio">P2</span>
-        <span class="zid">Zephyr: ZT-T567</span>
+        <span class="zid">Zephyr: ZT-T7</span>
       </div>
-      <h3>Field validation and button states</h3>
-      <p class="desc">Verifies that the login form fields and buttons behave as expected, with proper validation and state changes.</p>
-      <ul class="steps"><li><b>Enter valid email address in the email field</b> → Email field is populated with the entered email, login button remains disabled</li><li><b>Enter valid password in the password field</b> → Password field shows masked characters, login button becomes enabled</li><li><b>Clear the password field</b> → Login button becomes disabled again</li></ul>
+      <h3>Boundary conditions: limits and edge cases covered for User should see a 'Success' message after clicking submit.</h3>
+      <p class="desc"></p>
+      <ul class="steps"><li><b>Identify boundary values for inputs involved in: User should see a 'Success' message after clicking submit..</b> → Boundary values are clearly identified for all relevant fields or parameters.</li><li><b>Execute the operation using each boundary value in isolation.</b> → The system handles all boundary values without crashes or data loss.</li><li><b>Execute a combined scenario using multiple boundary values together.</b> → Combined boundary conditions still meet the intent of the acceptance criterion or fail safely with clear messaging.</li></ul>
     </div>
     <div class="tc-card">
       <div class="tc-header">
         <span class="badge type-risk_based">RISK_BASED</span>
-        <span class="badge prio">P1</span>
-        <span class="zid">Zephyr: ZT-T568</span>
+        <span class="badge prio">P2</span>
+        <span class="zid">Zephyr: ZT-T8</span>
       </div>
-      <h3>SQL injection attempt</h3>
-      <p class="desc">Verifies that the application is secure against SQL injection attacks by attempting to inject malicious SQL code.</p>
-      <ul class="steps"><li><b>Enter a SQL injection payload in the email field</b> → Application does not execute the malicious SQL code, instead shows an error message or ignores the input</li></ul>
+      <h3>Risk verification: system prevents security vulnerabilities or logical failures for User should see a 'Success' message after clicking submit.</h3>
+      <p class="desc"></p>
+      <ul class="steps"><li><b>Inject high-risk inputs (e.g. SQL injection payload, XSS script tags) or attempt access violations for: User should see a 'Success' message after clicking submit..</b> → The system safely sanitizes or rejects the inputs, avoiding security risks.</li><li><b>Trigger complex conditional logic or error paths to verify business rules under load or stress.</b> → No security lockout leakages occur and data integrity is preserved.</li></ul>
+    </div>
+    <div class="tc-card">
+      <div class="tc-header">
+        <span class="badge type-positive">POSITIVE</span>
+        <span class="badge prio">P2</span>
+        <span class="zid">Zephyr: ZT-T9</span>
+      </div>
+      <h3>Successful behaviour: system accepts valid scenario for User should see a 'Red Error' if the email is missing a '@' symbol.</h3>
+      <p class="desc"></p>
+      <ul class="steps"><li><b>Navigate to the feature described by: Login Functionality.</b> → Relevant UI or API endpoint is available.</li><li><b>Perform the primary user action that should satisfy: User should see a 'Red Error' if the email is missing a '@' symbol..</b> → The system behaves exactly as described in the acceptance criterion: User should see a 'Red Error' if the email is missing a '@' symbol.</li><li><b>Verify persisted state, UI feedback, and any side effects.</b> → All observable outcomes align with the business expectation and no errors are shown.</li></ul>
+    </div>
+    <div class="tc-card">
+      <div class="tc-header">
+        <span class="badge type-negative">NEGATIVE</span>
+        <span class="badge prio">P3</span>
+        <span class="zid">Zephyr: ZT-T10</span>
+      </div>
+      <h3>Failure handling: system rejects invalid or unauthorised scenario for User should see a 'Red Error' if the email is missing a '@' symbol.</h3>
+      <p class="desc"></p>
+      <ul class="steps"><li><b>Navigate to the feature related to: Login Functionality.</b> → Feature can be accessed by an authorised tester.</li><li><b>Attempt to violate the acceptance criterion by providing invalid or missing data for: User should see a 'Red Error' if the email is missing a '@' symbol..</b> → The system rejects the input gracefully, provides helpful feedback, and does not corrupt state.</li><li><b>Observe logs or error messages if available.</b> → Errors are logged appropriately without exposing sensitive details to the end user.</li></ul>
+    </div>
+    <div class="tc-card">
+      <div class="tc-header">
+        <span class="badge type-boundary">BOUNDARY</span>
+        <span class="badge prio">P2</span>
+        <span class="zid">Zephyr: ZT-T11</span>
+      </div>
+      <h3>Boundary conditions: limits and edge cases covered for User should see a 'Red Error' if the email is missing a '@' symbol.</h3>
+      <p class="desc"></p>
+      <ul class="steps"><li><b>Identify boundary values for inputs involved in: User should see a 'Red Error' if the email is missing a '@' symbol..</b> → Boundary values are clearly identified for all relevant fields or parameters.</li><li><b>Execute the operation using each boundary value in isolation.</b> → The system handles all boundary values without crashes or data loss.</li><li><b>Execute a combined scenario using multiple boundary values together.</b> → Combined boundary conditions still meet the intent of the acceptance criterion or fail safely with clear messaging.</li></ul>
     </div>
     <div class="tc-card">
       <div class="tc-header">
         <span class="badge type-risk_based">RISK_BASED</span>
-        <span class="badge prio">P1</span>
-        <span class="zid">Zephyr: ZT-T569</span>
+        <span class="badge prio">P2</span>
+        <span class="zid">Zephyr: ZT-T12</span>
       </div>
-      <h3>XSS attempt</h3>
-      <p class="desc">Verifies that the application is secure against cross-site scripting (XSS) attacks by attempting to inject malicious JavaScript code.</p>
-      <ul class="steps"><li><b>Enter a XSS payload in the email field</b> → Application does not execute the malicious JavaScript code, instead shows an error message or ignores the input</li></ul>
+      <h3>Risk verification: system prevents security vulnerabilities or logical failures for User should see a 'Red Error' if the email is missing a '@' symbol.</h3>
+      <p class="desc"></p>
+      <ul class="steps"><li><b>Inject high-risk inputs (e.g. SQL injection payload, XSS script tags) or attempt access violations for: User should see a 'Red Error' if the email is missing a '@' symbol..</b> → The system safely sanitizes or rejects the inputs, avoiding security risks.</li><li><b>Trigger complex conditional logic or error paths to verify business rules under load or stress.</b> → No security lockout leakages occur and data integrity is preserved.</li></ul>
     </div>
     </section>
 </body></html>

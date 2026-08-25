@@ -1,7 +1,7 @@
 {
   "config": {
-    "configFile": "D:\\OneDrive\\Desktop\\Prism-main\\playwright.config.js",
-    "rootDir": "D:/OneDrive/Desktop/Prism-main/generated_tests",
+    "configFile": "D:\\Prism_Main\\Prism-main\\playwright.config.js",
+    "rootDir": "D:/Prism_Main/Prism-main/generated_tests",
     "forbidOnly": false,
     "fullyParallel": false,
     "globalSetup": null,
@@ -10,17 +10,21 @@
     "grep": {},
     "grepInvert": null,
     "maxFailures": 0,
-    "metadata": {},
+    "metadata": {
+      "actualWorkers": 6
+    },
     "preserveOutput": "always",
     "projects": [
       {
-        "outputDir": "D:/OneDrive/Desktop/Prism-main/test-results",
+        "outputDir": "D:/Prism_Main/Prism-main/test-results",
         "repeatEach": 1,
-        "retries": 0,
-        "metadata": {},
+        "retries": 1,
+        "metadata": {
+          "actualWorkers": 6
+        },
         "id": "chromium",
         "name": "chromium",
-        "testDir": "D:/OneDrive/Desktop/Prism-main/generated_tests",
+        "testDir": "D:/Prism_Main/Prism-main/generated_tests",
         "testIgnore": [],
         "testMatch": [
           "**/*.@(spec|test).?(c|m)[jt]s?(x)"
@@ -48,39 +52,865 @@
     "webServer": {
       "command": "node mock-server.js",
       "url": "http://localhost:3000",
-      "reuseExistingServer": true,
+      "reuseExistingServer": false,
       "timeout": 10000
     }
   },
-  "suites": [],
-  "errors": [
+  "suites": [
     {
-      "message": "SyntaxError: D:\\OneDrive\\Desktop\\Prism-main\\generated_tests\\ZT-43_ZT-43-TC-007-RISK_BASED.spec.js: Unexpected token, expected \",\" (18:138)\n\n\u001b[0m \u001b[90m 16 |\u001b[39m     \u001b[90m// Step 1: Enter a SQL injection payload in the email field\u001b[39m\n \u001b[90m 17 |\u001b[39m     \u001b[90m// Expected: Application does not execute the malicious SQL code, instead shows an error message or ignores the input\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 18 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgetByRole(\u001b[32m'textbox'\u001b[39m\u001b[33m,\u001b[39m { name\u001b[33m:\u001b[39m \u001b[35m/email|username/i\u001b[39m })\u001b[33m.\u001b[39mor(page\u001b[33m.\u001b[39mlocator(\u001b[32m'#username, #email, input[type=email]'\u001b[39m))\u001b[33m.\u001b[39mfirst()\u001b[33m.\u001b[39mfill(\u001b[32m''\u001b[39m \u001b[33mOR\u001b[39m \u001b[35m1\u001b[39m\u001b[33m=\u001b[39m\u001b[35m1\u001b[39m \u001b[33m--\u001b[39m\u001b[32m');\u001b[39m\n \u001b[90m    |\u001b[39m                                                                                                                                           \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 19 |\u001b[39m   })\u001b[33m;\u001b[39m\n \u001b[90m 20 |\u001b[39m })\u001b[33m;\u001b[39m\u001b[0m",
-      "stack": "SyntaxError: D:\\OneDrive\\Desktop\\Prism-main\\generated_tests\\ZT-43_ZT-43-TC-007-RISK_BASED.spec.js: Unexpected token, expected \",\" (18:138)\n\n\u001b[0m \u001b[90m 16 |\u001b[39m     \u001b[90m// Step 1: Enter a SQL injection payload in the email field\u001b[39m\n \u001b[90m 17 |\u001b[39m     \u001b[90m// Expected: Application does not execute the malicious SQL code, instead shows an error message or ignores the input\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 18 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgetByRole(\u001b[32m'textbox'\u001b[39m\u001b[33m,\u001b[39m { name\u001b[33m:\u001b[39m \u001b[35m/email|username/i\u001b[39m })\u001b[33m.\u001b[39mor(page\u001b[33m.\u001b[39mlocator(\u001b[32m'#username, #email, input[type=email]'\u001b[39m))\u001b[33m.\u001b[39mfirst()\u001b[33m.\u001b[39mfill(\u001b[32m''\u001b[39m \u001b[33mOR\u001b[39m \u001b[35m1\u001b[39m\u001b[33m=\u001b[39m\u001b[35m1\u001b[39m \u001b[33m--\u001b[39m\u001b[32m');\u001b[39m\n \u001b[90m    |\u001b[39m                                                                                                                                           \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 19 |\u001b[39m   })\u001b[33m;\u001b[39m\n \u001b[90m 20 |\u001b[39m })\u001b[33m;\u001b[39m\u001b[0m",
-      "location": {
-        "file": "D:\\OneDrive\\Desktop\\Prism-main\\generated_tests\\ZT-43_ZT-43-TC-007-RISK_BASED.spec.js",
-        "line": 18,
-        "column": 138
-      },
-      "snippet": "\u001b[90m   at \u001b[39mZT-43_ZT-43-TC-007-RISK_BASED.spec.js:18\n\n\u001b[0m \u001b[90m 16 |\u001b[39m     \u001b[90m// Step 1: Enter a SQL injection payload in the email field\u001b[39m\n \u001b[90m 17 |\u001b[39m     \u001b[90m// Expected: Application does not execute the malicious SQL code, instead shows an error message or ignores the input\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 18 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgetByRole(\u001b[32m'textbox'\u001b[39m\u001b[33m,\u001b[39m { name\u001b[33m:\u001b[39m \u001b[35m/email|username/i\u001b[39m })\u001b[33m.\u001b[39mor(page\u001b[33m.\u001b[39mlocator(\u001b[32m'#username, #email, input[type=email]'\u001b[39m))\u001b[33m.\u001b[39mfirst()\u001b[33m.\u001b[39mfill(\u001b[32m''\u001b[39m \u001b[33mOR\u001b[39m \u001b[35m1\u001b[39m\u001b[33m=\u001b[39m\u001b[35m1\u001b[39m \u001b[33m--\u001b[39m\u001b[32m');\u001b[39m\n \u001b[90m    |\u001b[39m                                                                                                                                          \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 19 |\u001b[39m   })\u001b[33m;\u001b[39m\n \u001b[90m 20 |\u001b[39m })\u001b[33m;\u001b[39m\u001b[0m"
+      "title": "ZT-3_ZT-3-RB-001.spec.js",
+      "file": "ZT-3_ZT-3-RB-001.spec.js",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "ZT-3: Successful behaviour: system accepts valid scenario for User",
+          "file": "ZT-3_ZT-3-RB-001.spec.js",
+          "line": 9,
+          "column": 6,
+          "specs": [
+            {
+              "title": "Successful behaviour: system accepts valid scenario for User should be able to t",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 3210,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-08-25T06:46:12.258Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "1c336ceae0c7b30609f1-1127e06160da1932324c",
+              "file": "ZT-3_ZT-3-RB-001.spec.js",
+              "line": 16,
+              "column": 7
+            }
+          ]
+        }
+      ]
     },
     {
-      "message": "SyntaxError: D:\\OneDrive\\Desktop\\Prism-main\\generated_tests\\ZT-43_ZT-43-TC-008-RISK_BASED.spec.js: Unexpected token, expected \",\" (18:151)\n\n\u001b[0m \u001b[90m 16 |\u001b[39m     \u001b[90m// Step 1: Enter a XSS payload in the email field\u001b[39m\n \u001b[90m 17 |\u001b[39m     \u001b[90m// Expected: Application does not execute the malicious JavaScript code, instead shows an error message or ignores the input\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 18 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgetByRole(\u001b[32m'textbox'\u001b[39m\u001b[33m,\u001b[39m { name\u001b[33m:\u001b[39m \u001b[35m/email|username/i\u001b[39m })\u001b[33m.\u001b[39mor(page\u001b[33m.\u001b[39mlocator(\u001b[32m'#username, #email, input[type=email]'\u001b[39m))\u001b[33m.\u001b[39mfirst()\u001b[33m.\u001b[39mfill(\u001b[32m'<script>alert('\u001b[39m\u001b[33mXSS\u001b[39m\u001b[32m')</script>'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                                                                                                                                        \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 19 |\u001b[39m   })\u001b[33m;\u001b[39m\n \u001b[90m 20 |\u001b[39m })\u001b[33m;\u001b[39m\u001b[0m",
-      "stack": "SyntaxError: D:\\OneDrive\\Desktop\\Prism-main\\generated_tests\\ZT-43_ZT-43-TC-008-RISK_BASED.spec.js: Unexpected token, expected \",\" (18:151)\n\n\u001b[0m \u001b[90m 16 |\u001b[39m     \u001b[90m// Step 1: Enter a XSS payload in the email field\u001b[39m\n \u001b[90m 17 |\u001b[39m     \u001b[90m// Expected: Application does not execute the malicious JavaScript code, instead shows an error message or ignores the input\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 18 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgetByRole(\u001b[32m'textbox'\u001b[39m\u001b[33m,\u001b[39m { name\u001b[33m:\u001b[39m \u001b[35m/email|username/i\u001b[39m })\u001b[33m.\u001b[39mor(page\u001b[33m.\u001b[39mlocator(\u001b[32m'#username, #email, input[type=email]'\u001b[39m))\u001b[33m.\u001b[39mfirst()\u001b[33m.\u001b[39mfill(\u001b[32m'<script>alert('\u001b[39m\u001b[33mXSS\u001b[39m\u001b[32m')</script>'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                                                                                                                                        \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 19 |\u001b[39m   })\u001b[33m;\u001b[39m\n \u001b[90m 20 |\u001b[39m })\u001b[33m;\u001b[39m\u001b[0m",
-      "location": {
-        "file": "D:\\OneDrive\\Desktop\\Prism-main\\generated_tests\\ZT-43_ZT-43-TC-008-RISK_BASED.spec.js",
-        "line": 18,
-        "column": 151
-      },
-      "snippet": "\u001b[90m   at \u001b[39mZT-43_ZT-43-TC-008-RISK_BASED.spec.js:18\n\n\u001b[0m \u001b[90m 16 |\u001b[39m     \u001b[90m// Step 1: Enter a XSS payload in the email field\u001b[39m\n \u001b[90m 17 |\u001b[39m     \u001b[90m// Expected: Application does not execute the malicious JavaScript code, instead shows an error message or ignores the input\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 18 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgetByRole(\u001b[32m'textbox'\u001b[39m\u001b[33m,\u001b[39m { name\u001b[33m:\u001b[39m \u001b[35m/email|username/i\u001b[39m })\u001b[33m.\u001b[39mor(page\u001b[33m.\u001b[39mlocator(\u001b[32m'#username, #email, input[type=email]'\u001b[39m))\u001b[33m.\u001b[39mfirst()\u001b[33m.\u001b[39mfill(\u001b[32m'<script>alert('\u001b[39m\u001b[33mXSS\u001b[39m\u001b[32m')</script>'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                                                                                                                                       \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 19 |\u001b[39m   })\u001b[33m;\u001b[39m\n \u001b[90m 20 |\u001b[39m })\u001b[33m;\u001b[39m\u001b[0m"
+      "title": "ZT-3_ZT-3-RB-002.spec.js",
+      "file": "ZT-3_ZT-3-RB-002.spec.js",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "ZT-3: Failure handling: system rejects invalid or unauthorised sce",
+          "file": "ZT-3_ZT-3-RB-002.spec.js",
+          "line": 9,
+          "column": 6,
+          "specs": [
+            {
+              "title": "Failure handling: system rejects invalid or unauthorised scenario for User shoul",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 3804,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-08-25T06:46:12.263Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "9b313d2e7ffbe05f306f-0953b90d54e3e6e9f05e",
+              "file": "ZT-3_ZT-3-RB-002.spec.js",
+              "line": 16,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "ZT-3_ZT-3-RB-003.spec.js",
+      "file": "ZT-3_ZT-3-RB-003.spec.js",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "ZT-3: Boundary conditions: limits and edge cases covered for User ",
+          "file": "ZT-3_ZT-3-RB-003.spec.js",
+          "line": 9,
+          "column": 6,
+          "specs": [
+            {
+              "title": "Boundary conditions: limits and edge cases covered for User should be able to ty",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 2,
+                      "status": "passed",
+                      "duration": 3893,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-08-25T06:46:12.253Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "43079ee5dfec34e387cd-4edd20d4554dd6df3477",
+              "file": "ZT-3_ZT-3-RB-003.spec.js",
+              "line": 16,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "ZT-3_ZT-3-RB-004.spec.js",
+      "file": "ZT-3_ZT-3-RB-004.spec.js",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "ZT-3: Risk verification: system prevents security vulnerabilities ",
+          "file": "ZT-3_ZT-3-RB-004.spec.js",
+          "line": 9,
+          "column": 6,
+          "specs": [
+            {
+              "title": "Risk verification: system prevents security vulnerabilities or logical failures ",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 3,
+                      "status": "failed",
+                      "duration": 8835,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('#global-error')\nExpected pattern: \u001b[32m/locked|lockout/i\u001b[39m\nReceived string:  \u001b[31m\"Invalid input detected. Access denied.\"\u001b[39m\nTimeout: 5000ms\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('#global-error')\u001b[22m\n\u001b[2m    9 × locator resolved to <div role=\"alert\" id=\"global-error\" class=\"global-error\">Invalid input detected. Access denied.</div>\u001b[22m\n\u001b[2m      - unexpected value \"Invalid input detected. Access denied.\"\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('#global-error')\nExpected pattern: \u001b[32m/locked|lockout/i\u001b[39m\nReceived string:  \u001b[31m\"Invalid input detected. Access denied.\"\u001b[39m\nTimeout: 5000ms\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('#global-error')\u001b[22m\n\u001b[2m    9 × locator resolved to <div role=\"alert\" id=\"global-error\" class=\"global-error\">Invalid input detected. Access denied.</div>\u001b[22m\n\u001b[2m      - unexpected value \"Invalid input detected. Access denied.\"\u001b[22m\n\n    at D:\\Prism_Main\\Prism-main\\generated_tests\\ZT-3_ZT-3-RB-004.spec.js:26:49",
+                        "location": {
+                          "file": "D:\\Prism_Main\\Prism-main\\generated_tests\\ZT-3_ZT-3-RB-004.spec.js",
+                          "column": 49,
+                          "line": 26
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 24 |\u001b[39m     \u001b[90m// Expected: No security lockout leakages occur and data integrity is preserved.\u001b[39m\n \u001b[90m 25 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'body'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 26 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'#global-error'\u001b[39m))\u001b[33m.\u001b[39mtoContainText(\u001b[35m/locked|lockout/i\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                                 \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 27 |\u001b[39m   })\u001b[33m;\u001b[39m\n \u001b[90m 28 |\u001b[39m })\u001b[33m;\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "D:\\Prism_Main\\Prism-main\\generated_tests\\ZT-3_ZT-3-RB-004.spec.js",
+                            "column": 49,
+                            "line": 26
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('#global-error')\nExpected pattern: \u001b[32m/locked|lockout/i\u001b[39m\nReceived string:  \u001b[31m\"Invalid input detected. Access denied.\"\u001b[39m\nTimeout: 5000ms\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('#global-error')\u001b[22m\n\u001b[2m    9 × locator resolved to <div role=\"alert\" id=\"global-error\" class=\"global-error\">Invalid input detected. Access denied.</div>\u001b[22m\n\u001b[2m      - unexpected value \"Invalid input detected. Access denied.\"\u001b[22m\n\n\n  24 |     // Expected: No security lockout leakages occur and data integrity is preserved.\n  25 |     await expect(page.locator('body')).toBeVisible();\n> 26 |     await expect(page.locator('#global-error')).toContainText(/locked|lockout/i);\n     |                                                 ^\n  27 |   });\n  28 | });\n    at D:\\Prism_Main\\Prism-main\\generated_tests\\ZT-3_ZT-3-RB-004.spec.js:26:49"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-08-25T06:46:12.260Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "D:\\Prism_Main\\Prism-main\\test-results\\ZT-3_ZT-3-RB-004-ZT-3-Risk-51d26-lities-or-logical-failures--chromium\\error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "D:\\Prism_Main\\Prism-main\\generated_tests\\ZT-3_ZT-3-RB-004.spec.js",
+                        "column": 49,
+                        "line": 26
+                      }
+                    },
+                    {
+                      "workerIndex": 6,
+                      "parallelIndex": 1,
+                      "status": "failed",
+                      "duration": 5559,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('#global-error')\nExpected pattern: \u001b[32m/locked|lockout/i\u001b[39m\nReceived string:  \u001b[31m\"Invalid input detected. Access denied.\"\u001b[39m\nTimeout: 5000ms\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('#global-error')\u001b[22m\n\u001b[2m    9 × locator resolved to <div role=\"alert\" id=\"global-error\" class=\"global-error\">Invalid input detected. Access denied.</div>\u001b[22m\n\u001b[2m      - unexpected value \"Invalid input detected. Access denied.\"\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('#global-error')\nExpected pattern: \u001b[32m/locked|lockout/i\u001b[39m\nReceived string:  \u001b[31m\"Invalid input detected. Access denied.\"\u001b[39m\nTimeout: 5000ms\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('#global-error')\u001b[22m\n\u001b[2m    9 × locator resolved to <div role=\"alert\" id=\"global-error\" class=\"global-error\">Invalid input detected. Access denied.</div>\u001b[22m\n\u001b[2m      - unexpected value \"Invalid input detected. Access denied.\"\u001b[22m\n\n    at D:\\Prism_Main\\Prism-main\\generated_tests\\ZT-3_ZT-3-RB-004.spec.js:26:49",
+                        "location": {
+                          "file": "D:\\Prism_Main\\Prism-main\\generated_tests\\ZT-3_ZT-3-RB-004.spec.js",
+                          "column": 49,
+                          "line": 26
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 24 |\u001b[39m     \u001b[90m// Expected: No security lockout leakages occur and data integrity is preserved.\u001b[39m\n \u001b[90m 25 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'body'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 26 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'#global-error'\u001b[39m))\u001b[33m.\u001b[39mtoContainText(\u001b[35m/locked|lockout/i\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                                 \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 27 |\u001b[39m   })\u001b[33m;\u001b[39m\n \u001b[90m 28 |\u001b[39m })\u001b[33m;\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "D:\\Prism_Main\\Prism-main\\generated_tests\\ZT-3_ZT-3-RB-004.spec.js",
+                            "column": 49,
+                            "line": 26
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('#global-error')\nExpected pattern: \u001b[32m/locked|lockout/i\u001b[39m\nReceived string:  \u001b[31m\"Invalid input detected. Access denied.\"\u001b[39m\nTimeout: 5000ms\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('#global-error')\u001b[22m\n\u001b[2m    9 × locator resolved to <div role=\"alert\" id=\"global-error\" class=\"global-error\">Invalid input detected. Access denied.</div>\u001b[22m\n\u001b[2m      - unexpected value \"Invalid input detected. Access denied.\"\u001b[22m\n\n\n  24 |     // Expected: No security lockout leakages occur and data integrity is preserved.\n  25 |     await expect(page.locator('body')).toBeVisible();\n> 26 |     await expect(page.locator('#global-error')).toContainText(/locked|lockout/i);\n     |                                                 ^\n  27 |   });\n  28 | });\n    at D:\\Prism_Main\\Prism-main\\generated_tests\\ZT-3_ZT-3-RB-004.spec.js:26:49"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 1,
+                      "startTime": "2026-08-25T06:46:24.516Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "D:\\Prism_Main\\Prism-main\\test-results\\ZT-3_ZT-3-RB-004-ZT-3-Risk-51d26-lities-or-logical-failures--chromium-retry1\\error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "D:\\Prism_Main\\Prism-main\\test-results\\ZT-3_ZT-3-RB-004-ZT-3-Risk-51d26-lities-or-logical-failures--chromium-retry1\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "D:\\Prism_Main\\Prism-main\\generated_tests\\ZT-3_ZT-3-RB-004.spec.js",
+                        "column": 49,
+                        "line": 26
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "03c911cfc7e7ddce872e-3374161b4a6f76f5498f",
+              "file": "ZT-3_ZT-3-RB-004.spec.js",
+              "line": 16,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "ZT-3_ZT-3-RB-005.spec.js",
+      "file": "ZT-3_ZT-3-RB-005.spec.js",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "ZT-3: Successful behaviour: system accepts valid scenario for User",
+          "file": "ZT-3_ZT-3-RB-005.spec.js",
+          "line": 9,
+          "column": 6,
+          "specs": [
+            {
+              "title": "Successful behaviour: system accepts valid scenario for User should see a 'Succe",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 4,
+                      "status": "passed",
+                      "duration": 3424,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-08-25T06:46:12.255Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "5dba852ef8efcd8c56c4-ceea967132ddb731532c",
+              "file": "ZT-3_ZT-3-RB-005.spec.js",
+              "line": 16,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "ZT-3_ZT-3-RB-006.spec.js",
+      "file": "ZT-3_ZT-3-RB-006.spec.js",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "ZT-3: Failure handling: system rejects invalid or unauthorised sce",
+          "file": "ZT-3_ZT-3-RB-006.spec.js",
+          "line": 9,
+          "column": 6,
+          "specs": [
+            {
+              "title": "Failure handling: system rejects invalid or unauthorised scenario for User shoul",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 5,
+                      "parallelIndex": 5,
+                      "status": "passed",
+                      "duration": 3808,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-08-25T06:46:12.251Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "ba648b3974552086c525-54d45e7e03f2bcbf316c",
+              "file": "ZT-3_ZT-3-RB-006.spec.js",
+              "line": 16,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "ZT-3_ZT-3-RB-007.spec.js",
+      "file": "ZT-3_ZT-3-RB-007.spec.js",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "ZT-3: Boundary conditions: limits and edge cases covered for User ",
+          "file": "ZT-3_ZT-3-RB-007.spec.js",
+          "line": 9,
+          "column": 6,
+          "specs": [
+            {
+              "title": "Boundary conditions: limits and edge cases covered for User should see a 'Succes",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 602,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-08-25T06:46:16.838Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "88e88f55b6df9a1d5370-0a1091ac40ec7a2b15c6",
+              "file": "ZT-3_ZT-3-RB-007.spec.js",
+              "line": 16,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "ZT-3_ZT-3-RB-008.spec.js",
+      "file": "ZT-3_ZT-3-RB-008.spec.js",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "ZT-3: Risk verification: system prevents security vulnerabilities ",
+          "file": "ZT-3_ZT-3-RB-008.spec.js",
+          "line": 9,
+          "column": 6,
+          "specs": [
+            {
+              "title": "Risk verification: system prevents security vulnerabilities or logical failures ",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 4,
+                      "status": "failed",
+                      "duration": 5478,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('#global-error')\nExpected pattern: \u001b[32m/locked|lockout/i\u001b[39m\nReceived string:  \u001b[31m\"Invalid input detected. Access denied.\"\u001b[39m\nTimeout: 5000ms\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('#global-error')\u001b[22m\n\u001b[2m    9 × locator resolved to <div role=\"alert\" id=\"global-error\" class=\"global-error\">Invalid input detected. Access denied.</div>\u001b[22m\n\u001b[2m      - unexpected value \"Invalid input detected. Access denied.\"\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('#global-error')\nExpected pattern: \u001b[32m/locked|lockout/i\u001b[39m\nReceived string:  \u001b[31m\"Invalid input detected. Access denied.\"\u001b[39m\nTimeout: 5000ms\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('#global-error')\u001b[22m\n\u001b[2m    9 × locator resolved to <div role=\"alert\" id=\"global-error\" class=\"global-error\">Invalid input detected. Access denied.</div>\u001b[22m\n\u001b[2m      - unexpected value \"Invalid input detected. Access denied.\"\u001b[22m\n\n    at D:\\Prism_Main\\Prism-main\\generated_tests\\ZT-3_ZT-3-RB-008.spec.js:26:49",
+                        "location": {
+                          "file": "D:\\Prism_Main\\Prism-main\\generated_tests\\ZT-3_ZT-3-RB-008.spec.js",
+                          "column": 49,
+                          "line": 26
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 24 |\u001b[39m     \u001b[90m// Expected: No security lockout leakages occur and data integrity is preserved.\u001b[39m\n \u001b[90m 25 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'body'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 26 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'#global-error'\u001b[39m))\u001b[33m.\u001b[39mtoContainText(\u001b[35m/locked|lockout/i\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                                 \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 27 |\u001b[39m   })\u001b[33m;\u001b[39m\n \u001b[90m 28 |\u001b[39m })\u001b[33m;\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "D:\\Prism_Main\\Prism-main\\generated_tests\\ZT-3_ZT-3-RB-008.spec.js",
+                            "column": 49,
+                            "line": 26
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('#global-error')\nExpected pattern: \u001b[32m/locked|lockout/i\u001b[39m\nReceived string:  \u001b[31m\"Invalid input detected. Access denied.\"\u001b[39m\nTimeout: 5000ms\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('#global-error')\u001b[22m\n\u001b[2m    9 × locator resolved to <div role=\"alert\" id=\"global-error\" class=\"global-error\">Invalid input detected. Access denied.</div>\u001b[22m\n\u001b[2m      - unexpected value \"Invalid input detected. Access denied.\"\u001b[22m\n\n\n  24 |     // Expected: No security lockout leakages occur and data integrity is preserved.\n  25 |     await expect(page.locator('body')).toBeVisible();\n> 26 |     await expect(page.locator('#global-error')).toContainText(/locked|lockout/i);\n     |                                                 ^\n  27 |   });\n  28 | });\n    at D:\\Prism_Main\\Prism-main\\generated_tests\\ZT-3_ZT-3-RB-008.spec.js:26:49"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-08-25T06:46:16.838Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "D:\\Prism_Main\\Prism-main\\test-results\\ZT-3_ZT-3-RB-008-ZT-3-Risk-45429-lities-or-logical-failures--chromium\\error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "D:\\Prism_Main\\Prism-main\\generated_tests\\ZT-3_ZT-3-RB-008.spec.js",
+                        "column": 49,
+                        "line": 26
+                      }
+                    },
+                    {
+                      "workerIndex": 7,
+                      "parallelIndex": 2,
+                      "status": "failed",
+                      "duration": 5559,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('#global-error')\nExpected pattern: \u001b[32m/locked|lockout/i\u001b[39m\nReceived string:  \u001b[31m\"Invalid input detected. Access denied.\"\u001b[39m\nTimeout: 5000ms\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('#global-error')\u001b[22m\n\u001b[2m    9 × locator resolved to <div role=\"alert\" id=\"global-error\" class=\"global-error\">Invalid input detected. Access denied.</div>\u001b[22m\n\u001b[2m      - unexpected value \"Invalid input detected. Access denied.\"\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('#global-error')\nExpected pattern: \u001b[32m/locked|lockout/i\u001b[39m\nReceived string:  \u001b[31m\"Invalid input detected. Access denied.\"\u001b[39m\nTimeout: 5000ms\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('#global-error')\u001b[22m\n\u001b[2m    9 × locator resolved to <div role=\"alert\" id=\"global-error\" class=\"global-error\">Invalid input detected. Access denied.</div>\u001b[22m\n\u001b[2m      - unexpected value \"Invalid input detected. Access denied.\"\u001b[22m\n\n    at D:\\Prism_Main\\Prism-main\\generated_tests\\ZT-3_ZT-3-RB-008.spec.js:26:49",
+                        "location": {
+                          "file": "D:\\Prism_Main\\Prism-main\\generated_tests\\ZT-3_ZT-3-RB-008.spec.js",
+                          "column": 49,
+                          "line": 26
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 24 |\u001b[39m     \u001b[90m// Expected: No security lockout leakages occur and data integrity is preserved.\u001b[39m\n \u001b[90m 25 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'body'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 26 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'#global-error'\u001b[39m))\u001b[33m.\u001b[39mtoContainText(\u001b[35m/locked|lockout/i\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                                 \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 27 |\u001b[39m   })\u001b[33m;\u001b[39m\n \u001b[90m 28 |\u001b[39m })\u001b[33m;\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "D:\\Prism_Main\\Prism-main\\generated_tests\\ZT-3_ZT-3-RB-008.spec.js",
+                            "column": 49,
+                            "line": 26
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('#global-error')\nExpected pattern: \u001b[32m/locked|lockout/i\u001b[39m\nReceived string:  \u001b[31m\"Invalid input detected. Access denied.\"\u001b[39m\nTimeout: 5000ms\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('#global-error')\u001b[22m\n\u001b[2m    9 × locator resolved to <div role=\"alert\" id=\"global-error\" class=\"global-error\">Invalid input detected. Access denied.</div>\u001b[22m\n\u001b[2m      - unexpected value \"Invalid input detected. Access denied.\"\u001b[22m\n\n\n  24 |     // Expected: No security lockout leakages occur and data integrity is preserved.\n  25 |     await expect(page.locator('body')).toBeVisible();\n> 26 |     await expect(page.locator('#global-error')).toContainText(/locked|lockout/i);\n     |                                                 ^\n  27 |   });\n  28 | });\n    at D:\\Prism_Main\\Prism-main\\generated_tests\\ZT-3_ZT-3-RB-008.spec.js:26:49"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 1,
+                      "startTime": "2026-08-25T06:46:24.515Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "D:\\Prism_Main\\Prism-main\\test-results\\ZT-3_ZT-3-RB-008-ZT-3-Risk-45429-lities-or-logical-failures--chromium-retry1\\error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "D:\\Prism_Main\\Prism-main\\test-results\\ZT-3_ZT-3-RB-008-ZT-3-Risk-45429-lities-or-logical-failures--chromium-retry1\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "D:\\Prism_Main\\Prism-main\\generated_tests\\ZT-3_ZT-3-RB-008.spec.js",
+                        "column": 49,
+                        "line": 26
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "993a0e62e404630eea77-35cf5a3030cc2e423fd0",
+              "file": "ZT-3_ZT-3-RB-008.spec.js",
+              "line": 16,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "ZT-3_ZT-3-RB-009.spec.js",
+      "file": "ZT-3_ZT-3-RB-009.spec.js",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "ZT-3: Successful behaviour: system accepts valid scenario for User",
+          "file": "ZT-3_ZT-3-RB-009.spec.js",
+          "line": 9,
+          "column": 6,
+          "specs": [
+            {
+              "title": "Successful behaviour: system accepts valid scenario for User should see a 'Red E",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 5,
+                      "parallelIndex": 5,
+                      "status": "passed",
+                      "duration": 377,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-08-25T06:46:17.219Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "43a142e10413a2dada2b-d1237a2126b95900d4b0",
+              "file": "ZT-3_ZT-3-RB-009.spec.js",
+              "line": 16,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "ZT-3_ZT-3-RB-010.spec.js",
+      "file": "ZT-3_ZT-3-RB-010.spec.js",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "ZT-3: Failure handling: system rejects invalid or unauthorised sce",
+          "file": "ZT-3_ZT-3-RB-010.spec.js",
+          "line": 9,
+          "column": 6,
+          "specs": [
+            {
+              "title": "Failure handling: system rejects invalid or unauthorised scenario for User shoul",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 353,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-08-25T06:46:17.218Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "4ea23d96f5389987f247-49a928460aca153e0015",
+              "file": "ZT-3_ZT-3-RB-010.spec.js",
+              "line": 16,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "ZT-3_ZT-3-RB-011.spec.js",
+      "file": "ZT-3_ZT-3-RB-011.spec.js",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "ZT-3: Boundary conditions: limits and edge cases covered for User ",
+          "file": "ZT-3_ZT-3-RB-011.spec.js",
+          "line": 9,
+          "column": 6,
+          "specs": [
+            {
+              "title": "Boundary conditions: limits and edge cases covered for User should see a 'Red Er",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 2,
+                      "status": "passed",
+                      "duration": 519,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-08-25T06:46:17.309Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "92dbc77a7a310ce6eb04-b24f79f61d9a75a301c6",
+              "file": "ZT-3_ZT-3-RB-011.spec.js",
+              "line": 16,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "ZT-3_ZT-3-RB-012.spec.js",
+      "file": "ZT-3_ZT-3-RB-012.spec.js",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "ZT-3: Risk verification: system prevents security vulnerabilities ",
+          "file": "ZT-3_ZT-3-RB-012.spec.js",
+          "line": 9,
+          "column": 6,
+          "specs": [
+            {
+              "title": "Risk verification: system prevents security vulnerabilities or logical failures ",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 5309,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('#global-error')\nExpected pattern: \u001b[32m/locked|lockout/i\u001b[39m\nReceived string:  \u001b[31m\"Invalid input detected. Access denied.\"\u001b[39m\nTimeout: 5000ms\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('#global-error')\u001b[22m\n\u001b[2m    9 × locator resolved to <div role=\"alert\" id=\"global-error\" class=\"global-error\">Invalid input detected. Access denied.</div>\u001b[22m\n\u001b[2m      - unexpected value \"Invalid input detected. Access denied.\"\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('#global-error')\nExpected pattern: \u001b[32m/locked|lockout/i\u001b[39m\nReceived string:  \u001b[31m\"Invalid input detected. Access denied.\"\u001b[39m\nTimeout: 5000ms\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('#global-error')\u001b[22m\n\u001b[2m    9 × locator resolved to <div role=\"alert\" id=\"global-error\" class=\"global-error\">Invalid input detected. Access denied.</div>\u001b[22m\n\u001b[2m      - unexpected value \"Invalid input detected. Access denied.\"\u001b[22m\n\n    at D:\\Prism_Main\\Prism-main\\generated_tests\\ZT-3_ZT-3-RB-012.spec.js:26:49",
+                        "location": {
+                          "file": "D:\\Prism_Main\\Prism-main\\generated_tests\\ZT-3_ZT-3-RB-012.spec.js",
+                          "column": 49,
+                          "line": 26
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 24 |\u001b[39m     \u001b[90m// Expected: No security lockout leakages occur and data integrity is preserved.\u001b[39m\n \u001b[90m 25 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'body'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 26 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'#global-error'\u001b[39m))\u001b[33m.\u001b[39mtoContainText(\u001b[35m/locked|lockout/i\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                                 \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 27 |\u001b[39m   })\u001b[33m;\u001b[39m\n \u001b[90m 28 |\u001b[39m })\u001b[33m;\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "D:\\Prism_Main\\Prism-main\\generated_tests\\ZT-3_ZT-3-RB-012.spec.js",
+                            "column": 49,
+                            "line": 26
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('#global-error')\nExpected pattern: \u001b[32m/locked|lockout/i\u001b[39m\nReceived string:  \u001b[31m\"Invalid input detected. Access denied.\"\u001b[39m\nTimeout: 5000ms\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('#global-error')\u001b[22m\n\u001b[2m    9 × locator resolved to <div role=\"alert\" id=\"global-error\" class=\"global-error\">Invalid input detected. Access denied.</div>\u001b[22m\n\u001b[2m      - unexpected value \"Invalid input detected. Access denied.\"\u001b[22m\n\n\n  24 |     // Expected: No security lockout leakages occur and data integrity is preserved.\n  25 |     await expect(page.locator('body')).toBeVisible();\n> 26 |     await expect(page.locator('#global-error')).toContainText(/locked|lockout/i);\n     |                                                 ^\n  27 |   });\n  28 | });\n    at D:\\Prism_Main\\Prism-main\\generated_tests\\ZT-3_ZT-3-RB-012.spec.js:26:49"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-08-25T06:46:17.476Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "D:\\Prism_Main\\Prism-main\\test-results\\ZT-3_ZT-3-RB-012-ZT-3-Risk-e5066-lities-or-logical-failures--chromium\\error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "D:\\Prism_Main\\Prism-main\\generated_tests\\ZT-3_ZT-3-RB-012.spec.js",
+                        "column": 49,
+                        "line": 26
+                      }
+                    },
+                    {
+                      "workerIndex": 8,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 5366,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('#global-error')\nExpected pattern: \u001b[32m/locked|lockout/i\u001b[39m\nReceived string:  \u001b[31m\"Invalid input detected. Access denied.\"\u001b[39m\nTimeout: 5000ms\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('#global-error')\u001b[22m\n\u001b[2m    9 × locator resolved to <div role=\"alert\" id=\"global-error\" class=\"global-error\">Invalid input detected. Access denied.</div>\u001b[22m\n\u001b[2m      - unexpected value \"Invalid input detected. Access denied.\"\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('#global-error')\nExpected pattern: \u001b[32m/locked|lockout/i\u001b[39m\nReceived string:  \u001b[31m\"Invalid input detected. Access denied.\"\u001b[39m\nTimeout: 5000ms\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('#global-error')\u001b[22m\n\u001b[2m    9 × locator resolved to <div role=\"alert\" id=\"global-error\" class=\"global-error\">Invalid input detected. Access denied.</div>\u001b[22m\n\u001b[2m      - unexpected value \"Invalid input detected. Access denied.\"\u001b[22m\n\n    at D:\\Prism_Main\\Prism-main\\generated_tests\\ZT-3_ZT-3-RB-012.spec.js:26:49",
+                        "location": {
+                          "file": "D:\\Prism_Main\\Prism-main\\generated_tests\\ZT-3_ZT-3-RB-012.spec.js",
+                          "column": 49,
+                          "line": 26
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 24 |\u001b[39m     \u001b[90m// Expected: No security lockout leakages occur and data integrity is preserved.\u001b[39m\n \u001b[90m 25 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'body'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 26 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'#global-error'\u001b[39m))\u001b[33m.\u001b[39mtoContainText(\u001b[35m/locked|lockout/i\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                                 \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 27 |\u001b[39m   })\u001b[33m;\u001b[39m\n \u001b[90m 28 |\u001b[39m })\u001b[33m;\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "D:\\Prism_Main\\Prism-main\\generated_tests\\ZT-3_ZT-3-RB-012.spec.js",
+                            "column": 49,
+                            "line": 26
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('#global-error')\nExpected pattern: \u001b[32m/locked|lockout/i\u001b[39m\nReceived string:  \u001b[31m\"Invalid input detected. Access denied.\"\u001b[39m\nTimeout: 5000ms\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('#global-error')\u001b[22m\n\u001b[2m    9 × locator resolved to <div role=\"alert\" id=\"global-error\" class=\"global-error\">Invalid input detected. Access denied.</div>\u001b[22m\n\u001b[2m      - unexpected value \"Invalid input detected. Access denied.\"\u001b[22m\n\n\n  24 |     // Expected: No security lockout leakages occur and data integrity is preserved.\n  25 |     await expect(page.locator('body')).toBeVisible();\n> 26 |     await expect(page.locator('#global-error')).toContainText(/locked|lockout/i);\n     |                                                 ^\n  27 |   });\n  28 | });\n    at D:\\Prism_Main\\Prism-main\\generated_tests\\ZT-3_ZT-3-RB-012.spec.js:26:49"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 1,
+                      "startTime": "2026-08-25T06:46:25.107Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "D:\\Prism_Main\\Prism-main\\test-results\\ZT-3_ZT-3-RB-012-ZT-3-Risk-e5066-lities-or-logical-failures--chromium-retry1\\error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "D:\\Prism_Main\\Prism-main\\test-results\\ZT-3_ZT-3-RB-012-ZT-3-Risk-e5066-lities-or-logical-failures--chromium-retry1\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "D:\\Prism_Main\\Prism-main\\generated_tests\\ZT-3_ZT-3-RB-012.spec.js",
+                        "column": 49,
+                        "line": 26
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "9cb58589ae6c50fa7a73-76fbf26fececa3fcc06d",
+              "file": "ZT-3_ZT-3-RB-012.spec.js",
+              "line": 16,
+              "column": 7
+            }
+          ]
+        }
+      ]
     }
   ],
+  "errors": [],
   "stats": {
-    "startTime": "2026-08-12T14:49:42.104Z",
-    "duration": 1671.034,
-    "expected": 0,
+    "startTime": "2026-08-25T06:46:03.453Z",
+    "duration": 27519.902,
+    "expected": 9,
     "skipped": 0,
-    "unexpected": 0,
+    "unexpected": 3,
     "flaky": 0
   }
 }

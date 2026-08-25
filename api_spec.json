@@ -1,0 +1,52 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Mock Application API",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/": {
+      "get": {
+        "summary": "Login page loads successfully with fields visible",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/login": {
+      "post": {
+        "summary": "User logs in with credentials",
+        "parameters": [
+          {
+            "name": "email",
+            "in": "body"
+          },
+          {
+            "name": "password",
+            "in": "body"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User is redirected to dashboard page, welcome message displays"
+          },
+          "401": {
+            "description": "Incorrect email or password error"
+          }
+        }
+      }
+    },
+    "/boundary-test": {
+      "get": {
+        "summary": "Boundary Test Page loads and submits value",
+        "responses": {
+          "200": {
+            "description": "Submitted: value"
+          }
+        }
+      }
+    }
+  }
+}

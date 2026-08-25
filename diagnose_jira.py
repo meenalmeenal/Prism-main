@@ -36,9 +36,9 @@ print(f"  JIRA_EMAIL     : '{email}' (len={len(email)})")
 print(f"  JIRA_API_TOKEN : first='{token[:10]}' last='{token[-10:]}' len={len(token)}")
 print()
 print("AFTER STRIPPING WHITESPACE:")
-print(f"  base_url  changed: {base_url != base_url_clean} → '{base_url_clean}'")
-print(f"  email     changed: {email != email_clean} → '{email_clean}'")
-print(f"  token     changed: {token != token_clean} → first='{token_clean[:10]}' last='{token_clean[-10:]}'")
+print(f"  base_url  changed: {base_url != base_url_clean} -> '{base_url_clean}'")
+print(f"  email     changed: {email != email_clean} -> '{email_clean}'")
+print(f"  token     changed: {token != token_clean} -> first='{token_clean[:10]}' last='{token_clean[-10:]}'")
 print()
 
 # Show raw .env file content for the token line
@@ -70,14 +70,14 @@ try:
     print(f"  Status: {r.status_code}")
     if r.status_code == 200:
         data = r.json()
-        print(f"  ✅ Authenticated as: {data.get('displayName')} <{data.get('emailAddress')}>")
+        print(f"  [SUCCESS] Authenticated as: {data.get('displayName')} <{data.get('emailAddress')}>")
     elif r.status_code == 401:
-        print(f"  ❌ 401 — token/email mismatch")
+        print(f"  [ERROR] 401 - token/email mismatch")
         print(f"  Response: {r.text[:400]}")
     else:
-        print(f"  ❌ {r.status_code}: {r.text[:400]}")
+        print(f"  [ERROR] {r.status_code}: {r.text[:400]}")
 except Exception as e:
-    print(f"  ❌ Exception: {e}")
+    print(f"  [ERROR] Exception: {e}")
 
 print()
 print("=" * 60)
