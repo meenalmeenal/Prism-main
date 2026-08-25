@@ -24,3 +24,4 @@ backoff
 retry
 tenacity
 pyyaml
+nest_asyncio

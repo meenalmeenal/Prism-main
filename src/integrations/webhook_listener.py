@@ -239,8 +239,13 @@ async def github_webhook_handler(request: web.Request) -> web.Response:
     logger.info(f"GitHub Webhook Event: {event_type} | Action: {action} | PR URL: {pr_url}")
 
     if event_type == "pull_request" and pr_url:
-        # Trigger on PR opened, reopened, synchronized (new push), edited, or ready for review
-        if action in {"opened", "reopened", "synchronize", "edited", "ready_for_review"}:
+        # NOTE: 'synchronize' fires on every new commit to the PR branch,
+        # including the commit this pipeline itself pushes back with
+        # generated test files (see pr_collector.push_generated_tests).
+        # Including it here causes an infinite loop: run -> push tests ->
+        # synchronize fires -> run again -> push again -> forever.
+        # Trigger only on human-driven actions.
+        if action in {"opened", "reopened", "edited", "ready_for_review"}:
             logger.info(f"Triggering background pipeline for GitHub PR {pr_url} (action={action})")
             asyncio.create_task(run_pipeline_in_background(source="github_pr", identifier=pr_url, event_id=event_id))
             return web.Response(text=f"Pipeline triggered for GitHub PR {pr_url}", status=200)
@@ -260,9 +265,13 @@ async def health_handler(request: web.Request) -> web.Response:
 async def _run_app():
     """Async entry point using AppRunner for Python 3.13 compatibility."""
     app = web.Application()
+    # Support both /webhook prefixed routes and flat routes
     app.router.add_post("/webhook/jira", jira_webhook_handler)
+    app.router.add_post("/jira", jira_webhook_handler)
     app.router.add_post("/webhook/github", github_webhook_handler)
+    app.router.add_post("/github", github_webhook_handler)
     app.router.add_get("/health", health_handler)
+    app.router.add_get("/", health_handler)
 
     runner = web.AppRunner(app)
     await runner.setup()

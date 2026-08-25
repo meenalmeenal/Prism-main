@@ -270,9 +270,29 @@ def run_pipeline(
                         issue_key=issue_key,
                     )
 
-                import nest_asyncio
-                nest_asyncio.apply()
-                execution_results = asyncio.run(_run_tests())
+                try:
+                    import nest_asyncio
+                    nest_asyncio.apply()
+                    execution_results = asyncio.run(_run_tests())
+                except ImportError:
+                    try:
+                        loop = asyncio.get_running_loop()
+                    except RuntimeError:
+                        loop = None
+
+                    if loop and loop.is_running():
+                        from concurrent.futures import ThreadPoolExecutor
+                        def run_in_new_loop(coro):
+                            new_loop = asyncio.new_event_loop()
+                            try:
+                                return new_loop.run_until_complete(coro)
+                            finally:
+                                new_loop.close()
+                        with ThreadPoolExecutor(max_workers=1) as tp_executor:
+                            future = tp_executor.submit(run_in_new_loop, _run_tests())
+                            execution_results = future.result()
+                    else:
+                        execution_results = asyncio.run(_run_tests())
                 result["execution_results"] = execution_results
             else:
                 logger.warning(
