@@ -11,8 +11,14 @@ This module provides a higher‑level orchestration entry point that:
 
 from __future__ import annotations
 
+import sys
+if sys.platform == "win32":
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+
 import argparse
 import asyncio
+import io
 import logging
 import os
 from typing import Any, Dict, List, Optional
@@ -28,6 +34,7 @@ from src.executor.test_executor import TestExecutor
 from src.pipeline.pipeline_runner import run_pipeline
 from src.codegen.automation_generator import AutomationGenerator
 from src.feedback.feedback_store import FeedbackStore, TestFeedback
+from src.integrations.zephyr_client import ZephyrClient
 from src.utils.pii_masker import mask_pii
 from datetime import datetime
 import json
@@ -155,6 +162,49 @@ async def run_enhanced_pipeline_async(
                 PRCollector().push_generated_tests(single_identifier, test_files)
                 logger.info("Pushed %d test files to PR branch", len(test_files))
 
+            # Report Zephyr + execution results as a CI-style commit status on the PR
+            try:
+                zephyr_rows = core_result.get("zephyr_publish_results", []) or []
+                exec_res = core_result.get("execution_results", {}) or {}
+                num_published = sum(1 for r in zephyr_rows if r.get("status") in {"live", "demo"})
+                total_ex = exec_res.get("total_tests", 0)
+                passed_ex = exec_res.get("passed", 0)
+                failed_ex = exec_res.get("failed", 0)
+
+                if failed_ex > 0:
+                    status_state = "failure"
+                elif total_ex > 0:
+                    status_state = "success"
+                else:
+                    status_state = "success"  # published but nothing executed yet
+
+                desc = f"Zephyr: {num_published} case(s) published"
+                if total_ex:
+                    desc += f" | Tests: {passed_ex}/{total_ex} passed"
+
+                jira_base = os.getenv("JIRA_BASE_URL", "").rstrip("/")
+                target_url = f"{jira_base}/browse/{issue_key}" if jira_base else None
+
+                PRCollector().report_status(
+                    pr_url=single_identifier,
+                    state=status_state,
+                    description=desc,
+                    target_url=target_url,
+                )
+                logger.info("Posted commit status to PR %s: %s (%s)", single_identifier, status_state, desc)
+
+                # Add the PR as a Web Link on the Zephyr test cycle itself
+                if zephyr_rows:
+                    cycle_key = zephyr_rows[0].get("cycle_key")
+                    if cycle_key:
+                        added = ZephyrClient().add_pr_weblink(cycle_key, single_identifier)
+                        if added:
+                            logger.info("Added PR weblink to Zephyr cycle %s", cycle_key)
+                        else:
+                            logger.warning("Failed to add PR weblink to Zephyr cycle %s", cycle_key)
+            except Exception as exc:
+                logger.warning("Could not post commit status to PR %s: %s", single_identifier, exc)
+
         generated_cases: List[Dict[str, Any]] = core_result.get("generated_test_cases", [])
         validated_cases: List[Dict[str, Any]] = core_result.get("validated_test_cases", []) or generated_cases
 
@@ -224,6 +274,37 @@ async def run_enhanced_pipeline_async(
     return all_results[0] if len(all_results) == 1 else {"batch_results": all_results}
 
 
+def _configure_utf8_console_logging(level: int = logging.INFO) -> None:
+    """Configure logging so it never crashes on non-ASCII characters.
+
+    Windows consoles default to a legacy code page (e.g. cp1252) which
+    cannot encode characters like non-breaking hyphens (\\u2011) that
+    AI-generated test case names sometimes contain. This wraps stdout/
+    stderr in UTF-8 text wrappers and points the root logger's handler
+    at the wrapped stream, avoiding UnicodeEncodeError during logging.
+    """
+    # Re-wrap stdout/stderr as UTF-8 (safe to call even if already wrapped).
+    try:
+        if not isinstance(sys.stdout, io.TextIOWrapper) or sys.stdout.encoding.lower() != "utf-8":
+            sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+        if not isinstance(sys.stderr, io.TextIOWrapper) or sys.stderr.encoding.lower() != "utf-8":
+            sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding="utf-8", errors="replace")
+    except (AttributeError, ValueError):
+        # Fallback for environments where stdout/stderr have no .buffer
+        # (e.g. some IDEs or redirected streams) — reconfigure if possible.
+        if hasattr(sys.stdout, "reconfigure"):
+            sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+        if hasattr(sys.stderr, "reconfigure"):
+            sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+
+    if not logging.getLogger().handlers:
+        logging.basicConfig(
+            level=level,
+            format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+            handlers=[logging.StreamHandler(sys.stdout)],
+        )
+
+
 def main(argv: Optional[List[str]] = None) -> None:
     """CLI entry point for the enhanced pipeline.
 
@@ -269,12 +350,9 @@ def main(argv: Optional[List[str]] = None) -> None:
 
     args = parser.parse_args(argv)
 
-    # Ensure basic logging if not already configured
-    if not logging.getLogger().handlers:
-        logging.basicConfig(
-            level=logging.INFO,
-            format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-        )
+    # Ensure UTF-8-safe logging is configured (fixes UnicodeEncodeError on
+    # Windows consoles for non-ASCII characters like \u2011).
+    _configure_utf8_console_logging()
 
     team = args.team or os.getenv("TEAM_NAME")
 

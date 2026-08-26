@@ -117,7 +117,6 @@ class AutomationGenerator:
         preconditions = test_case.get("preconditions", [])
         tags = test_case.get("tags", [])
 
-        safe_desc = title[:60].replace("'", "\\'")
         # Build test code
         lines = [
             "import { test, expect } from '@playwright/test';",
@@ -128,7 +127,7 @@ class AutomationGenerator:
             "",
             f"const baseUrl = process.env.APP_BASE_URL || '{base_url}';",
             "",
-            f"test.describe('{issue_key}: {safe_desc}', () => {{",
+            f"test.describe({json.dumps(f'{issue_key}: {title[:60]}')}, () => {{",
         ]
 
         # Resolve target URL path based on keywords in title, preconditions, or step definitions
@@ -141,7 +140,7 @@ class AutomationGenerator:
 
         # Add preconditions as setup
         lines.append("  test.beforeEach(async ({ page }) => {")
-        lines.append(f"    await page.goto(baseUrl + '{target_path}');")
+        lines.append(f"    await page.goto(baseUrl + {json.dumps(target_path)});")
         if preconditions:
             for precond in preconditions:
                 lines.append(f"    // Precondition: {precond}")
@@ -149,8 +148,8 @@ class AutomationGenerator:
         lines.append("")
 
         # Generate test steps
-        test_name = title[:80].replace("'", "\\'")
-        lines.append(f"  test('{test_name}', async ({{ page }}) => {{")
+        test_name_literal = json.dumps(title[:80])
+        lines.append(f"  test({test_name_literal}, async ({{ page }}) => {{")
 
         for step in steps:
             step_num = step.get("step_number", 0)
@@ -164,16 +163,16 @@ class AutomationGenerator:
 
             # 1. Convert action to Playwright code
             playwright_code = self._action_to_playwright(action, test_data, expected)
-            
+
             # 2. Convert expected state to Playwright assertion
             assertion_code = self._expected_to_playwright_assertion(expected, action, test_data, title)
-            
+
             # 3. Output action and/or assertion code
             if playwright_code:
                 action_lower = action.lower()
                 is_action_boilerplate = any(bp in action_lower for bp in ["perform the primary", "attempt to violate", "execute the operation", "identify boundary", "inject high-risk", "trigger complex"])
                 is_pure_verification = not is_action_boilerplate and any(word in action_lower for word in ["verify", "check", "assert", "expect", "should"])
-                
+
                 if is_pure_verification:
                     if assertion_code:
                         lines.append(f"    {assertion_code}")
@@ -195,10 +194,10 @@ class AutomationGenerator:
         """Convert natural language expected result into auto-retrying Playwright assertion."""
         if not expected:
             return None
-        
+
         expected_lower = expected.lower()
         test_title_lower = test_title.lower()
-        
+
         is_login = "login" in test_title_lower
         is_register = "register" in test_title_lower or "create an account" in test_title_lower
         is_reset_password = "reset-password" in test_title_lower or "reset password" in test_title_lower
@@ -219,10 +218,10 @@ class AutomationGenerator:
         # 0. Check for generic / boilerplate phrases first to avoid false-positive text assertions
         if "no error" in expected_lower or "no errors" in expected_lower:
             return "await expect(page.locator('#global-error, .error-msg').first()).toBeHidden();"
-            
+
         if "relevant ui or api endpoint is available" in expected_lower or "feature can be accessed" in expected_lower:
             return "await expect(page.locator('body')).toBeVisible();"
-            
+
         if "align with the business expectation" in expected_lower or "behaves exactly as described" in expected_lower:
             return "await expect(page.locator('body')).toBeVisible();"
 
@@ -255,7 +254,7 @@ class AutomationGenerator:
                     return "await expect(page.locator('#email-error, #global-error').first()).toContainText(/too long|length/i);"
                 elif "already registered" in expected_lower:
                     return "await expect(page.locator('#global-error')).toContainText(/already registered/i);"
-            
+
             if "password" in expected_lower:
                 if "required" in expected_lower:
                     return "await expect(page.locator('#password-error')).toContainText(/password is required/i);"
@@ -269,7 +268,7 @@ class AutomationGenerator:
 
             if "incorrect credentials" in expected_lower or "incorrect email" in expected_lower or "incorrect password" in expected_lower:
                 return "await expect(page.locator('#global-error')).toContainText(/Incorrect.*credentials|Incorrect.*email|Incorrect.*password/i);"
-            
+
             if "lockout" in expected_lower or "locked" in expected_lower:
                 return "await expect(page.locator('#global-error')).toContainText(/locked|lockout/i);"
 
@@ -277,12 +276,12 @@ class AutomationGenerator:
             quotes = re.findall(r'"([^"]*)"', expected) or re.findall(r"'([^']*)'", expected)
             if quotes:
                 return f"await expect(page.locator('#global-error, .error-msg, [role=\"alert\"]').first()).toContainText(/{re.escape(quotes[0])}/i);"
-            
+
             words = [w for w in expected.split() if w.lower() not in ["the", "system", "rejects", "input", "gracefully", "provides", "helpful", "feedback", "user", "and"]]
             if len(words) > 1 and len(words) < 10:
                 clean_msg = " ".join(words).replace("'", "\\'")
                 return f"await expect(page.locator('#global-error, .error-msg, [role=\"alert\"]').first()).toContainText(/{clean_msg}/i);"
-            
+
             return "await expect(page.locator('#global-error, .error-msg, [role=\"alert\"]').first()).toBeVisible();"
 
         # 3. Check for success messages / behaviors
@@ -301,7 +300,7 @@ class AutomationGenerator:
         if "populated" in expected_lower or "shows" in expected_lower or "has value" in expected_lower:
             if "email" in expected_lower or "username" in expected_lower:
                 val = test_data or "testuser@example.com"
-                return f"await expect(page.locator('#email')).toHaveValue('{val}');"
+                return f"await expect(page.locator('#email')).toHaveValue({json.dumps(val)});"
             if "password" in expected_lower:
                 return "await expect(page.locator('#password')).not.toHaveValue('');"
 
@@ -318,9 +317,9 @@ class AutomationGenerator:
                 return "\n    ".join(assertions)
 
         # 6. Default generic assertion
-        safe_expected = expected.replace("'", "\\'").replace("\n", " ")
+        safe_expected = expected.replace("\n", " ")
         if len(safe_expected) < 60:
-            return f"await expect(page.locator('body')).toContainText('{safe_expected}');"
+            return f"await expect(page.locator('body')).toContainText({json.dumps(safe_expected)});"
         return "await expect(page.locator('body')).toBeVisible();"
 
     def _generate_nightwatch(self, test_case: Dict[str, Any], issue_key: str, base_url: str) -> str:
@@ -384,7 +383,7 @@ class AutomationGenerator:
             "",
             f"const baseUrl = Cypress.env('APP_BASE_URL') || '{base_url}';",
             "",
-            f"describe('{issue_key}: {title[:60]}', () => {{",
+            f"describe({json.dumps(f'{issue_key}: {title[:60]}')}, () => {{",
         ]
 
         # Add preconditions as before hook
@@ -396,8 +395,8 @@ class AutomationGenerator:
             lines.append("")
 
         # Generate test
-        test_name = title.replace('"', "'")[:80]
-        lines.append(f"  it('{test_name}', () => {{")
+        test_name_literal = json.dumps(title[:80])
+        lines.append(f"  it({test_name_literal}, () => {{")
 
         for step in steps:
             step_num = step.get("step_number", 0)
@@ -418,7 +417,6 @@ class AutomationGenerator:
         lines.append("});")
 
         return "\n".join(lines)
-    
 
     def _generate_gherkin(self, test_case: Dict[str, Any], issue_key: str) -> str:
         """Generate Gherkin .feature file from test case."""
@@ -467,6 +465,7 @@ class AutomationGenerator:
             if expected:
                 lines.append(f"    Then {expected}")
 
+        lines.append("")
         return "\n".join(lines)
 
     def _action_to_playwright(self, action: str, test_data: Optional[str], expected: str) -> Optional[str]:
@@ -644,24 +643,27 @@ class AutomationGenerator:
         if any(word in action_lower for word in ["enter", "fill", "type", "input"]):
             if "email" in action_lower or "username" in action_lower:
                 value = test_data or "testuser@example.com"
+                value_literal = json.dumps(value)
                 return (
                     f"await page.getByRole('textbox', {{ name: /email|username/i }})"
                     f".or(page.locator('#username, #email, input[type=email]'))"
-                    f".first().fill('{value}');"
+                    f".first().fill({value_literal});"
                 )
             elif "password" in action_lower:
                 value = test_data or "TestPassword123!"
+                value_literal = json.dumps(value)
                 return (
                     f"await page.getByRole('textbox', {{ name: /password/i }})"
                     f".or(page.locator('#password, input[type=password]'))"
-                    f".first().fill('{value}');"
+                    f".first().fill({value_literal});"
                 )
             else:
-                value = (test_data or "test value").replace("'", "\\'")
+                value = test_data or "test value"
+                value_literal = json.dumps(value)
                 return (
                     f"await page.locator('#boundary-input')"
                     f".or(page.locator('input[type=\"text\"], textarea'))"
-                    f".first().fill('{value}');"
+                    f".first().fill({value_literal});"
                 )
 
         # Verify/Assert
@@ -693,8 +695,9 @@ class AutomationGenerator:
 
         # Fill
         if any(word in action_lower for word in ["enter", "fill", "type"]):
-            value = test_data or "test".replace("'", "\\'")
-            return f"browser.setValue('input', '{value}');"
+            value = test_data or "test"
+            value_literal = json.dumps(value)
+            return f"browser.setValue('input', {value_literal});"
 
         # Verify
         if any(word in action_lower for word in ["verify", "check", "assert"]):
@@ -719,16 +722,16 @@ class AutomationGenerator:
 
         # Fill
         if any(word in action_lower for word in ["enter", "fill", "type"]):
-            value = (test_data or "test").replace("'", "\\'")
+            value = test_data or "test"
+            value_literal = json.dumps(value)
             if "email" in action_lower:
-                return f"cy.get('input[type=\"email\"]').type('{value}');"
+                return f"cy.get('input[type=\"email\"]').type({value_literal});"
             elif "password" in action_lower:
-                return f"cy.get('input[type=\"password\"]').type('{value}');"
-            return f"cy.get('input').type('{value}');"
+                return f"cy.get('input[type=\"password\"]').type({value_literal});"
+            return f"cy.get('input').type({value_literal});"
 
         # Verify
         if any(word in action_lower for word in ["verify", "check", "assert"]):
             return "cy.get('body').should('be.visible');"
 
         return None
-

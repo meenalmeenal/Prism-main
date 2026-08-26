@@ -28,11 +28,35 @@ class PRCollector:
                     "author": pr_details["author"],
                     "changed_files": pr_details["changed_files"],
                     "base_branch": pr_details["base_branch"],
-                    "head_branch": pr_details["head_branch"]
+                    "head_branch": pr_details["head_branch"],
+                    "head_sha": pr_details["head_sha"],
                 }
             }
         except Exception as e:
             raise Exception(f"Failed to process PR: {str(e)}")
+
+    def report_status(
+        self,
+        pr_url: str,
+        state: str,
+        description: str,
+        target_url: Optional[str] = None,
+        context: str = "prism/zephyr-tests",
+    ) -> None:
+        """Post a CI-style commit status to the PR's head commit.
+        Shows up as a check (green/red) directly on the PR, right next
+        to any other CI jobs.
+        """
+        repo_name, pr_number = self._parse_pr_url(pr_url)
+        pr_details = self.github.get_pr_details(repo_name, pr_number)
+        self.github.set_commit_status(
+            repo_name=repo_name,
+            sha=pr_details["head_sha"],
+            state=state,
+            description=description,
+            context=context,
+            target_url=target_url,
+        )
 
     @staticmethod
     def _parse_pr_url(url: str) -> tuple[Optional[str], Optional[int]]:

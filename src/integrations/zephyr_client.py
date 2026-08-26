@@ -281,6 +281,36 @@ class ZephyrClient:
             logger.exception(f"Failed to link cycle {cycle_key} to issue id {issue_id}")
             return False
 
+    async def link_cycle_to_weburl(self, cycle_key: str, url: str, description: str = "") -> bool:
+        """Add a web link (e.g. a GitHub PR) to a test cycle's 'Web Link' section."""
+        endpoint = f"/testcycles/{cycle_key}/links/weburls"
+        try:
+            await self._request("POST", endpoint, json={"url": url, "description": description})
+            return True
+        except aiohttp.ClientError:
+            logger.exception(f"Failed to add weblink {url} to cycle {cycle_key}")
+            return False
+
+    def add_pr_weblink(self, cycle_key: str, pr_url: str) -> bool:
+        """Sync helper: add a GitHub PR URL as a web link on a Zephyr test cycle."""
+        if not cycle_key or not pr_url:
+            logger.warning("add_pr_weblink called without cycle_key or pr_url — skipping")
+            return False
+
+        if self.dry_run:
+            logger.info(f"[dry-run] Would add weblink {pr_url} to cycle {cycle_key}")
+            return True
+
+        description = f"GitHub {pr_url.rstrip('/').split('/')[-1]}"
+
+        async def _run():
+            try:
+                return await self.link_cycle_to_weburl(cycle_key, pr_url, description)
+            finally:
+                await self.close()
+
+        return _run_async_safely(lambda: _run())
+
     # ------------------------------------------------------------------
     # Pipeline entry point
     # ------------------------------------------------------------------

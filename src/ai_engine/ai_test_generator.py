@@ -1,10 +1,11 @@
 """
-AI Test Case Generator using Google Gemini.
+AI Test Case Generator using Groq.
 This module handles AI API communication and response parsing.
 Prompts are defined in prompt_templates.py for better separation of concerns.
 """
 
 import os
+import sys
 import json
 import logging
 from typing import List, Dict
@@ -12,6 +13,14 @@ from src.utils.security import pii_scanner
 from src.utils.pii_masker import mask_pii
 from pathlib import Path
 from dotenv import load_dotenv
+
+# Ordered by preference. If the primary model (self.model_name) fails,
+# these are tried in order until one succeeds.
+GROQ_MODEL_FALLBACKS = [
+    "openai/gpt-oss-120b",    # primary — confirmed working, strong quality
+    "qwen/qwen3.6-27b",       # solid alternative, supports tools/json_mode
+    "openai/gpt-oss-20b",     # smaller/faster fallback
+]
 
 try:
     from groq import Groq
@@ -43,18 +52,18 @@ logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     handlers=[
-        logging.FileHandler('logs/ai_test_generator.log'),
-        logging.StreamHandler()
+        logging.FileHandler('logs/ai_test_generator.log', encoding='utf-8'),
+        logging.StreamHandler(sys.stdout)
     ]
 )
 
 
 class AITestGenerator:
     """
-    Generate test cases using Google Gemini AI.
+    Generate test cases using Groq AI.
     Uses PromptTemplates for prompt engineering logic.
     """
-    
+
     def __init__(self, model_name: str = None):
         """Initialize Groq-backed test generator when ``groq`` is installed and ``GROQ_API_KEY`` is set.
 
@@ -62,7 +71,7 @@ class AITestGenerator:
         ``generate_test_cases`` returns ``[]`` so the pipeline can use rule-based fallback.
         """
         self.client = None
-        self.model_name = model_name or "llama-3.3-70b-versatile"
+        self.model_name = model_name or "openai/gpt-oss-120b"
 
         if Groq is None:
             logger.warning(
@@ -80,18 +89,53 @@ class AITestGenerator:
 
         self.client = Groq(api_key=api_key)
         logger.info("AITestGenerator initialized | model: %s", self.model_name)
-    
+
+    def _chat_completion(self, messages, max_tokens: int = 1024, temperature: float = 0.3):
+        """Call Groq's chat completion endpoint, trying self.model_name first and
+        falling through GROQ_MODEL_FALLBACKS if a model is unavailable (e.g. 404
+        model_not_found, decommissioned, etc). Raises the last error if all fail.
+        """
+        models_to_try = [self.model_name] + [
+            m for m in GROQ_MODEL_FALLBACKS if m != self.model_name
+        ]
+        last_err = None
+        for model in models_to_try:
+            try:
+                response = self.client.chat.completions.create(
+                    model=model,
+                    messages=messages,
+                    max_tokens=max_tokens,
+                    temperature=temperature,
+                )
+                content = response.choices[0].message.content
+                if not content or not content.strip():
+                    # Reasoning-style models (e.g. gpt-oss-*) can return HTTP 200
+                    # with an empty visible answer when tokens go to hidden
+                    # reasoning instead of the final message. Treat as a failure
+                    # and fall through to the next model.
+                    raise ValueError(
+                        f"Groq model {model} returned empty content "
+                        f"(finish_reason={response.choices[0].finish_reason})"
+                    )
+                if model != self.model_name:
+                    logger.warning(f"Using fallback Groq model: {model}")
+                self.model_name = model  # remember what worked for next call
+                return response
+            except Exception as e:
+                logger.warning(f"Groq model {model} failed: {e}")
+                last_err = e
+                continue
+
+        # Only reached if every model in models_to_try failed
+        raise last_err
+
     def generate_test_cases(
         self,
         issue_key: str,
         summary: str,
         acceptance_criteria: List[str],
     ) -> List[Dict]:
-        """Generate comprehensive test cases from acceptance criteria using AI.
-
-        In this phase, external AI is disabled. Callers must use the
-        rule‑based generator in the pipeline instead.
-        """
+        """Generate comprehensive test cases from acceptance criteria using AI."""
         if not self.client:
             return []
 
@@ -105,11 +149,10 @@ class AITestGenerator:
         )
 
         try:
-            logger.info(f"Calling Groq ({self.model_name}) for {issue_key}...")
-            response = self.client.chat.completions.create(
-                model=self.model_name,
+            logger.info(f"Calling Groq for {issue_key}...")
+            response = self._chat_completion(
                 messages=[{"role": "user", "content": prompt}],
-                max_tokens=2048,
+                max_tokens=6000,
                 temperature=0.3,
             )
             raw = response.choices[0].message.content
@@ -135,8 +178,7 @@ class AITestGenerator:
         prompt = mask_pii(prompt)
 
         try:
-            response = self.client.chat.completions.create(
-                model=self.model_name,
+            response = self._chat_completion(
                 messages=[{"role": "user", "content": prompt}],
                 max_tokens=1024,
                 temperature=0.3,
@@ -155,21 +197,21 @@ class AITestGenerator:
             for tc in structured_response.get(category, []):
                 tc["test_type"] = category.replace("_cases", "")
                 test_cases.append(tc)
-        return test_cases    
-    
+        return test_cases
+
     def refine_test_case(self, test_case: Dict, feedback: str) -> Dict:
         """
         Refine an existing test case based on feedback.
         Useful for the feedback loop (Phase 7).
-        
+
         Args:
             test_case: Original test case dictionary
             feedback: Feedback or issues to address
-            
+
         Returns:
             Refined test case dictionary
         """
-        
+
         feedback = mask_pii(feedback)
         try:
             tc_str = json.dumps(test_case, ensure_ascii=False)
@@ -187,8 +229,7 @@ class AITestGenerator:
         try:
             logger.info(f"Refining test case: {test_case.get('id', 'unknown')}")
 
-            response = self.client.chat.completions.create(
-                model=self.model_name,
+            response = self._chat_completion(
                 messages=[{"role": "user", "content": prompt}],
                 max_tokens=1024,
                 temperature=0.3,
@@ -205,7 +246,7 @@ class AITestGenerator:
         except Exception as e:
             logger.error(f"Test case refinement failed: {e}")
             raise
-    
+
     # In ai_test_generator.py
 
     def _parse_ai_response(self, response_text: str) -> List[Dict]:
@@ -226,16 +267,16 @@ class AITestGenerator:
             end = response_text.rfind(']')
             if start != -1 and end != -1:
                 response_text = response_text[start:end+1]
-                
+
             # Parse the JSON response (optionally repair malformed JSON from LLM)
             if repair_json is not None:
                 response_text = repair_json(response_text)
             test_cases = json.loads(response_text)
-            
+
             # Validate the structure
             if not isinstance(test_cases, list):
                 raise ValueError("Expected a list of test cases")
-                
+
             # Add metadata and validate each test case
             validated_cases = []
             for i, tc in enumerate(test_cases, 1):
@@ -243,7 +284,7 @@ class AITestGenerator:
                 if not all(k in tc for k in ["title", "type", "priority", "steps"]):
                     logger.warning(f"Skipping malformed test case: {tc.get('title', f'Test case {i}')}")
                     continue
-                    
+
                 # Set default values
                 tc.setdefault("preconditions", [])
                 tc.setdefault("tags", [])
@@ -251,15 +292,15 @@ class AITestGenerator:
                     tc["description"] = " ".join(
                         s.get("action", "") for s in tc.get("steps", [])
                     )[:500]
-                
+
                 # Ensure steps are properly numbered
                 for j, step in enumerate(tc["steps"], 1):
                     step["step_number"] = j
-                    
+
                 validated_cases.append(tc)
-                
+
             return validated_cases
-            
+
         except json.JSONDecodeError as e:
             logger.error(f"Failed to parse AI response: {e}")
             logger.debug(f"Response text: {response_text[:500]}...")  # Log first 500 chars
@@ -267,40 +308,40 @@ class AITestGenerator:
         except Exception as e:
             logger.error(f"Unexpected error parsing AI response: {e}")
             raise
-    
+
     def _add_metadata(self, test_cases: List[Dict]) -> List[Dict]:
         """
         Add metadata to generated test cases.
-        
+
         Args:
             test_cases: List of test case dictionaries
-            
+
         Returns:
             Test cases with added metadata
         """
-        
+
         for tc in test_cases:
             tc["confidence_score"] = 0.95  # High confidence for AI-generated
             tc["generated_by"] = f"Groq ({self.model_name})"
             tc["version"] = "1.0"
-        
+
         return test_cases
-    
+
     def _log_test_case_breakdown(self, test_cases: List[Dict]):
         """Log breakdown of generated test cases by type"""
-        
+
         types = {}
         priorities = {}
-        
+
         for tc in test_cases:
             # Count by type
             t = tc.get('type', 'unknown')
             types[t] = types.get(t, 0) + 1
-            
+
             # Count by priority
             p = tc.get('priority', 'unknown')
             priorities[p] = priorities.get(p, 0) + 1
-        
+
         logger.info(f"Test case breakdown by type: {types}")
         logger.info(f"Test case breakdown by priority: {priorities}")
 
@@ -308,12 +349,11 @@ class AITestGenerator:
         """Log any PII found in the inputs."""
         all_text = summary + " " + " ".join(acceptance_criteria)
         pii_found = pii_scanner.find_pii(all_text)
-        
+
         if pii_found:
             logger.warning("PII found in input:")
             for pii_type, values in pii_found.items():
                 logger.warning(f"  {pii_type.upper()}: {values}")
-    
 
 
 class RuleBasedTestGenerator:
@@ -321,8 +361,8 @@ class RuleBasedTestGenerator:
 
     This generator creates template-based test cases from the Jira issue
     summary and acceptance criteria only. It does **not** rely on any
-    external APIs and is therefore suitable as a safety net when Gemini is
-    unavailable (e.g. leaked / revoked API keys, network outages).
+    external APIs and is therefore suitable as a safety net when the AI
+    provider is unavailable (e.g. leaked / revoked API keys, network outages).
 
     The output schema is intentionally compatible with
     :class:`TestValidator`'s expectations and mirrors the structure used by
@@ -563,16 +603,12 @@ class RuleBasedTestGenerator:
         core_subject = ac_label or base_context
 
         if test_type == "positive":
-            # Focus on *successful* / expected behaviour.
             title = f"Successful behaviour: system accepts valid scenario for {core_subject}"
         elif test_type == "negative":
-            # Focus on invalid input, rejection, and error handling.
             title = f"Failure handling: system rejects invalid or unauthorised scenario for {core_subject}"
         elif test_type == "boundary":
-            # Focus on limits, extremes, and constraint validation.
             title = f"Boundary conditions: limits and edge cases covered for {core_subject}"
         else:  # risk_based
-            # Focus on security, vulnerability protection, and critical logic path validation.
             title = f"Risk verification: system prevents security vulnerabilities or logical failures for {core_subject}"
 
         return {
@@ -583,8 +619,6 @@ class RuleBasedTestGenerator:
             "preconditions": preconditions,
             "steps": steps,
             "tags": tags,
-            # Align with AI generator metadata keys so downstream consumers
-            # can treat both sources uniformly.
             "confidence_score": 0.7,
             "generated_by": "RuleBasedFallback",
             "version": "1.0",
@@ -597,7 +631,7 @@ def main():
     Requires that jira_collector.py has been run first.
     """
     import sys
-    
+
     if len(sys.argv) < 2:
         print("=" * 60)
         print("AI Test Case Generator")
@@ -610,9 +644,9 @@ def main():
         print("  2. python src/ai_engine/ai_test_generator.py ZT-3")
         print("=" * 60)
         sys.exit(1)
-    
+
     issue_key = sys.argv[1]
-    
+
     # Load issue data from collector output
     data_file = Path(f"data/{issue_key}.json")
     if not data_file.exists():
@@ -620,34 +654,34 @@ def main():
         print(f"\nPlease run this first:")
         print(f"  python src/collector/jira_collector.py {issue_key}")
         sys.exit(1)
-    
+
     print(f"\n{'='*60}")
     print(f"Loading Jira issue: {issue_key}")
     print('='*60)
-    
+
     with open(data_file, encoding='utf-8') as f:
         issue_data = json.load(f)
-    
+
     # Extract info using JiraCollector's method
     import sys
     sys.path.append('src')
     from collector.jira_collector import JiraCollector
-    
+
     collector = JiraCollector()
     summary_data = collector.get_issue_summary(issue_data)
-    
+
     print(f"\nIssue: {summary_data['key']}")
     print(f"Summary: {summary_data['summary']}")
     print(f"Acceptance Criteria: {len(summary_data['acceptance_criteria'])}")
-    
+
     for i, ac in enumerate(summary_data['acceptance_criteria'], 1):
         print(f"  {i}. {ac}")
-    
+
     print(f"\n{'='*60}")
     print("Calling Groq AI to generate test cases...")
     print('='*60)
     print("(This may take 10-20 seconds...)\n")
-    
+
     # Generate test cases with AI
     generator = AITestGenerator()
     test_cases = generator.generate_test_cases(
@@ -655,42 +689,42 @@ def main():
         summary=summary_data['summary'],
         acceptance_criteria=summary_data['acceptance_criteria']
     )
-    
+
     # Save output
     output_file = Path(f"data/{issue_key}_ai_tests.json")
     with open(output_file, "w", encoding="utf-8") as f:
         json.dump(test_cases, f, indent=2, ensure_ascii=False)
-    
+
     print(f"\n{'='*60}")
     print(f"SUCCESS! Generated {len(test_cases)} test cases")
     print('='*60)
     print(f"Saved to: {output_file}")
-    
+
     # Show breakdown
     print(f"\nTest Case Breakdown:")
     types = {}
     priorities = {}
-    
+
     for tc in test_cases:
         t = tc.get('type', 'unknown')
         types[t] = types.get(t, 0) + 1
-        
+
         p = tc.get('priority', 'unknown')
         priorities[p] = priorities.get(p, 0) + 1
-    
+
     print(f"\nBy Type:")
     for test_type, count in sorted(types.items()):
         print(f"  - {test_type}: {count}")
-    
+
     print(f"\nBy Priority:")
     for priority, count in sorted(priorities.items()):
         print(f"  - {priority}: {count}")
-    
+
     # Show ALL test cases in detail
     print(f"\n{'='*60}")
     print("GENERATED TEST CASES (Full Details):")
     print('='*60)
-    
+
     for idx, tc in enumerate(test_cases, 1):
         print(f"\n{'─'*60}")
         print(f"TEST CASE #{idx}")
@@ -700,20 +734,20 @@ def main():
         print(f"Type: {tc['type']}")
         print(f"Priority: {tc['priority']}")
         print(f"Confidence: {tc.get('confidence_score', 'N/A')}")
-        
+
         print(f"\nPreconditions:")
         for pre in tc.get('preconditions', []):
             print(f"  - {pre}")
-        
+
         print(f"\nTest Steps ({len(tc.get('steps', []))}):")
         for step in tc.get('steps', []):
             print(f"\n  Step {step['step_number']}: {step['action']}")
             if step.get('test_data'):
                 print(f"    Test Data: {step['test_data']}")
             print(f"    Expected Result: {step['expected_result']}")
-        
+
         print(f"\nTags: {', '.join(tc.get('tags', []))}")
-    
+
     print(f"\n{'='*60}")
     print(f"Next step: Review {output_file}")
     print('='*60)

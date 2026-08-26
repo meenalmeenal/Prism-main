@@ -9,7 +9,7 @@ app.use(express.urlencoded({ extended: true }));
 // ─── In-memory state ───────────────────────────────────────────────────────
 const VALID_USERS = {
   'testuser@example.com': { password: 'password123', name: 'Test User', id: 1 },
-  'admin@example.com':    { password: 'Admin@1234', name: 'Admin User', id: 2 },
+  'admin@example.com': { password: 'Admin@1234', name: 'Admin User', id: 2 },
 };
 
 const registeredUsers = { ...VALID_USERS }; // grows as new users register
@@ -79,10 +79,10 @@ function clearAttempts(email) {
 app.post('/api/login', (req, res) => {
   const { email, password, username } = req.body;
   const userEmail = (email || username || '').trim();
-  const userPass  = (password || '').trim();
+  const userPass = (password || '').trim();
 
   if (!userEmail) return res.status(400).json({ success: false, message: 'Email is required' });
-  if (!userPass)  return res.status(400).json({ success: false, message: 'Password is required' });
+  if (!userPass) return res.status(400).json({ success: false, message: 'Password is required' });
 
   // SQL injection check
   if (SQL_INJECTION_RE.test(userEmail) || SQL_INJECTION_RE.test(userPass)) {
@@ -122,8 +122,8 @@ app.post('/api/register', (req, res) => {
   const { name, email, password, confirmPassword } = req.body;
   const errors = {};
 
-  if (!name?.trim())     errors.name     = 'Name is required';
-  if (!email?.trim())    errors.email    = 'Email is required';
+  if (!name?.trim()) errors.name = 'Name is required';
+  if (!email?.trim()) errors.email = 'Email is required';
   if (!password?.trim()) errors.password = 'Password is required';
 
   if (Object.keys(errors).length) {
@@ -220,7 +220,7 @@ app.get('/', (req, res) => {
     <div class="field">
       <label><input type="checkbox" id="remember-me"> Remember me</label>
     </div>
-    <button id="login-btn" aria-label="Submit">Login</button>
+    <button id="login-btn">Login</button>
     <div class="links">
       <a id="forgot-password-link" href="/reset-password">Forgot Password?</a> &nbsp;|&nbsp;
       <a id="register-link" href="/register">Don't have an account? Register</a>
