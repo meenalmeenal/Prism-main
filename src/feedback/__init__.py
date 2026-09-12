@@ -1,4 +1,4 @@
-"""Feedback loop module (alias to src.feedback).
+"""Feedback loop module.
 
 Learns from test execution results and defects to improve AI generation.
 """
