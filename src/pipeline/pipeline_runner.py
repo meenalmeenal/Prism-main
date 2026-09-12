@@ -1,4 +1,3 @@
-
 """High-level pipeline orchestration for AI test generation.
 
 Flow
@@ -42,6 +41,13 @@ logger = logging.getLogger(__name__)
 # Gemini is unavailable.
 AI_FALLBACK_ENABLED: bool = os.getenv("AI_FALLBACK_ENABLED", "true").lower() in {"1", "true", "yes"}
 
+# Zephyr publish result statuses that carry a real (usable) execution_id and
+# are therefore eligible for post-run sync. "live" = real API publish,
+# "demo" = ZEPHYR_DRY_RUN mock publish (also carries a synthetic but usable
+# execution_id, and zephyr_client's sync path has an explicit dry_run branch
+# built specifically to handle these).
+SYNCABLE_ZEPHYR_STATUSES = {"live", "demo"}
+
 
 # ---------------------------------------------------------------------------
 # Logging configuration
@@ -76,6 +82,7 @@ def run_pipeline(
     skip_zephyr: bool = False,
     requirements: Optional[Dict[str, Any]] = None,
     framework: str = "playwright",  # ← add this
+    team: Optional[str] = None,
 ) -> Dict[str, Any]:
     """Run the full Jira -> AI -> Validator -> Zephyr pipeline.
 
@@ -91,6 +98,12 @@ def run_pipeline(
     skip_zephyr:
         When True, skip Zephyr publishing entirely (useful when the caller
         is already running inside an asyncio event loop).
+    framework:
+        Automation framework to generate/execute scripts with
+        (playwright, cypress, nightwatch, or gherkin).
+    team:
+        Optional team name tag attached to this pipeline run for reporting
+        purposes.
 
     Returns
     -------
@@ -112,6 +125,7 @@ def run_pipeline(
 
     result: Dict[str, Any] = {
         "issue_key": issue_key,
+        "team": team,
         "jira_issue": None,
         "jira_error": None,
         "generated_test_cases": [],
@@ -123,6 +137,8 @@ def run_pipeline(
         "automation_results": [],
         "execution_results": {},
         "execution_error": None,
+        "zephyr_sync_results": [],
+        "zephyr_sync_error": None,
     }
 
     # 1. Fetch and normalize Jira issue -------------------------------------------------
@@ -155,23 +171,46 @@ def run_pipeline(
             result["jira_error"] = msg
             return result
 
-    # 2. Generate test cases (rule-based only in this phase) ---------------------------
-    try:
-        from src.utils.pii_masker import mask_pii
+    # 2. Generate test cases, retrying Groq up to max_ai_retries times before
+    #    falling back to rule-based generation ----------------------------------------
+    from src.utils.pii_masker import mask_pii
 
-        logger.info("Calling Groq AI for issue %s", issue_key)
-        generated_cases = ai_generator.generate_test_cases(
-            issue_key=normalized_issue.issue_key,
-            summary=mask_pii(normalized_issue.summary),
-            acceptance_criteria=[mask_pii(ac) for ac in normalized_issue.acceptance_criteria],
-        )
-        if generated_cases:
-            used_fallback = False
-            logger.info("Groq produced %d test cases for %s", len(generated_cases), issue_key)
-        else:
+    generated_cases: List[Dict[str, Any]] = []
+    used_fallback = False
+    last_ai_error: Optional[Exception] = None
+
+    for attempt in range(1, max(1, max_ai_retries) + 1):
+        try:
+            logger.info(
+                "Calling Groq AI for issue %s (attempt %d/%d)",
+                issue_key, attempt, max_ai_retries,
+            )
+            generated_cases = ai_generator.generate_test_cases(
+                issue_key=normalized_issue.issue_key,
+                summary=mask_pii(normalized_issue.summary),
+                acceptance_criteria=[mask_pii(ac) for ac in normalized_issue.acceptance_criteria],
+            )
+            if generated_cases:
+                logger.info(
+                    "Groq produced %d test cases for %s on attempt %d",
+                    len(generated_cases), issue_key, attempt,
+                )
+                break
             raise ValueError("Groq returned empty list")
-    except Exception as exc:
-        logger.warning("Groq failed (%s) — falling back to rule-based for %s", exc, issue_key)
+        except Exception as exc:
+            last_ai_error = exc
+            logger.warning(
+                "Groq attempt %d/%d failed for %s: %s",
+                attempt, max_ai_retries, issue_key, exc,
+            )
+            if attempt < max_ai_retries:
+                time.sleep(retry_delay_seconds)
+
+    if not generated_cases:
+        logger.warning(
+            "Groq failed after %d attempt(s) (%s) — falling back to rule-based for %s",
+            max_ai_retries, last_ai_error, issue_key,
+        )
         generated_cases = rule_based_generator.generate_test_cases(
             issue_key=normalized_issue.issue_key,
             summary=normalized_issue.summary,
@@ -218,16 +257,21 @@ def run_pipeline(
     result["validated_test_cases"] = validated_cases
     result["validation_stats"] = stats
 
-    # 4. Publish to Zephyr mock ---------------------------------------------------------
+    # 4. Publish to Zephyr ---------------------------------------------------------------
     publish_results: List[Dict[str, Any]] = []
 
     if skip_zephyr:
         logger.info("Skipping Zephyr publishing for %s (skip_zephyr=True)", issue_key)
     else:
         if validated_cases:
-            publish_results = zephyr_client.publish_test_cases(
-                issue_key, validated_cases, issue_id=normalized_issue.issue_id
-            )
+            try:
+                publish_results = zephyr_client.publish_test_cases(
+                    issue_key, validated_cases, issue_id=normalized_issue.issue_id
+                )
+            except Exception as exc:  # pragma: no cover - defensive
+                msg = f"Zephyr publishing failed: {exc}"
+                logger.error(msg)
+                result["zephyr_error"] = msg
         else:
             logger.warning("No validated test cases to publish for issue %s", issue_key)
 
@@ -271,6 +315,7 @@ def run_pipeline(
                     )
 
                 try:
+                    # pyrefly: ignore [missing-import]
                     import nest_asyncio
                     nest_asyncio.apply()
                     execution_results = asyncio.run(_run_tests())
@@ -294,6 +339,45 @@ def run_pipeline(
                     else:
                         execution_results = asyncio.run(_run_tests())
                 result["execution_results"] = execution_results
+
+                # 6. Sync real per-test pass/fail back to Zephyr -----------------------
+                # Only meaningful if we actually published (have execution_ids to
+                # target) and the executor produced a per-test breakdown to sync.
+                # NOTE: includes both "live" (real API publish) and "demo"
+                # (ZEPHYR_DRY_RUN mock publish) statuses — both carry a usable
+                # execution_id, and zephyr_client.sync_execution_results() has
+                # a dedicated dry_run branch specifically for the latter. An
+                # earlier version of this filter only matched "live", which
+                # silently disabled sync entirely whenever ZEPHYR_DRY_RUN=true.
+                per_test_results = execution_results.get("per_test") or []
+                if not skip_zephyr and publish_results and per_test_results:
+                    try:
+                        test_case_id_to_execution_id = {
+                            r["test_case_id"]: r["execution_id"]
+                            for r in publish_results
+                            if r.get("test_case_id")
+                            and r.get("execution_id")
+                            and r.get("status") in SYNCABLE_ZEPHYR_STATUSES
+                        }
+                        if test_case_id_to_execution_id:
+                            sync_results = zephyr_client.sync_execution_results(
+                                test_case_id_to_execution_id, per_test_results
+                            )
+                            result["zephyr_sync_results"] = sync_results
+                            synced_ok = sum(1 for s in sync_results if s.get("synced"))
+                            logger.info(
+                                "Synced %d/%d real execution result(s) back to Zephyr for %s",
+                                synced_ok, len(sync_results), issue_key,
+                            )
+                        else:
+                            logger.info(
+                                "No syncable Zephyr executions with matching test_case_id for %s",
+                                issue_key,
+                            )
+                    except Exception as exc:  # pragma: no cover - defensive
+                        msg = f"Failed to sync execution results to Zephyr: {exc}"
+                        logger.error(msg)
+                        result["zephyr_sync_error"] = msg
             else:
                 logger.warning(
                     "No automation files were generated for %s; skipping execution.",
@@ -358,6 +442,18 @@ def main(argv: Optional[List[str]] = None) -> None:
         default=float(os.getenv("AI_RETRY_DELAY_SECONDS", "2.0")),
         help="Delay in seconds between AI retries (default: 2.0)",
     )
+    parser.add_argument(
+        "--framework",
+        type=str,
+        default=os.getenv("PRISM_AUTOMATION_FRAMEWORK", "playwright"),
+        help="Automation framework to use: playwright, nightwatch, cypress, or gherkin (default: playwright)",
+    )
+    parser.add_argument(
+        "--team",
+        type=str,
+        default=None,
+        help="Optional team name tag for this pipeline run",
+    )
 
     args = parser.parse_args(argv)
 
@@ -365,6 +461,8 @@ def main(argv: Optional[List[str]] = None) -> None:
         issue_key=args.issue_key,
         max_ai_retries=args.max_ai_retries,
         retry_delay_seconds=args.retry_delay,
+        framework=args.framework,
+        team=args.team,
     )
 
     # Basic human-readable summary on stdout
@@ -374,6 +472,8 @@ def main(argv: Optional[List[str]] = None) -> None:
 
     print("\n=== PIPELINE SUMMARY ===")
     print(f"Issue: {pipeline_result['issue_key']}")
+    if pipeline_result.get("team"):
+        print(f"Team: {pipeline_result['team']}")
     print(f"Generated: {len(pipeline_result['generated_test_cases'])}")
     stats = pipeline_result.get("validation_stats") or {}
     print(f"Validated: {stats.get('total_output', 0)} / {stats.get('total_input', 0)}")
@@ -397,6 +497,11 @@ def main(argv: Optional[List[str]] = None) -> None:
         )
     else:
         print("Execution: skipped (no specs executed)")
+
+    sync_rows = pipeline_result.get("zephyr_sync_results") or []
+    if sync_rows:
+        synced_ok = sum(1 for s in sync_rows if s.get("synced"))
+        print(f"Zephyr execution sync: {synced_ok}/{len(sync_rows)} results synced")
 
     if jira_error:
         print(f"Jira error: {jira_error}")

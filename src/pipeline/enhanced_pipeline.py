@@ -149,8 +149,9 @@ async def run_enhanced_pipeline_async(
             retry_delay_seconds=retry_delay_seconds,
             skip_zephyr=False,
             requirements=spec_data,
-            framework=framework,  # ← add this
-)
+            framework=framework,
+            team=team,
+        )
 
         if source == "github_pr":
             test_files = [

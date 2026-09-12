@@ -357,29 +357,28 @@ class ZephyrClient:
             test_case_key = created_tc.get("key", "UNKNOWN")
             logger.info(f"Test case created: {test_case_key}")
 
+            # Execution is created as "Not Executed" (the create_test_execution
+            # default) and deliberately left that way here. It used to be
+            # force-marked "Pass" immediately, which meant every published test
+            # showed green in Zephyr regardless of whether it had ever run.
+            # Real status is now applied later by sync_execution_results(),
+            # once the automation suite has actually executed.
             execution = await self.create_test_execution(
                 test_case_key=test_case_key,
                 cycle_key=cycle_key,
             )
             execution_id = execution.get("id", "")
-            logger.info(f"Execution created: {execution_id}")
-
-            result_obj = ZephyrTestResult(
-                test_case_key=test_case_key,
-                status="Pass",
-                comment="Auto-published from Prism pipeline",
-            )
-            updated_execution = await self.update_test_execution(execution_id, result_obj)
-            logger.info(f"Execution updated for {test_case_key}")
+            logger.info(f"Execution created (Not Executed) for {test_case_key}: {execution_id}")
 
             results.append({
                 "issue_key": issue_key,
+                "test_case_id": tc.get("id"),
                 "test_case_key": test_case_key,
                 "cycle_key": cycle_key,
                 "execution_id": execution_id,
                 "status": "live",
                 "zephyr_test_case": created_tc,
-                "zephyr_execution": updated_execution,
+                "zephyr_execution": execution,
             })
 
         return results
@@ -400,6 +399,7 @@ class ZephyrClient:
             for idx, tc in enumerate(test_cases, start=1):
                 results.append({
                     "issue_key": issue_key,
+                    "test_case_id": tc.get("id"),
                     "test_case_key": f"ZT-T{idx}",
                     "cycle_key": "ZT-C1",
                     "execution_id": f"ZT-E{idx}",
@@ -428,6 +428,7 @@ class ZephyrClient:
             for idx, tc in enumerate(test_cases, start=1):
                 results.append({
                     "issue_key": issue_key,
+                    "test_case_id": tc.get("id"),
                     "test_case_key": f"ZT-T{idx}",
                     "cycle_key": "ZT-C1",
                     "execution_id": f"ZT-E{idx}",
@@ -437,3 +438,119 @@ class ZephyrClient:
                 })
             return results
         return await self._async_publish_live(issue_key, test_cases, issue_id)
+
+    # ------------------------------------------------------------------
+    # Execution result sync (real pass/fail, applied after test run)
+    # ------------------------------------------------------------------
+
+    @staticmethod
+    def _to_zephyr_status(exec_status: str) -> str:
+        """Map TestExecutor's per-test status vocabulary to Zephyr's statusName."""
+        mapping = {
+            "passed": "Pass",
+            "failed": "Fail",
+            "timedOut": "Fail",
+            "interrupted": "Fail",
+            "skipped": "Blocked",
+        }
+        return mapping.get((exec_status or "").lower(), mapping.get(exec_status, "Fail"))
+
+    async def _async_sync_execution_results(
+        self,
+        test_case_id_to_execution_id: Dict[str, str],
+        per_test_results: List[Dict[str, Any]],
+    ) -> List[Dict[str, Any]]:
+        """Push real pass/fail status back onto the Zephyr executions created
+        during publish. `test_case_id_to_execution_id` maps Prism's internal
+        test_case_id (the id embedded in each generated spec file's name) to
+        the Zephyr execution_id created for that test case. `per_test_results`
+        is the `per_test` list produced by TestExecutor after a real run.
+        """
+        sync_results: List[Dict[str, Any]] = []
+
+        if self.dry_run:
+            for entry in per_test_results or []:
+                tc_id = entry.get("test_case_id")
+                sync_results.append({
+                    "test_case_id": tc_id,
+                    "execution_id": test_case_id_to_execution_id.get(tc_id),
+                    "status": self._to_zephyr_status(entry.get("status", "")),
+                    "synced": True,
+                    "dry_run": True,
+                })
+            return sync_results
+
+        await self.connect()
+        try:
+            for entry in per_test_results or []:
+                tc_id = entry.get("test_case_id")
+                execution_id = test_case_id_to_execution_id.get(tc_id)
+                if not tc_id or not execution_id:
+                    logger.warning(
+                        "Skipping Zephyr sync for test result %s — no matching "
+                        "execution_id (published under a different/unknown test_case_id?)",
+                        entry.get("title") or tc_id,
+                    )
+                    sync_results.append({
+                        "test_case_id": tc_id,
+                        "execution_id": None,
+                        "status": None,
+                        "synced": False,
+                        "error": "no matching execution_id",
+                    })
+                    continue
+
+                zephyr_status = self._to_zephyr_status(entry.get("status", ""))
+                duration_ms = entry.get("duration_ms")
+                comment = entry.get("error") or f"Synced from Prism run ({entry.get('title', '')})"
+                if duration_ms is not None:
+                    comment += f" — {duration_ms}ms"
+
+                result_obj = ZephyrTestResult(
+                    test_case_key=tc_id,
+                    status=zephyr_status,
+                    comment=comment[:1000],
+                )
+                try:
+                    await self.update_test_execution(execution_id, result_obj)
+                    sync_results.append({
+                        "test_case_id": tc_id,
+                        "execution_id": execution_id,
+                        "status": zephyr_status,
+                        "synced": True,
+                    })
+                    logger.info(
+                        "Synced execution %s for test %s -> %s",
+                        execution_id, tc_id, zephyr_status,
+                    )
+                except Exception as exc:
+                    logger.exception(
+                        "Failed to sync execution result for test_case_id=%s (execution_id=%s)",
+                        tc_id, execution_id,
+                    )
+                    sync_results.append({
+                        "test_case_id": tc_id,
+                        "execution_id": execution_id,
+                        "status": zephyr_status,
+                        "synced": False,
+                        "error": str(exc),
+                    })
+        finally:
+            await self.close()
+
+        return sync_results
+
+    def sync_execution_results(
+        self,
+        test_case_id_to_execution_id: Dict[str, str],
+        per_test_results: List[Dict[str, Any]],
+    ) -> List[Dict[str, Any]]:
+        """Sync wrapper for _async_sync_execution_results — mirrors the
+        publish_test_cases / _async_publish_live pattern already used above."""
+        if not per_test_results:
+            return []
+        return _run_async_safely(
+            lambda: self._async_sync_execution_results(
+                test_case_id_to_execution_id, per_test_results
+            )
+        )
