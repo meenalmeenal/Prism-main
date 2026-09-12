@@ -68,21 +68,50 @@ class MetricsTracker:
         issue_key: str
             Jira issue key
         execution_results: Dict[str, Any]
-            Execution results from TestExecutor
+            Execution results from TestExecutor containing per_test
         """
+        raw_per_test = execution_results.get("per_test")
+        if raw_per_test is not None:
+            per_test = [
+                {
+                    "test_case_id": str(t.get("test_case_id", "unknown")),
+                    "title": str(t.get("title", "Test Case")),
+                    "status": str(t.get("status", "Not Executed")),
+                    "duration_ms": int(t.get("duration_ms", 0)),
+                }
+                for t in raw_per_test
+            ]
+        else:
+            per_test = []
+            for tr in execution_results.get("test_results", []):
+                st = tr.get("status", "")
+                norm_st = "Pass" if st == "passed" else ("Fail" if st in {"failed", "error"} else (st or "Not Executed"))
+                per_test.append({
+                    "test_case_id": str(tr.get("test_name", tr.get("test_file", "unknown"))),
+                    "title": str(tr.get("test_name", "Test Case")),
+                    "status": norm_st,
+                    "duration_ms": int(tr.get("duration_ms", 0)),
+                })
+
+        passed_count = execution_results.get("passed", sum(1 for t in per_test if t.get("status") in {"Pass", "passed"}))
+        failed_count = execution_results.get("failed", sum(1 for t in per_test if t.get("status") in {"Fail", "failed", "error"}))
+        skipped_count = execution_results.get("skipped", sum(1 for t in per_test if t.get("status") in {"Skip", "skipped"}))
+        total_count = execution_results.get("total_tests", len(per_test))
+
         entry = {
             "issue_key": issue_key,
             "timestamp": datetime.now().isoformat(),
-            "total_tests": execution_results.get("total_tests", 0),
-            "passed": execution_results.get("passed", 0),
-            "failed": execution_results.get("failed", 0),
-            "skipped": execution_results.get("skipped", 0),
+            "total_tests": total_count,
+            "passed": passed_count,
+            "failed": failed_count,
+            "skipped": skipped_count,
             "duration_seconds": execution_results.get("duration_seconds", 0),
             "pass_rate": (
-                execution_results.get("passed", 0) / execution_results.get("total_tests", 1) * 100
-                if execution_results.get("total_tests", 0) > 0
+                passed_count / total_count * 100
+                if total_count > 0
                 else 0
             ),
+            "per_test": per_test,
         }
 
         self._db["executions"].append(entry)
@@ -139,33 +168,109 @@ class MetricsTracker:
             ),
         }
 
-    def get_flaky_test_report(self) -> List[Dict[str, Any]]:
-        """Identify flaky tests from execution history."""
-        test_stability = defaultdict(list)
+    def get_flaky_test_report(self, n_runs: int = 10) -> List[Dict[str, Any]]:
+        """Identify flaky tests from execution history.
 
-        for execution in self._db.get("executions", []):
-            issue_key = execution.get("issue_key", "unknown")
-            for result in execution.get("execution_results", {}).get("test_results", []):
-                test_file = result.get("test_file", "unknown")
-                status = result.get("status", "unknown")
-                test_stability[f"{issue_key}:{test_file}"].append(status)
+        Definition:
+        -----------
+        A test is considered flaky if, across the last N runs (default N=10),
+        it has both at least one 'Pass' and at least one 'Fail', and has >= 2 total runs.
+
+        Note on Track B Integration:
+        ----------------------------
+        The `per_test` list is populated by Track B's executor. This report will be
+        legitimately empty until Track B merges or execution results containing `per_test`
+        are recorded.
+
+        Parameters
+        ----------
+        n_runs : int
+            Number of recent execution runs to analyze (default is 10).
+
+        Returns
+        -------
+        List[Dict[str, Any]]
+            List of flaky test dictionaries sorted by flaky_ratio descending:
+            - test_case_id: str
+            - title: str
+            - runs: int (total execution runs considered)
+            - pass_count: int (number of 'Pass' runs)
+            - fail_count: int (number of 'Fail' runs)
+            - flip_count: int (adjacent status changes between Pass and Fail in chronological order)
+            - flaky_ratio: float (calculated as min(pass_count, fail_count) / runs)
+            - avg_duration_ms: float (average duration across runs in ms)
+            - last_status: str (status from the most recent run)
+        """
+        executions = self._db.get("executions", [])
+        recent_executions = executions[-n_runs:] if len(executions) > n_runs else executions
+
+        skipped_legacy_count = 0
+        test_histories = defaultdict(list)
+        test_metadata = {}
+
+        for execution in recent_executions:
+            per_test = execution.get("per_test")
+            if per_test is None:
+                skipped_legacy_count += 1
+                continue
+
+            for t in per_test:
+                tc_id = t.get("test_case_id", "unknown")
+                title = t.get("title", tc_id)
+                status = str(t.get("status", "")).strip()
+                duration = t.get("duration_ms", 0)
+
+                test_metadata[tc_id] = title
+                test_histories[tc_id].append({
+                    "status": status,
+                    "duration_ms": duration,
+                })
+
+        if skipped_legacy_count > 0:
+            logger.info("Skipped %d legacy execution record(s) lacking per_test data", skipped_legacy_count)
 
         flaky_tests = []
-        for test_id, statuses in test_stability.items():
-            if len(statuses) >= 3:  # Need multiple runs to determine flakiness
-                pass_count = statuses.count("passed")
-                fail_count = statuses.count("failed")
-                if pass_count > 0 and fail_count > 0:
-                    flakiness_rate = (min(pass_count, fail_count) / len(statuses)) * 100
-                    flaky_tests.append({
-                        "test_id": test_id,
-                        "total_runs": len(statuses),
-                        "pass_count": pass_count,
-                        "fail_count": fail_count,
-                        "flakiness_rate": round(flakiness_rate, 2),
-                    })
+        for tc_id, history in test_histories.items():
+            if len(history) < 2:
+                continue
 
-        return sorted(flaky_tests, key=lambda x: x["flakiness_rate"], reverse=True)
+            norm_statuses = [
+                "Pass" if h["status"].lower() in {"pass", "passed"}
+                else ("Fail" if h["status"].lower() in {"fail", "failed", "error"} else h["status"])
+                for h in history
+            ]
+
+            pass_count = norm_statuses.count("Pass")
+            fail_count = norm_statuses.count("Fail")
+
+            if pass_count >= 1 and fail_count >= 1:
+                flip_count = 0
+                prev_status = None
+                for s in norm_statuses:
+                    if s in {"Pass", "Fail"}:
+                        if prev_status is not None and s != prev_status:
+                            flip_count += 1
+                        prev_status = s
+
+                runs = len(history)
+                flaky_ratio = round(min(pass_count, fail_count) / runs, 2)
+                durations = [h["duration_ms"] for h in history if isinstance(h["duration_ms"], (int, float))]
+                avg_duration_ms = round(sum(durations) / len(durations), 2) if durations else 0.0
+                last_status = history[-1]["status"]
+
+                flaky_tests.append({
+                    "test_case_id": tc_id,
+                    "title": test_metadata.get(tc_id, tc_id),
+                    "runs": runs,
+                    "pass_count": pass_count,
+                    "fail_count": fail_count,
+                    "flip_count": flip_count,
+                    "flaky_ratio": flaky_ratio,
+                    "avg_duration_ms": avg_duration_ms,
+                    "last_status": last_status,
+                })
+
+        return sorted(flaky_tests, key=lambda x: (x["flaky_ratio"], x["flip_count"]), reverse=True)
 
     def generate_dashboard_data(self) -> Dict[str, Any]:
         """Generate comprehensive dashboard data."""

@@ -8,7 +8,7 @@ import os
 import sys
 import json
 import logging
-from typing import List, Dict
+from typing import List, Dict, Optional, Any
 from src.utils.security import pii_scanner
 from src.utils.pii_masker import mask_pii
 from pathlib import Path
@@ -127,13 +127,17 @@ class AITestGenerator:
                 continue
 
         # Only reached if every model in models_to_try failed
-        raise last_err
+        if last_err is not None:
+            raise last_err
+        raise RuntimeError("All Groq models failed to respond.")
 
     def generate_test_cases(
         self,
         issue_key: str,
         summary: str,
         acceptance_criteria: List[str],
+        past_failures: Optional[List[Any]] = None,
+        resolved_failures: Optional[List[Any]] = None,
     ) -> List[Dict]:
         """Generate comprehensive test cases from acceptance criteria using AI."""
         if not self.client:
@@ -146,6 +150,8 @@ class AITestGenerator:
             issue_key=issue_key,
             summary=summary,
             acceptance_criteria=acceptance_criteria,
+            past_failures=past_failures,
+            resolved_failures=resolved_failures,
         )
 
         try:
@@ -377,8 +383,14 @@ class RuleBasedTestGenerator:
         issue_key: str,
         summary: str,
         acceptance_criteria: List[str],
+        past_failures: Optional[List[Any]] = None,
+        resolved_failures: Optional[List[Any]] = None,
     ) -> List[Dict]:
-        """Generate rule-based test cases."""
+        """Generate rule-based test cases.
+
+        Note: past_failures and resolved_failures exist for signature parity with
+        AITestGenerator but are ignored by this deterministic offline generator.
+        """
         summary = mask_pii(summary)
         if acceptance_criteria:
             acceptance_criteria = [mask_pii(ac) for ac in acceptance_criteria]

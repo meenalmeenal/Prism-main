@@ -37,10 +37,28 @@ from src.feedback.feedback_store import FeedbackStore, TestFeedback
 from src.integrations.zephyr_client import ZephyrClient
 from src.utils.pii_masker import mask_pii
 from datetime import datetime
+from dataclasses import asdict
 import json
 
 
 logger = logging.getLogger(__name__)
+
+
+def _normalize_status(raw: Any) -> str:
+    """Map any executor status onto the per_test contract vocabulary.
+
+    Returns one of: 'Pass' | 'Fail' | 'Skip' | 'Not Executed'
+    """
+    if raw is None:
+        return "Not Executed"
+    val = str(raw).strip().lower()
+    if val in {"passed", "pass", "ok"}:
+        return "Pass"
+    elif val in {"failed", "fail", "timedout", "interrupted", "error"}:
+        return "Fail"
+    elif val in {"skipped", "skip"}:
+        return "Skip"
+    return "Not Executed"
 
 
 async def run_enhanced_pipeline_async(
@@ -213,23 +231,52 @@ async def run_enhanced_pipeline_async(
         execution_results: Dict[str, Any] = core_result.get("execution_results", {})
 
         # ------------------------------------------------------------------
-        # 4) Feedback collection (failed tests)
+        # 4) Feedback resolution and collection (per_test contract)
         # ------------------------------------------------------------------
         feedback_entries: List[Dict[str, Any]] = []
         if execution_results:
             store = FeedbackStore()
-            for tr in execution_results.get("test_results", []):
-                if tr.get("status") not in {"failed", "error"}:
-                    continue
-                fb = TestFeedback(
-                    test_case_id=tr.get("test_name", tr.get("test_file", "unknown")),
-                    issue_key=issue_key,
-                    error_message=mask_pii(tr.get("error", tr.get("stderr", "")) or "Unknown error"),
-                    test_steps=[],
-                    timestamp=datetime.now().isoformat(),
-                )
-                store.add_feedback(fb)
-                feedback_entries.append(fb.__dict__)
+            # Consume per_test list per shared contract, with fallback to legacy test_results
+            per_test_items = execution_results.get("per_test")
+            if per_test_items is None:
+                per_test_items = []
+                for tr in execution_results.get("test_results", []):
+                    st = tr.get("status", "")
+                    norm_st = "Fail" if st in {"failed", "error"} else ("Pass" if st == "passed" else st)
+                    per_test_items.append({
+                        "test_case_id": tr.get("test_name", tr.get("test_file", "unknown")),
+                        "title": tr.get("test_name", "Test Case"),
+                        "status": norm_st,
+                        "duration_ms": 0,
+                        "error": tr.get("error", tr.get("stderr", "")),
+                    })
+
+            for item in per_test_items:
+                tc_id = item.get("test_case_id") or item.get("title") or "unknown"
+                status = _normalize_status(item.get("status"))
+
+                if status == "Pass":
+                    try:
+                        store.mark_resolved(tc_id)
+                    except Exception as exc:
+                        logger.warning("Failed to mark feedback resolved for %s: %s", tc_id, exc)
+                elif status == "Fail":
+                    err_msg = item.get("error") or item.get("error_message") or f"Test {tc_id} failed execution"
+                    item_title = item.get("title") or ""
+                    fb = TestFeedback(
+                        test_case_id=tc_id,
+                        issue_key=issue_key,
+                        error_message=mask_pii(str(err_msg)),
+                        test_steps=[],
+                        timestamp=datetime.now().isoformat(),
+                        title=item_title,
+                    )
+                    try:
+                        store.add_feedback(fb)
+                        feedback_entries.append(asdict(fb))
+                    except Exception as exc:
+                        logger.warning("Failed to record feedback for %s: %s", tc_id, exc)
+
             if feedback_entries:
                 logger.info("Feedback recorded for AI improvement (%d entries)", len(feedback_entries))
 

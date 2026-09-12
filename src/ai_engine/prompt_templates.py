@@ -4,7 +4,7 @@ Prompt templates for AI test case generation.
 This file contains all prompt engineering logic separated from AI client code.
 """
 
-from typing import List, Dict
+from typing import List, Dict, Optional, Any
 
 
 class PromptTemplates:
@@ -14,7 +14,9 @@ class PromptTemplates:
     def get_test_generation_prompt(
         issue_key: str, 
         summary: str, 
-        acceptance_criteria: List[str]
+        acceptance_criteria: List[str],
+        past_failures: Optional[List[Any]] = None,
+        resolved_failures: Optional[List[Any]] = None,
     ) -> str:
         """
         Build the main prompt for generating test cases from acceptance criteria.
@@ -23,6 +25,8 @@ class PromptTemplates:
             issue_key: Jira issue key (e.g., "ZT-3")
             summary: Issue summary/title
             acceptance_criteria: List of acceptance criteria strings
+            past_failures: Optional list of past TestFeedback or failure dicts
+            resolved_failures: Optional list of resolved TestFeedback or failure dicts
             
         Returns:
             Complete prompt string for the AI model
@@ -30,6 +34,59 @@ class PromptTemplates:
         
         # Format acceptance criteria as numbered list
         acs_text = "\n".join([f"{i}. {ac}" for i, ac in enumerate(acceptance_criteria, 1)])
+
+        failures_section = ""
+        if past_failures:
+            recent_failures = past_failures[-10:] if len(past_failures) > 10 else past_failures
+            failure_lines = []
+            for f in recent_failures:
+                if hasattr(f, "test_case_id") and hasattr(f, "error_message"):
+                    t_val = getattr(f, "title", None)
+                    title = (t_val or "").strip() or getattr(f, "test_case_id", "Test Case")
+                    reason = getattr(f, "error_message", "Unknown error")
+                elif isinstance(f, dict):
+                    title = (f.get("title") or "").strip() or f.get("test_case_id") or "Test Case"
+                    reason = f.get("error_message") or f.get("error") or f.get("reason") or "Unknown error"
+                else:
+                    title = "Test Case"
+                    reason = str(f)
+                reason_str = str(reason).strip()[:300]
+                failure_lines.append(f"- {title} — failed because: {reason_str}")
+
+            if failure_lines:
+                failures_text = "\n".join(failure_lines)
+                failures_section = (
+                    "\n\n## Known past failures for this issue (learn from these)\n"
+                    f"{failures_text}\n"
+                    "Avoid regenerating these as-is. Prefer corrected steps, more precise selectors,\n"
+                    "and explicit preconditions. Do not silently drop coverage these cases intended."
+                )
+
+        resolved_section = ""
+        if resolved_failures:
+            recent_resolved = resolved_failures[-5:] if len(resolved_failures) > 5 else resolved_failures
+            resolved_lines = []
+            for f in recent_resolved:
+                if hasattr(f, "test_case_id") and hasattr(f, "error_message"):
+                    t_val = getattr(f, "title", None)
+                    title = (t_val or "").strip() or getattr(f, "test_case_id", "Test Case")
+                    reason = getattr(f, "error_message", "Resolved issue")
+                elif isinstance(f, dict):
+                    title = (f.get("title") or "").strip() or f.get("test_case_id") or "Test Case"
+                    reason = f.get("error_message") or f.get("error") or f.get("reason") or "Resolved issue"
+                else:
+                    title = "Test Case"
+                    reason = str(f)
+                reason_str = str(reason).strip()[:300]
+                resolved_lines.append(f"- {title} — was failing because: {reason_str}")
+
+            if resolved_lines:
+                resolved_text = "\n".join(resolved_lines)
+                resolved_section = (
+                    "\n\n## Previously fixed for this issue — do not reintroduce\n"
+                    f"{resolved_text}\n"
+                    "Ensure new test cases preserve fixes and avoid re-triggering these resolved failure modes."
+                )
         
         # Build the complete prompt
         prompt = f"""You are an expert QA engineer specializing in test case design. Your task is to generate comprehensive, detailed test cases for a software feature.
@@ -39,7 +96,7 @@ class PromptTemplates:
 - Feature Summary: {summary}
 
 **Acceptance Criteria:**
-{acs_text}
+{acs_text}{failures_section}{resolved_section}
 
 **Your Task:**
 Generate 8-10 detailed test cases that thoroughly cover the acceptance criteria above. Include:

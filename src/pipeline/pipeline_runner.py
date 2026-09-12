@@ -63,6 +63,85 @@ def _configure_logging() -> None:
         )
 
 
+def _fetch_past_failures(
+    issue_key: str,
+) -> Tuple[Optional[List[Any]], Optional[List[Any]]]:
+    """Fetch unresolved and resolved past failures from FeedbackStore for prompt injection.
+
+    Applies mask_pii() to text fields (error_message, test_steps, title) using dataclasses.replace()
+    so that the on-disk store remains unmutated while the prompt receives sanitized feedback.
+    """
+    try:
+        from src.feedback.feedback_store import FeedbackStore
+        store = FeedbackStore()
+        all_feedback = store.get_feedback_for_issue(issue_key, include_resolved=True)
+    except Exception as exc:
+        logger.warning("Could not load feedback for %s: %s", issue_key, exc)
+        return None, None
+
+    from dataclasses import replace, is_dataclass
+    from src.utils.pii_masker import mask_pii
+
+    def _mask_step(step: Any) -> Any:
+        if isinstance(step, dict):
+            return {
+                k: mask_pii(str(v or "")) if isinstance(v, str) else v
+                for k, v in step.items()
+            }
+        elif isinstance(step, str):
+            return mask_pii(step or "")
+        return step
+
+    masked_feedback = []
+    for f in all_feedback:
+        try:
+            # Mask error_message, title, and test_steps (even if PromptTemplates doesn't currently render
+            # test_steps, we mask it here so future template changes cannot silently leak PII).
+            if is_dataclass(f):
+                raw_err = getattr(f, "error_message", None)
+                masked_err = mask_pii(raw_err or "") if raw_err is not None else ""
+                raw_steps = getattr(f, "test_steps", None) or []
+                masked_steps = [_mask_step(s) for s in raw_steps]
+                raw_title = getattr(f, "title", None)
+                masked_title = mask_pii(raw_title or "") if raw_title is not None else ""
+
+                kwargs = {"error_message": masked_err, "test_steps": masked_steps}
+                if hasattr(f, "title"):
+                    kwargs["title"] = masked_title
+                masked_item = replace(f, **kwargs)
+            elif isinstance(f, dict):
+                masked_item = dict(f)
+                raw_err = masked_item.get("error_message") or masked_item.get("error") or ""
+                masked_err = mask_pii(str(raw_err or ""))
+                masked_item["error_message"] = masked_err
+                if "error" in masked_item:
+                    masked_item["error"] = masked_err
+                if "title" in masked_item:
+                    masked_item["title"] = mask_pii(str(masked_item["title"] or ""))
+                if "test_steps" in masked_item and isinstance(masked_item["test_steps"], list):
+                    masked_item["test_steps"] = [_mask_step(s) for s in masked_item["test_steps"]]
+            else:
+                masked_item = f
+            masked_feedback.append(masked_item)
+        except Exception as exc:
+            logger.warning(
+                "Failed to mask feedback item %s for %s, skipping: %s",
+                getattr(f, "test_case_id", None) or (f.get("test_case_id") if isinstance(f, dict) else None) or "<unknown>",
+                issue_key,
+                exc,
+            )
+
+    unresolved = [
+        f for f in masked_feedback
+        if not getattr(f, "resolved", False) and not (isinstance(f, dict) and f.get("resolved", False))
+    ]
+    resolved = [
+        f for f in masked_feedback
+        if getattr(f, "resolved", False) or (isinstance(f, dict) and f.get("resolved", False))
+    ]
+    return (unresolved if unresolved else None, resolved if resolved else None)
+
+
 # ---------------------------------------------------------------------------
 # Core pipeline
 # ---------------------------------------------------------------------------
@@ -155,7 +234,10 @@ def run_pipeline(
             result["jira_error"] = msg
             return result
 
-    # 2. Generate test cases (rule-based only in this phase) ---------------------------
+    # 2. Generate test cases ------------------------------------------------------------
+    past_failures, resolved_failures = _fetch_past_failures(normalized_issue.issue_key)
+    logger.info("Injected %d past failures into prompt for %s", len(past_failures or []), normalized_issue.issue_key)
+
     try:
         from src.utils.pii_masker import mask_pii
 
@@ -164,6 +246,8 @@ def run_pipeline(
             issue_key=normalized_issue.issue_key,
             summary=mask_pii(normalized_issue.summary),
             acceptance_criteria=[mask_pii(ac) for ac in normalized_issue.acceptance_criteria],
+            past_failures=past_failures,
+            resolved_failures=resolved_failures,
         )
         if generated_cases:
             used_fallback = False
@@ -172,10 +256,13 @@ def run_pipeline(
             raise ValueError("Groq returned empty list")
     except Exception as exc:
         logger.warning("Groq failed (%s) — falling back to rule-based for %s", exc, issue_key)
+        # RuleBasedTestGenerator is purely local template building (offline, no external network transmission)
         generated_cases = rule_based_generator.generate_test_cases(
             issue_key=normalized_issue.issue_key,
             summary=normalized_issue.summary,
             acceptance_criteria=normalized_issue.acceptance_criteria,
+            past_failures=past_failures,
+            resolved_failures=resolved_failures,
         )
         used_fallback = True
 

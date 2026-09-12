@@ -196,9 +196,17 @@ GITHUB_TOKEN=your-github-personal-access-token
 MAX_AI_RETRIES=3
 AI_RETRY_DELAY_SECONDS=2.0
 AI_FALLBACK_ENABLED=true
+
+# ──────────────────────────────────────────────
+# PII Masking Settings
+# ──────────────────────────────────────────────
+PII_URL_MASK_MODE=smart
 ```
 
 GitHub Token: Generate at GitHub → Settings → Developer Settings → Personal Access Tokens → Tokens (classic). Select the repo scope.
+
+- `PII_URL_MASK_MODE`: URL masking strategy: `smart` (default, redacts credentials and sensitive query tokens/keys), `strict` (replaces URL with `[URL]`), or `off` (no URL masking).
+- **Optional NLP Dependency**: `spacy` with `en_core_web_sm` model can be installed for enhanced person-name detection; if omitted, PII masking automatically falls back to rule-based detection without errors.
 
 ---
 
@@ -246,6 +254,16 @@ python -m src.pipeline.enhanced_pipeline api_spec https://raw.githubusercontent.
 ---
 
 ## Running Tests
+
+### Python Test Suite (Pytest)
+Run the unit test suite covering the feedback loop, metrics tracking, and PII masking:
+```bash
+.venv\Scripts\pytest -v   # Windows
+pytest -v                 # macOS/Linux
+```
+Currently 28 unit tests pass across `tests/`.
+
+> **Note on Pytest Collection Warnings**: Running pytest displays two harmless `PytestCollectionWarning`s for `TestExecutor` (`src/executor/test_executor.py`) and `TestValidator` (`src/validator/test_validator.py`) because their class names match pytest's test-discovery pattern.
 
 ### Playwright
 ```bash
@@ -316,6 +334,37 @@ Prism/
 
 ---
 
+## Building on top of `main`
+
+### Shared `per_test` Contract
+Execution results returned by the executor and passed into the pipeline must populate `per_test`:
+```python
+per_test = [{"test_case_id": str, "title": str, "status": str, "duration_ms": int}]
+```
+- **Location**: Resides on `execution_results["per_test"]`.
+- **Producer**: Automation executor (`TestExecutor`).
+- **Consumers**: `MetricsTracker.record_execution_metrics()` (for flaky test detection) and `enhanced_pipeline.py` (for failure feedback recording and resolution).
+- **Required Fields**: `title` is mandatory. The feedback loop renders `title` in prompt generation and falls back to bare test case IDs when empty.
+- **Status Vocabulary**: Must use normalized statuses: `"Pass" | "Fail" | "Skip" | "Not Executed"`.
+- **Status Normalization**: Reuse `_normalize_status()` from `src.pipeline.enhanced_pipeline`. Unnormalized status strings (e.g. `passed`, `failed`, `timedOut`) silently fail the `== "Pass"` equality check, preventing feedback records from resolving without raising an exception.
+
+### Behaviour Change Callout
+- `FeedbackStore.get_feedback_for_issue(issue_key, include_resolved=False)`: **Resolved records are now excluded by default.** Callers requiring all historical records (such as prompt generation in `pipeline_runner._fetch_past_failures()`) must explicitly pass `include_resolved=True`.
+
+### File Ownership & Integration Etiquette
+- **Track Ownership Map**:
+  - `src/integrations/zephyr_client.py` & `src/validator/test_validator.py`: Track A (Zephyr publishing & validation), then Track B (execution sync).
+  - `src/executor/test_executor.py` & `src/reporting/run_summary.py`: Track B (execution & CI/CD sync).
+  - `src/feedback/feedback_store.py`, `src/dashboard/metrics_tracker.py`, & `src/utils/pii_masker.py`: Track C (feedback loop, metrics, PII masking).
+  - **Shared Modules**: `src/pipeline/pipeline_runner.py` (all tracks), `src/ai_engine/ai_test_generator.py` and `src/ai_engine/prompt_templates.py` (Tracks A & C), `src/pipeline/enhanced_pipeline.py` (Tracks B & C).
+- **Ordering Constraint**: Track A restructures `zephyr_client.py` into the adapter architecture; Track B implements execution result sync methods on top of that adapter.
+- **Additive Rule**: In shared or cross-track files, make additive changes only (new optional arguments defaulting to `None`, new private helpers). Never rename, reorder, or remove existing public functions or parameters.
+- **Track B Pre-Merge Checklist**: Ensure `per_test` emits non-empty `title` fields, reuse `_normalize_status()`, and keep `pipeline_runner.py` edits strictly confined to call sites.
+
+For the complete reference of Track C public APIs, prompt caps, and PII masking behavior, see [`docs/feedback-loop-and-pii.md`](docs/feedback-loop-and-pii.md).
+
+---
+
 ## Metrics Dashboard
 
 Pipeline metrics are written to `data/dashboard_data.json` and can be viewed locally or fed into the dashboard view:
@@ -345,6 +394,8 @@ Pipeline metrics are written to `data/dashboard_data.json` and can be viewed loc
   }
 }
 ```
+
+> **Note on Flaky Test Reporting**: `MetricsTracker.get_flaky_test_report()` analyzes the `per_test` list across executions. It returns an empty list (`[]`) until the executor populates `per_test` in execution results.
 
 ---
 
