@@ -1,4 +1,3 @@
-
 """High-level pipeline orchestration for AI test generation.
 
 Flow
@@ -155,6 +154,27 @@ def run_pipeline(
             result["jira_error"] = msg
             return result
 
+    # 1b. Resolve active sprint (best-effort) — used to tag/link the Zephyr
+    # test cycle created during publishing (see step 4). This is purely
+    # informational if the Zephyr tier has no native sprint-link field;
+    # the adapter falls back to embedding the sprint label in the cycle
+    # name/description in that case (see zephyr_client.EssentialCloudAdapter).
+    project_key = issue_key.split("-")[0] if "-" in issue_key else os.getenv("ZEPHYR_PROJECT_KEY", "ZT")
+    sprint_id: Optional[int] = None
+    sprint_name: Optional[str] = None
+    if not requirements:
+        # Only meaningful for real Jira-backed issues (PR/spec-derived
+        # issue_keys like "PR-..."/"SPEC-..." won't have a real sprint).
+        try:
+            sprint_id = jira_client.get_active_sprint_id(project_key)
+            if sprint_id:
+                sprint_name = f"Sprint {sprint_id}"
+                logger.info("Resolved active sprint %s for project %s", sprint_id, project_key)
+            else:
+                logger.info("No active sprint found for project %s", project_key)
+        except Exception as exc:
+            logger.warning("Could not resolve active sprint for %s: %s", project_key, exc)
+
     # 2. Generate test cases (rule-based only in this phase) ---------------------------
     try:
         from src.utils.pii_masker import mask_pii
@@ -218,7 +238,7 @@ def run_pipeline(
     result["validated_test_cases"] = validated_cases
     result["validation_stats"] = stats
 
-    # 4. Publish to Zephyr mock ---------------------------------------------------------
+    # 4. Publish to Zephyr ---------------------------------------------------------------
     publish_results: List[Dict[str, Any]] = []
 
     if skip_zephyr:
@@ -226,7 +246,11 @@ def run_pipeline(
     else:
         if validated_cases:
             publish_results = zephyr_client.publish_test_cases(
-                issue_key, validated_cases, issue_id=normalized_issue.issue_id
+                issue_key,
+                validated_cases,
+                issue_id=normalized_issue.issue_id,
+                sprint_id=sprint_id,
+                sprint_name=sprint_name,
             )
         else:
             logger.warning("No validated test cases to publish for issue %s", issue_key)

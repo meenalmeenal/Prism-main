@@ -375,5 +375,8 @@ class JiraClient:
             return [ln.strip(" -*\t") for ln in value.splitlines() if ln.strip(" -*\t")]
         return [str(value)]
 
-
+    def get_active_sprint_id(self, project_key: str) -> Optional[int]:
+        """Public wrapper — find the active sprint ID for the project."""
+        return self._get_active_sprint_id(project_key)
+    
 __all__ = ["JiraClient", "NormalizedIssue"]

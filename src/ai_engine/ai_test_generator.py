@@ -367,6 +367,13 @@ class RuleBasedTestGenerator:
     The output schema is intentionally compatible with
     :class:`TestValidator`'s expectations and mirrors the structure used by
     :class:`AITestGenerator`.
+
+    NOTE: This generator now produces a ``ui_validation`` case per
+    acceptance criterion (in addition to positive/negative/boundary/
+    risk_based), matching the taxonomy the AI prompt schema allows
+    (see prompt_templates.PromptTemplates.get_json_schema()). This keeps
+    the AI and rule-based paths taxonomy-consistent so the validator's
+    ``valid_types`` enum is meaningful regardless of which generator ran.
     """
 
     def __init__(self) -> None:
@@ -451,6 +458,20 @@ class RuleBasedTestGenerator:
             )
             counter += 1
 
+            # UI validation case ---------------------------------------------
+            test_cases.append(
+                self._build_test_case(
+                    issue_key=issue_key,
+                    counter=counter,
+                    summary=summary,
+                    ac_description=ac_clean,
+                    ac_label=ac_short,
+                    test_type="ui_validation",
+                    priority="P3",
+                )
+            )
+            counter += 1
+
             # Risk-based case ----------------------------------------------
             test_cases.append(
                 self._build_test_case(
@@ -486,7 +507,7 @@ class RuleBasedTestGenerator:
         The structure is designed to satisfy :class:`TestValidator`:
 
         * ``id``: non-trivial, unique string identifier.
-        * ``type``: one of positive/negative/boundary/risk_based.
+        * ``type``: one of positive/negative/boundary/ui_validation/risk_based.
         * ``priority``: one of P1/P2/P3.
         * ``preconditions`` / ``steps`` / ``tags``: lists with realistic
           but deterministic content.
@@ -495,17 +516,19 @@ class RuleBasedTestGenerator:
         -------------------------
         We intentionally generate *semantically distinct* titles for each
         test type to avoid being removed by ``TestValidator._is_similar_title``,
-        which flags titles as duplicates when word-overlap similarity > 0.8.
+        which flags titles as duplicates when word-overlap or sequence
+        similarity > 0.8.
 
         - Positive: emphasises successful / expected behaviour.
         - Negative: emphasises failure, invalid input, or error handling.
         - Boundary: emphasises limits, extremes, and constraint validation.
+        - UI validation: emphasises field/control states and visual behaviour.
         - Risk-based: emphasises security vulnerabilities, authentication, or data integrity.
 
         Each template uses different core verbs and nouns so that the
-        positive/negative/boundary/risk_based titles share only a small subset of
-        words (typically just the subject phrase), keeping the similarity
-        ratio safely below the 0.8 threshold.
+        titles across types share only a small subset of words (typically
+        just the subject phrase), keeping the similarity ratio safely
+        below the 0.8 threshold.
         """
 
         tc_id = f"{issue_key}-RB-{counter:03d}"
@@ -576,6 +599,25 @@ class RuleBasedTestGenerator:
                     "expected_result": "Combined boundary conditions still meet the intent of the acceptance criterion or fail safely with clear messaging.",
                 },
             ]
+        elif test_type == "ui_validation":
+            steps = [
+                {
+                    "step_number": 1,
+                    "action": f"Load the UI area relevant to: {base_context} without submitting any data.",
+                    "expected_result": "All expected fields, labels, and buttons are visible with correct default enabled/disabled states.",
+                },
+                {
+                    "step_number": 2,
+                    "action": f"Interact with each field or control tied to: {ac_description} (focus, blur, partial input) without submitting.",
+                    "test_data": "Partial/incomplete values representative of a user mid-interaction.",
+                    "expected_result": "Field-level validation (required markers, format hints, character counters, button enable/disable state) behaves correctly in real time.",
+                },
+                {
+                    "step_number": 3,
+                    "action": "Resize the viewport or switch focus between controls to check layout and accessibility behaviour.",
+                    "expected_result": "Controls remain visible, correctly labelled, and usable; no layout breakage or lost focus state.",
+                },
+            ]
         else:  # risk_based
             steps = [
                 {
@@ -608,6 +650,8 @@ class RuleBasedTestGenerator:
             title = f"Failure handling: system rejects invalid or unauthorised scenario for {core_subject}"
         elif test_type == "boundary":
             title = f"Boundary conditions: limits and edge cases covered for {core_subject}"
+        elif test_type == "ui_validation":
+            title = f"UI validation: field states and controls correct for {core_subject}"
         else:  # risk_based
             title = f"Risk verification: system prevents security vulnerabilities or logical failures for {core_subject}"
 
